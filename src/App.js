@@ -1,6 +1,7 @@
 import React from "react";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
-import FrontDesk from "./components/FrontDesk";
+import FrontDesk from "./components/front-desk/FrontDesk";
+import WelcomePage from "./components/welcome-page/WelcomePage";
 // import RaceControl from "./components/RaceControl";
 // import LapLineTracker from "./components/LapLineTracker";
 // import LeaderBoard from "./components/LeaderBoard";
@@ -10,6 +11,7 @@ import FrontDesk from "./components/FrontDesk";
 const App = () => (
   <Router>
     <Routes>
+      <Route path="/" element={<WelcomePage />} />
       <Route path="/front-desk" element={<FrontDesk />} />
       {/* <Route path="/race-control" element={<RaceControl />} /> */}
       {/* <Route path="/lap-line-tracker" element={<LapLineTracker />} />
