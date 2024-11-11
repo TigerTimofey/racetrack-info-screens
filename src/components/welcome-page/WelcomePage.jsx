@@ -1,18 +1,15 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+// import LeaderBoardModal from "./LeaderBoardModal";
 import "./WelcomePage.css";
+import LeaderBoardModal from "../guest/leader-board/LeaderBoardModal";
 
-// Define roles based on the user type
 const roles = {
   Employee: {
-    SafetyOfficial:
-      "An employee who ensures safety and controls the race. Highly trained and always on-the-go.",
-    LapLineObserver:
-      "An employee who records when cars cross the lap line, stationed at the track with a portable device.",
-    FlagBearer:
-      "An employee who communicates safety instructions to race drivers using flags.",
-    Receptionist:
-      "An employee responsible for welcoming guests and registering race drivers at the front desk.",
+    SafetyOfficial: "An employee who ensures safety and controls the race.",
+    LapLineObserver: "Records when cars cross the lap line.",
+    FlagBearer: "Communicates safety instructions using flags.",
+    Receptionist: "Welcomes guests and registers race drivers at the desk.",
   },
   Guest: {
     RaceDriver:
@@ -25,7 +22,11 @@ const roles = {
 const WelcomePage = () => {
   const [userType, setUserType] = useState("");
   const [selectedRole, setSelectedRole] = useState("");
+  const [isModalOpen, setModalOpen] = useState(false);
   const navigate = useNavigate();
+
+  const openModal = () => setModalOpen(true);
+  const closeModal = () => setModalOpen(false);
 
   return (
     <div className="welcome-container">
@@ -76,7 +77,7 @@ const WelcomePage = () => {
         )}
       </div>
 
-      {/* Reserved Space for Role Description */}
+      {/* Role Description and Buttons */}
       <div className="role-description-placeholder">
         {selectedRole && (
           <div className="role-description">
@@ -86,12 +87,38 @@ const WelcomePage = () => {
                 className="welcome-button"
                 onClick={() => navigate("/front-desk")}
               >
-                Go to Front Desk
+                Front Desk
+              </button>
+            )}
+            {selectedRole === "SafetyOfficial" && (
+              <button
+                className="welcome-button"
+                onClick={() => navigate("/race-control")}
+              >
+                Race Control
+              </button>
+            )}
+            {selectedRole === "LapLineObserver" && (
+              <>
+                <button
+                  className="welcome-button"
+                  onClick={() => navigate("/lap-line-tracker")}
+                >
+                  Lap-line Tracker
+                </button>
+              </>
+            )}
+            {selectedRole === "RaceDriver" && (
+              <button className="welcome-button" onClick={openModal}>
+                Leader Board
               </button>
             )}
           </div>
         )}
       </div>
+
+      <LeaderBoardModal isOpen={isModalOpen} onClose={closeModal} />
+      {/* <LeaderBoardModal isOpen={isModalOpen} onClose={closeModal} /> */}
     </div>
   );
 };

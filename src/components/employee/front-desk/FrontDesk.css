@@ -16,6 +16,23 @@
   padding: 20px;
   position: relative;
 }
+/* Error Container */
+.error-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  background-color: #f2f2f2;
+  color: #d9534f;
+  text-align: center;
+}
+
+.error-message {
+  font-size: 2rem;
+  font-weight: bold;
+  margin-bottom: 20px;
+}
 
 .back-button {
   position: absolute;

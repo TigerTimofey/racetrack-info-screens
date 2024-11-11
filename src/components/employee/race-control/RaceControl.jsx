@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
-import { useSocket } from "../../hooks/useSocket";
+import { useSocket } from "../../../hooks/useSocket";
 import { useNavigate } from "react-router-dom";
-import config from "../../config";
-import "./FrontDesk.css";
+import config from "../../../config";
+import "./RaceControl.css";
 
-const FrontDesk = () => {
+const RaceControl = () => {
   const socket = useSocket();
   const navigate = useNavigate();
   const [authenticated, setAuthenticated] = useState(false);
@@ -14,15 +14,15 @@ const FrontDesk = () => {
   useEffect(() => {
     if (socket && !authenticated) {
       console.log("Attempting to authenticate...");
-      setLoading(true); // Start loading state
+      setLoading(true);
 
       // Simulate loading time before attempting authentication
       const loadingTimeout = setTimeout(() => {
-        socket.emit("authenticate", { key: config.keys.receptionist });
+        socket.emit("authenticate", { key: config.keys.safety });
 
         // Listen for authentication response
         socket.on("authenticated", (status) => {
-          setLoading(false); // Stop loading
+          setLoading(false);
           if (status) {
             setAuthenticated(true);
           } else {
@@ -31,7 +31,7 @@ const FrontDesk = () => {
         });
       }, 2000);
 
-      return () => clearTimeout(loadingTimeout); // Clean up timeout on unmount
+      return () => clearTimeout(loadingTimeout);
     }
   }, [socket, authenticated]);
 
@@ -40,7 +40,21 @@ const FrontDesk = () => {
     return (
       <div className="loading-container">
         <div className="spinner"></div>
-        <p>Authenticating "Receptionist" role...</p>
+        <p>Authenticating Safety Official</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    // Show error message and back button if the key is wrong
+    return (
+      <div className="error-container">
+        <div className="error-message">
+          <h3>{error}</h3>
+          <button className="back-button" onClick={() => navigate("/")}>
+            Back to Home
+          </button>
+        </div>
       </div>
     );
   }
@@ -50,14 +64,14 @@ const FrontDesk = () => {
   }
 
   return (
-    <div className="front-desk-container">
+    <div className="race-control-container">
       <button className="back-button" onClick={() => navigate("/")}>
         Back to Home
       </button>
-      <h2 className="front-title">Front Desk Interface</h2>
-      <p>Manage race sessions here</p>
+      <h2 className="race-control-title">Race Control Interface</h2>
+      <p>Manage the race operations here</p>
     </div>
   );
 };
 
-export default FrontDesk;
+export default RaceControl;
