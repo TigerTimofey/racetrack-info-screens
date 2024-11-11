@@ -16,7 +16,16 @@ io.on("connection", (socket) => {
   console.log("New client connected:", socket.id);
 
   socket.on("authenticate", (data) => {
-    const isAuthenticated = data.key === process.env.RECEPTIONIST_KEY;
+    let isAuthenticated = false;
+    console.log("data.key", data.key);
+    if (data.key === process.env.RECEPTIONIST_KEY) {
+      isAuthenticated = true;
+    } else if (data.key === process.env.OBSERVER_KEY) {
+      isAuthenticated = true;
+    } else if (data.key === process.env.SAFETY_KEY) {
+      isAuthenticated = true;
+    }
+
     socket.emit("authenticated", isAuthenticated);
     console.log(`Authentication status for ${socket.id}:`, isAuthenticated);
   });
