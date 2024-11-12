@@ -1,8 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-// import LeaderBoardModal from "./LeaderBoardModal";
 import "./WelcomePage.css";
-import LeaderBoardModal from "../guest/leader-board/LeaderBoardModal";
 
 const roles = {
   Employee: {
@@ -22,11 +20,7 @@ const roles = {
 const WelcomePage = () => {
   const [userType, setUserType] = useState("");
   const [selectedRole, setSelectedRole] = useState("");
-  const [isModalOpen, setModalOpen] = useState(false);
   const navigate = useNavigate();
-
-  const openModal = () => setModalOpen(true);
-  const closeModal = () => setModalOpen(false);
 
   return (
     <div className="welcome-container">
@@ -108,17 +102,50 @@ const WelcomePage = () => {
                 </button>
               </>
             )}
-            {selectedRole === "RaceDriver" && (
-              <button className="welcome-button" onClick={openModal}>
+            {selectedRole === "FlagBearer" && (
+              <>
+                <button
+                  className="welcome-button"
+                  onClick={() => navigate("/flag-bearers")}
+                >
+                  Flag Bearers
+                </button>
+              </>
+            )}
+            {(selectedRole === "RaceDriver" ||
+              selectedRole === "Spectator") && (
+              <button
+                className="welcome-button"
+                onClick={() => navigate("/leader-board")}
+              >
                 Leader Board
               </button>
+            )}
+            {selectedRole === "RaceDriver" && (
+              <>
+                <button
+                  className="welcome-button"
+                  onClick={() => navigate("/next-race")}
+                >
+                  Next Race
+                </button>
+                <button
+                  className="welcome-button"
+                  onClick={() => navigate("/race-countdown")}
+                >
+                  Race Countdown
+                </button>
+                <button
+                  className="welcome-button"
+                  onClick={() => navigate("/race-flags")}
+                >
+                  Race Flags
+                </button>
+              </>
             )}
           </div>
         )}
       </div>
-
-      <LeaderBoardModal isOpen={isModalOpen} onClose={closeModal} />
-      {/* <LeaderBoardModal isOpen={isModalOpen} onClose={closeModal} /> */}
     </div>
   );
 };
