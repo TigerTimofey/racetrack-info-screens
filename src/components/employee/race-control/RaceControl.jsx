@@ -16,11 +16,10 @@ const RaceControl = () => {
       console.log("Attempting to authenticate...");
       setLoading(true);
 
-      // Simulate loading time before attempting authentication
+      //PROVIDE PASSWORD FROM USER
       const loadingTimeout = setTimeout(() => {
         socket.emit("authenticate", { key: config.keys.safety });
 
-        // Listen for authentication response
         socket.on("authenticated", (status) => {
           setLoading(false);
           if (status) {
@@ -46,7 +45,6 @@ const RaceControl = () => {
   }
 
   if (error) {
-    // Show error message and back button if the key is wrong
     return (
       <div className="error-container">
         <div className="error-message">

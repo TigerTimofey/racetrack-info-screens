@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "./WelcomePage.css";
 
@@ -21,6 +21,10 @@ const WelcomePage = () => {
   const [userType, setUserType] = useState("");
   const [selectedRole, setSelectedRole] = useState("");
   const navigate = useNavigate();
+
+  useEffect(() => {
+    setSelectedRole("");
+  }, [userType]);
 
   return (
     <div className="welcome-container">
@@ -75,71 +79,101 @@ const WelcomePage = () => {
       <div className="role-description-placeholder">
         {selectedRole && (
           <div className="role-description">
-            <p>{roles[userType][selectedRole]}</p>
+            <p>
+              <b>{roles[userType][selectedRole]}</b>
+            </p>
+
             {selectedRole === "Receptionist" && (
               <button
-                className="welcome-button"
+                className="welcome-button learn-more"
                 onClick={() => navigate("/front-desk")}
               >
-                Front Desk
+                <div className="circle">
+                  <div className="icon arrow"></div>
+                </div>
+                <span className="button-text">Front Desk</span>
               </button>
             )}
+
             {selectedRole === "SafetyOfficial" && (
               <button
-                className="welcome-button"
+                className="welcome-button learn-more"
                 onClick={() => navigate("/race-control")}
               >
-                Race Control
+                <div className="circle">
+                  <div className="icon arrow"></div>
+                </div>
+                <span className="button-text">Race Control</span>
               </button>
             )}
+
             {selectedRole === "LapLineObserver" && (
-              <>
-                <button
-                  className="welcome-button"
-                  onClick={() => navigate("/lap-line-tracker")}
-                >
-                  Lap-line Tracker
-                </button>
-              </>
+              <button
+                className="welcome-button learn-more"
+                onClick={() => navigate("/lap-line-tracker")}
+              >
+                <div className="circle">
+                  <div className="icon arrow"></div>
+                </div>
+                <span className="button-text">Lap-line Tracker</span>
+              </button>
             )}
+
             {selectedRole === "FlagBearer" && (
-              <>
-                <button
-                  className="welcome-button"
-                  onClick={() => navigate("/flag-bearers")}
-                >
-                  Flag Bearers
-                </button>
-              </>
+              <button
+                className="welcome-button learn-more"
+                onClick={() => navigate("/flag-bearers")}
+              >
+                <div className="circle">
+                  <div className="icon arrow"></div>
+                </div>
+                <span className="button-text">Flag Bearers</span>
+              </button>
             )}
+
             {(selectedRole === "RaceDriver" ||
               selectedRole === "Spectator") && (
               <button
-                className="welcome-button"
+                className="welcome-button learn-more"
                 onClick={() => navigate("/leader-board")}
               >
-                Leader Board
+                <div className="circle">
+                  <div className="icon arrow"></div>
+                </div>
+                <span className="button-text">Leader Board</span>
               </button>
             )}
+
             {selectedRole === "RaceDriver" && (
               <>
                 <button
-                  className="welcome-button"
+                  className="welcome-button learn-more"
                   onClick={() => navigate("/next-race")}
                 >
-                  Next Race
+                  <div className="circle">
+                    <div className="icon arrow"></div>
+                  </div>
+                  <span className="button-text">Next Race</span>
                 </button>
+
                 <button
-                  className="welcome-button"
+                  className="welcome-button learn-more"
                   onClick={() => navigate("/race-countdown")}
                 >
-                  Race Countdown
+                  <div className="circle">
+                    <div className="icon arrow"></div>
+                  </div>
+                  <span className="button-text">Race Countdown</span>
                 </button>
+
                 <button
-                  className="welcome-button"
+                  className="welcome-button learn-more"
                   onClick={() => navigate("/race-flags")}
                 >
-                  Race Flags
+                  <div className="circle">
+                    <div className="icon arrow"></div>
+                  </div>
+                  <span className="button-text">Race Flags</span>
                 </button>
               </>
             )}

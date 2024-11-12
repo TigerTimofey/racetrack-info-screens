@@ -16,11 +16,10 @@ const LapLineTracker = () => {
       console.log("Attempting to authenticate...");
       setLoading(true);
 
-      // Simulate loading time before attempting authentication
+      //PROVIDE PASSWORD FROM USER
       const loadingTimeout = setTimeout(() => {
         socket.emit("authenticate", { key: config.keys.observer });
 
-        // Listen for authentication response
         socket.on("authenticated", (status) => {
           setLoading(false);
           if (status) {
@@ -36,7 +35,6 @@ const LapLineTracker = () => {
   }, [socket, authenticated]);
 
   if (loading) {
-    // Show loading spinner while authenticating
     return (
       <div className="loading-container">
         <div className="spinner"></div>

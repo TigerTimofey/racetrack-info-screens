@@ -14,15 +14,13 @@ const FrontDesk = () => {
   useEffect(() => {
     if (socket && !authenticated) {
       console.log("Attempting to authenticate...");
-      setLoading(true); // Start loading state
+      setLoading(true);
 
-      // Simulate loading time before attempting authentication
+      //PROVIDE PASSWORD FROM USER
       const loadingTimeout = setTimeout(() => {
         socket.emit("authenticate", { key: config.keys.receptionist });
-
-        // Listen for authentication response
         socket.on("authenticated", (status) => {
-          setLoading(false); // Stop loading
+          setLoading(false);
           if (status) {
             setAuthenticated(true);
           } else {
@@ -31,12 +29,11 @@ const FrontDesk = () => {
         });
       }, 2000);
 
-      return () => clearTimeout(loadingTimeout); // Clean up timeout on unmount
+      return () => clearTimeout(loadingTimeout);
     }
   }, [socket, authenticated]);
 
   if (loading) {
-    // Show loading spinner while authenticating
     return (
       <div className="loading-container">
         <div className="spinner"></div>

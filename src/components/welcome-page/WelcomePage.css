@@ -51,7 +51,6 @@
   border-color: #f2c200;
 }
 
-/* Placeholder for role selection - keeps space reserved */
 .role-selection-placeholder {
   min-height: 80px;
   width: 100%;
@@ -109,27 +108,93 @@
 }
 
 /* Welcome button styling */
-.welcome-button {
-  margin-top: 10px;
-  display: inline-block;
-  outline: 0;
-  cursor: pointer;
-  border-radius: 8px;
-  box-shadow: 0 2px 5px 0 rgb(213 217 217 / 50%);
-  background: #ffd814;
-  border: 1px solid #fcd200;
-  font-size: 13px;
-  height: 31px;
-  padding: 0 11px;
-  text-align: center;
-  width: 100%;
-  min-width: 200px;
-  font-weight: 500;
-  color: #0f1111;
-  transition: background-color 0.3s ease, border-color 0.3s ease;
+@import url("https://fonts.googleapis.com/css?family=Mukta:700");
+
+:root {
+  --bg: #f3f8fa;
+  --white: black;
+  --black: #ffd700;
+  --transition: all 0.45s cubic-bezier(0.65, 0, 0.076, 1);
 }
 
-.welcome-button:hover {
-  background: #f7ca00;
-  border-color: #f2c200;
+.welcome-button {
+  position: relative;
+  display: inline-block;
+  cursor: pointer;
+  outline: none;
+  border: 0;
+  background: transparent;
+  padding: 0;
+  font-size: inherit;
+  font-family: inherit;
+  width: 15rem;
+  height: auto;
+}
+
+.welcome-button .circle {
+  transition: var(--transition);
+  position: relative;
+  display: block;
+  width: 3rem;
+  height: 3rem;
+  background: var(--black);
+  border-radius: 1.625rem;
+}
+
+.welcome-button .circle .icon {
+  transition: var(--transition);
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  margin: auto;
+  background: var(--white);
+}
+
+.welcome-button .circle .icon.arrow {
+  transition: var(--transition);
+  left: 0.625rem;
+  width: 1.125rem;
+  height: 0.125rem;
+  background: none;
+}
+
+.welcome-button .circle .icon.arrow::before {
+  content: "";
+  position: absolute;
+  top: -0.25rem;
+  right: 0.0625rem;
+  width: 0.625rem;
+  height: 0.625rem;
+  border-top: 0.125rem solid var(--white);
+  border-right: 0.125rem solid var(--white);
+  transform: rotate(45deg);
+}
+
+.welcome-button .button-text {
+  transition: var(--transition);
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 0.75rem 0;
+  margin-left: 1.85rem;
+  color: white;
+  font-weight: 700;
+  line-height: 1.6;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.welcome-button:hover .circle {
+  width: 100%;
+}
+
+.welcome-button:hover .circle .icon.arrow {
+  background: var(--white);
+  transform: translate(1rem, 0);
+}
+
+.welcome-button:hover .button-text {
+  color: var(--white);
 }
