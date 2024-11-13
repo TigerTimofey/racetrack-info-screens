@@ -3,6 +3,9 @@ import { useNavigate } from "react-router-dom";
 import { useSocket } from "../../hooks/useSocket";
 import "./WelcomePage.css";
 
+import Lottie from "react-lottie";
+import loadingAnimation from "../../assets/lottie-animations/race.json";
+
 const roles = {
   Employee: {
     SafetyOfficial: "An employee who ensures safety and controls the race.",
@@ -58,12 +61,21 @@ const WelcomePage = () => {
     }, 500);
   };
 
+  const lottieOptions = {
+    loop: true,
+    autoplay: true,
+    animationData: loadingAnimation,
+  };
+
   return (
     <div className="welcome-container">
+      <div className="loading-animation">
+        <Lottie options={lottieOptions} height={200} />
+      </div>
       <h2 className="welcome-title">Welcome to the Beachside Racetrack</h2>
       <p className="welcome-subtitle">Select your role to get started</p>
-
       {/* Step 1: Choose User Type */}
+
       <div className="user-type-selection">
         <button
           className={`user-type-button ${
@@ -102,7 +114,6 @@ const WelcomePage = () => {
           Guest
         </button>
       </div>
-
       {/* Reserved Space for Role Selection */}
       <div className="role-selection-placeholder">
         {userType && (
@@ -135,7 +146,6 @@ const WelcomePage = () => {
           </div>
         )}
       </div>
-
       {/* Role Description and Buttons */}
       <div className="role-description-placeholder">
         {selectedRole && (

@@ -5,7 +5,8 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  height: 100vh;
+  height: auto; /* Изменено для динамического расширения */
+  min-height: 100vh; /* Гарантирует, что контейнер всегда будет по крайней мере высотой экрана */
   background: linear-gradient(135deg, #4b79a1, #283e51);
   color: #fff;
   text-align: center;
@@ -16,11 +17,19 @@
   font-size: 3.5em;
   font-family: "Anton", sans-serif;
   margin-bottom: 0.5em;
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -ms-user-select: none;
 }
 
 .welcome-subtitle {
   font-size: 1.2em;
   color: #d1d1d1;
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -ms-user-select: none;
 }
 
 /* Button selection styling */
@@ -28,6 +37,7 @@
   margin-top: 1em;
   display: flex;
   gap: 10px;
+  justify-content: center; /* Размещение кнопок по центру */
 }
 
 .user-type-button {
@@ -39,11 +49,12 @@
   font-weight: 500;
   cursor: pointer;
   transition: background-color 0.3s ease, border-color 0.3s ease;
-
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
+  position: relative;
+  z-index: 1;
 }
 
 .user-type-button:hover {
@@ -208,6 +219,7 @@
 .welcome-button:hover .button-text {
   color: var(--white);
 }
+
 /* Password Container Styling with Submit Button on the Right */
 .password-container {
   display: flex;
@@ -266,6 +278,7 @@
   margin-top: 5px;
   text-align: center;
 }
+
 /* Add styles for the disabled button */
 .submit-button.disabled {
   background-color: #d3d3d3;
@@ -284,4 +297,12 @@
   background-color: #d3d3d3;
   cursor: not-allowed;
   color: #a9a9a9;
+}
+
+/* Lottie */
+.loading-animation {
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -ms-user-select: none;
 }
