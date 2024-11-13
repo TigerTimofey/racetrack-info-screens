@@ -39,32 +39,6 @@
 }
 
 /* Back button styling */
-.back-button {
-  position: absolute;
-  top: 20px;
-  left: 20px;
-  display: inline-block;
-  outline: 0;
-  cursor: pointer;
-  border-radius: 8px;
-  box-shadow: 0 2px 5px 0 rgb(213 217 217 / 50%);
-  background: #ffd814;
-  border: 1px solid #fcd200;
-  font-size: 18px;
-  height: 31px;
-  padding: 0 11px;
-  text-align: center;
-  font-weight: 500;
-  color: #0f1111;
-  min-width: 200px;
-  transition: background-color 0.3s ease, border-color 0.3s ease;
-}
-
-.back-button:hover {
-  background: #f7ca00;
-  border-color: #f2c200;
-  box-shadow: 0 2px 5px 0 rgb(213 217 217 / 50%);
-}
 
 /* Loading container styling */
 .loading-container {

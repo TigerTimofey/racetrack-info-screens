@@ -34,33 +34,6 @@
   margin-bottom: 20px;
 }
 
-.back-button {
-  position: absolute;
-  top: 20px;
-  left: 20px;
-  display: inline-block;
-  outline: 0;
-  cursor: pointer;
-  border-radius: 8px;
-  box-shadow: 0 2px 5px 0 rgb(213 217 217 / 50%);
-  background: #ffd814;
-  border: 1px solid #fcd200;
-  font-size: 18px;
-  height: 31px;
-  padding: 0 11px;
-  text-align: center;
-  font-weight: 500;
-  color: #0f1111;
-  min-width: 200px;
-  transition: background-color 0.3s ease, border-color 0.3s ease;
-}
-
-.back-button:hover {
-  background: #f7ca00;
-  border-color: #f2c200;
-  box-shadow: 0 2px 5px 0 rgb(213 217 217 / 50%);
-}
-
 /* Center the loading spinner and text */
 .loading-container {
   display: flex;
@@ -91,4 +64,27 @@
   100% {
     transform: rotate(360deg);
   }
+}
+
+.race-control-container .back-to-main {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+}
+.back-to-main {
+  position: relative;
+  padding: 10px 20px;
+  font-size: 16px;
+  border-radius: 8px;
+  color: #0f1111;
+  transition: transform 0.3s ease;
+}
+
+.back-to-main:hover {
+  cursor: pointer;
+  transform: translateX(-7px);
+}
+
+.back-to-main:active {
+  transform: scale(0.95);
 }

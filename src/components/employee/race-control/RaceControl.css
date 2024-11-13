@@ -1,98 +1,14 @@
-@import url("https://fonts.googleapis.com/css?family=Anton|Roboto");
-
-.error-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  height: 100vh;
-  background: linear-gradient(135deg, #4b79a1, #283e51);
-  color: #fff;
-  text-align: center;
-  padding: 20px;
-}
-
-.error-message {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.5em;
-  color: #fff;
-}
-
-.error-message h3 {
-  margin-bottom: 20px;
-  font-size: 1.8em;
-}
-
-.back-button {
-  display: inline-block;
-  outline: 0;
-  cursor: pointer;
-  border-radius: 8px;
-  box-shadow: 0 2px 5px 0 rgb(213 217 217 / 50%);
-  background: #ffd814;
-  border: 1px solid #fcd200;
-  font-size: 18px;
-  height: 31px;
-  padding: 0 11px;
-  text-align: center;
-  font-weight: 500;
-  color: #0f1111;
-  min-width: 200px;
-  transition: background-color 0.3s ease, border-color 0.3s ease;
-}
-
-.back-button:hover {
-  background: #f7ca00;
-  border-color: #f2c200;
-  box-shadow: 0 2px 5px 0 rgb(213 217 217 / 50%);
-}
-
-/* Loading Spinner */
-.loading-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  height: 100vh;
-  font-size: 1.2em;
-  color: #333;
-}
-
-/* Spinner styling */
-.spinner {
-  border: 4px solid rgba(0, 0, 0, 0.1);
-  border-top: 4px solid #333;
-  border-radius: 50%;
-  width: 40px;
-  height: 40px;
-  animation: spin 1s linear infinite;
-  margin-bottom: 10px;
-}
-
-/* Animation for spinner */
-@keyframes spin {
-  0% {
-    transform: rotate(0deg);
-  }
-  100% {
-    transform: rotate(360deg);
-  }
-}
-
-/* Main Race Control Container */
 .race-control-container {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  width: 100vw;
   height: 100vh;
   background: linear-gradient(135deg, #4b79a1, #283e51);
   color: #fff;
   text-align: center;
-  padding: 20px;
+  overflow: hidden;
 }
 
 .race-control-title {
@@ -100,8 +16,20 @@
   font-family: "Anton", sans-serif;
 }
 
-.race-control-container .back-button {
-  position: absolute;
-  top: 20px;
-  left: 20px;
+.back-to-main {
+  position: relative;
+  padding: 10px 20px;
+  font-size: 16px;
+  border-radius: 8px;
+  color: #0f1111;
+  transition: transform 0.3s ease;
+}
+
+.back-to-main:hover {
+  cursor: pointer;
+  transform: translateX(-7px);
+}
+
+.back-to-main:active {
+  transform: scale(0.95);
 }

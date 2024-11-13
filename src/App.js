@@ -20,7 +20,7 @@ const App = () => (
       <Route path="/flag-bearers" element={<FlagBearers />} />
       <Route path="/leader-board" element={<LeaderBoard />} />
       <Route path="/next-race" element={<NextRace />} />
-      <Route path="/next-countdown" element={<RaceCountdown />} />
+      <Route path="/race-countdown" element={<RaceCountdown />} />
       <Route path="/race-flags" element={<RaceFlag />} />
     </Routes>
   </Router>
