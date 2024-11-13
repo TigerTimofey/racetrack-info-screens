@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useSocket } from "../../hooks/useSocket";
 import "./WelcomePage.css";
 
 const roles = {
@@ -20,11 +21,41 @@ const roles = {
 const WelcomePage = () => {
   const [userType, setUserType] = useState("");
   const [selectedRole, setSelectedRole] = useState("");
+  const [userPassword, setUserPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [authenticated, setAuthenticated] = useState(false);
+  const [waiting, setWaiting] = useState(false);
+
   const navigate = useNavigate();
+  const socket = useSocket();
 
   useEffect(() => {
     setSelectedRole("");
   }, [userType]);
+
+  const handleAuthentication = () => {
+    if (waiting) return;
+    setLoading(true);
+
+    setWaiting(true);
+
+    socket.emit("authenticate", { key: userPassword });
+
+    socket.on("authenticated", (status) => {
+      setLoading(false);
+      if (status) {
+        setAuthenticated(true);
+      } else {
+        setError("Invalid access key");
+      }
+    });
+
+    // Set precise 500ms timeout to reset waiting state
+    setTimeout(() => {
+      setWaiting(false);
+    }, 500);
+  };
 
   return (
     <div className="welcome-container">
@@ -82,7 +113,16 @@ const WelcomePage = () => {
               id="role-select"
               className="role-dropdown"
               value={selectedRole}
-              onChange={(e) => setSelectedRole(e.target.value)}
+              onChange={(e) => {
+                setSelectedRole(e.target.value);
+                if (
+                  e.target.value === "Receptionist" ||
+                  e.target.value === "LapLineObserver" ||
+                  e.target.value === "SafetyOfficial"
+                ) {
+                  setAuthenticated(false); // Reset authentication for restricted roles
+                }
+              }}
             >
               <option value="">Select a Role</option>
               {Object.keys(roles[userType]).map((roleKey) => (
@@ -103,7 +143,31 @@ const WelcomePage = () => {
               <b>{roles[userType][selectedRole]}</b>
             </p>
 
-            {selectedRole === "Receptionist" && (
+            {selectedRole === "Receptionist" && !authenticated && (
+              <>
+                <div className="password-container">
+                  <input
+                    type="password"
+                    id="password"
+                    value={userPassword}
+                    onChange={(e) => setUserPassword(e.target.value)}
+                    placeholder="Enter password"
+                  />
+                  <button
+                    onClick={handleAuthentication}
+                    disabled={loading || waiting}
+                    className={`submit-button ${
+                      loading || waiting ? "disabled" : ""
+                    }`}
+                  >
+                    {loading || waiting ? "Authenticating..." : "Submit"}
+                  </button>
+                </div>{" "}
+                {error && <p className="error-message-show">{error}</p>}
+              </>
+            )}
+
+            {authenticated && selectedRole === "Receptionist" && (
               <button
                 className="welcome-button learn-more"
                 onClick={() => navigate("/front-desk")}
@@ -115,7 +179,25 @@ const WelcomePage = () => {
               </button>
             )}
 
-            {selectedRole === "SafetyOfficial" && (
+            {selectedRole === "SafetyOfficial" && !authenticated && (
+              <>
+                <div className="password-container">
+                  <input
+                    type="password"
+                    id="password"
+                    value={userPassword}
+                    onChange={(e) => setUserPassword(e.target.value)}
+                    placeholder="Enter password"
+                  />
+                  <button onClick={handleAuthentication} disabled={loading}>
+                    {loading ? "Authenticating..." : "Submit"}
+                  </button>
+                </div>{" "}
+                {error && <p className="error-message-show">{error}</p>}
+              </>
+            )}
+
+            {authenticated && selectedRole === "SafetyOfficial" && (
               <button
                 className="welcome-button learn-more"
                 onClick={() => navigate("/race-control")}
@@ -127,7 +209,25 @@ const WelcomePage = () => {
               </button>
             )}
 
-            {selectedRole === "LapLineObserver" && (
+            {selectedRole === "LapLineObserver" && !authenticated && (
+              <>
+                <div className="password-container">
+                  <input
+                    type="password"
+                    id="password"
+                    value={userPassword}
+                    onChange={(e) => setUserPassword(e.target.value)}
+                    placeholder="Enter password"
+                  />
+                  <button onClick={handleAuthentication} disabled={loading}>
+                    {loading ? "Authenticating..." : "Submit"}
+                  </button>
+                </div>{" "}
+                {error && <p className="error-message-show">{error}</p>}
+              </>
+            )}
+
+            {authenticated && selectedRole === "LapLineObserver" && (
               <button
                 className="welcome-button learn-more"
                 onClick={() => navigate("/lap-line-tracker")}
@@ -136,18 +236,6 @@ const WelcomePage = () => {
                   <div className="icon arrow"></div>
                 </div>
                 <span className="button-text">Lap-line Tracker</span>
-              </button>
-            )}
-
-            {selectedRole === "FlagBearer" && (
-              <button
-                className="welcome-button learn-more"
-                onClick={() => navigate("/flag-bearers")}
-              >
-                <div className="circle">
-                  <div className="icon arrow"></div>
-                </div>
-                <span className="button-text">Flag Bearers</span>
               </button>
             )}
 

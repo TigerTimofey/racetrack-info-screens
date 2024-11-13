@@ -208,3 +208,80 @@
 .welcome-button:hover .button-text {
   color: var(--white);
 }
+/* Password Container Styling with Submit Button on the Right */
+.password-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 1em;
+  gap: 10px;
+}
+
+/* Password Input Styling */
+.password-container input[type="password"] {
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #fcd200;
+  background: #fff;
+  color: #0f1111;
+  font-size: 1em;
+  width: 100%;
+  max-width: 220px;
+  box-sizing: border-box;
+  transition: border-color 0.3s ease;
+}
+
+.password-container input[type="password"]:focus {
+  border-color: #4caf50;
+  outline: none;
+}
+
+/* Submit Button Styling */
+.password-container button {
+  padding: 10px 20px;
+  border-radius: 8px;
+  background: #4caf50; /* Green background */
+  border: 1px solid #3e8e41;
+  color: #fff;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+.password-container button:hover {
+  background: #45a049; /* Darker green on hover */
+  border-color: #3e8e41;
+}
+
+.password-container button:disabled {
+  background: #cccccc;
+  cursor: not-allowed;
+}
+
+/* Error Message Styling */
+.error-message-show {
+  color: #ff4c4c;
+  font-size: 1.3em;
+  font-weight: 700;
+  margin-top: 5px;
+  text-align: center;
+}
+/* Add styles for the disabled button */
+.submit-button.disabled {
+  background-color: #d3d3d3;
+  cursor: not-allowed;
+  color: #a9a9a9;
+}
+
+/* Style for the submit button when it is active */
+.submit-button {
+  background-color: #007bff;
+  color: white;
+  cursor: pointer;
+}
+
+.submit-button:disabled {
+  background-color: #d3d3d3;
+  cursor: not-allowed;
+  color: #a9a9a9;
+}
