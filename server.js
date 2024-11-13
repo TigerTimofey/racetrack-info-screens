@@ -12,20 +12,27 @@ const io = new Server(server, {
   },
 });
 
+// Map roles to passwords
+const rolePasswords = {
+  Receptionist: process.env.RECEPTIONIST_KEY,
+  LapLineObserver: process.env.OBSERVER_KEY,
+  SafetyOfficial: process.env.SAFETY_KEY,
+};
+
 io.on("connection", (socket) => {
   console.log("New client connected:", socket.id);
 
   socket.on("authenticate", (data) => {
+    const { key, role } = data; // Get both the key and role from the data
+
     let isAuthenticated = false;
-    console.log("data.key", data.key);
-    if (data.key === process.env.RECEPTIONIST_KEY) {
-      isAuthenticated = true;
-    } else if (data.key === process.env.OBSERVER_KEY) {
-      isAuthenticated = true;
-    } else if (data.key === process.env.SAFETY_KEY) {
+
+    // Check if the provided key matches the role's expected password
+    if (role && rolePasswords[role] && key === rolePasswords[role]) {
       isAuthenticated = true;
     }
 
+    // Emit the authentication result
     socket.emit("authenticated", isAuthenticated);
     console.log(`Authentication status for ${socket.id}:`, isAuthenticated);
   });
@@ -39,4 +46,3 @@ const PORT = process.env.PORT || 4000;
 server.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
-//hello

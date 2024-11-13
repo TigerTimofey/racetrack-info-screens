@@ -37,10 +37,9 @@ const WelcomePage = () => {
   const handleAuthentication = () => {
     if (waiting) return;
     setLoading(true);
-
     setWaiting(true);
 
-    socket.emit("authenticate", { key: userPassword });
+    socket.emit("authenticate", { key: userPassword, role: selectedRole });
 
     socket.on("authenticated", (status) => {
       setLoading(false);
@@ -48,12 +47,14 @@ const WelcomePage = () => {
         setAuthenticated(true);
       } else {
         setError("Invalid access key");
+        setUserPassword("");
       }
     });
 
     // Set precise 500ms timeout to reset waiting state
     setTimeout(() => {
       setWaiting(false);
+      setError("");
     }, 500);
   };
 
@@ -120,7 +121,7 @@ const WelcomePage = () => {
                   e.target.value === "LapLineObserver" ||
                   e.target.value === "SafetyOfficial"
                 ) {
-                  setAuthenticated(false); // Reset authentication for restricted roles
+                  setAuthenticated(false);
                 }
               }}
             >
@@ -142,7 +143,6 @@ const WelcomePage = () => {
             <p>
               <b>{roles[userType][selectedRole]}</b>
             </p>
-
             {selectedRole === "Receptionist" && !authenticated && (
               <>
                 <div className="password-container">
@@ -166,7 +166,6 @@ const WelcomePage = () => {
                 {error && <p className="error-message-show">{error}</p>}
               </>
             )}
-
             {authenticated && selectedRole === "Receptionist" && (
               <button
                 className="welcome-button learn-more"
@@ -178,7 +177,6 @@ const WelcomePage = () => {
                 <span className="button-text">Front Desk</span>
               </button>
             )}
-
             {selectedRole === "SafetyOfficial" && !authenticated && (
               <>
                 <div className="password-container">
@@ -196,7 +194,6 @@ const WelcomePage = () => {
                 {error && <p className="error-message-show">{error}</p>}
               </>
             )}
-
             {authenticated && selectedRole === "SafetyOfficial" && (
               <button
                 className="welcome-button learn-more"
@@ -208,7 +205,6 @@ const WelcomePage = () => {
                 <span className="button-text">Race Control</span>
               </button>
             )}
-
             {selectedRole === "LapLineObserver" && !authenticated && (
               <>
                 <div className="password-container">
@@ -226,7 +222,6 @@ const WelcomePage = () => {
                 {error && <p className="error-message-show">{error}</p>}
               </>
             )}
-
             {authenticated && selectedRole === "LapLineObserver" && (
               <button
                 className="welcome-button learn-more"
@@ -239,6 +234,17 @@ const WelcomePage = () => {
               </button>
             )}
 
+            {selectedRole === "FlagBearer" && (
+              <button
+                className="welcome-button learn-more"
+                onClick={() => navigate("/flag-bearers")}
+              >
+                <div className="circle">
+                  <div className="icon arrow"></div>
+                </div>
+                <span className="button-text">Flag Bearers</span>
+              </button>
+            )}
             {(selectedRole === "RaceDriver" ||
               selectedRole === "Spectator") && (
               <button
@@ -251,7 +257,6 @@ const WelcomePage = () => {
                 <span className="button-text">Leader Board</span>
               </button>
             )}
-
             {selectedRole === "RaceDriver" && (
               <>
                 <button
