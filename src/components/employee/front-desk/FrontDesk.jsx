@@ -1,5 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import Lottie from "react-lottie";
+import loadingAnimation from "../../../assets/lottie-animations/reception.json";
+import racerImage from "../../../assets/images/race.png";
+import raceImage from "../../../assets/images/flags.png";
 import "./FrontDesk.css";
 
 const FrontDesk = () => {
@@ -10,6 +14,27 @@ const FrontDesk = () => {
   const [startTime, setStartTime] = useState("");
   const [races, setRaces] = useState([]);
   const [editingRace, setEditingRace] = useState(null);
+  const [isLottieVisible, setIsLottieVisible] = useState(true);
+  const lottieOptions = {
+    loop: true,
+    autoplay: true,
+    animationData: loadingAnimation,
+  };
+
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth < 850) {
+        setIsLottieVisible(false);
+      } else {
+        setIsLottieVisible(true);
+      }
+    };
+
+    window.addEventListener("resize", handleResize);
+    handleResize();
+
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   useEffect(() => {
     const fetchRaces = async () => {
@@ -191,6 +216,7 @@ const FrontDesk = () => {
 
       <div className="forms-container">
         {/* Race Form */}
+
         <form onSubmit={handleSubmit} className="form">
           <div>
             <label>Race Name:</label>
@@ -213,7 +239,20 @@ const FrontDesk = () => {
           <button type="submit">
             {editingRace ? "Update Race" : "Add Race"}
           </button>
+          <img
+            src={raceImage}
+            alt="Racer"
+            style={{
+              width: "100px",
+              height: "auto",
+              marginTop: "10px",
+              padding: "10px",
+            }}
+          />
         </form>
+        <div className="loading-animation">
+          {isLottieVisible && <Lottie options={lottieOptions} width={350} />}
+        </div>
 
         {/* Racer Form */}
         <form onSubmit={handleAddRacer} className="form">
@@ -246,6 +285,16 @@ const FrontDesk = () => {
             </select>
           </div>
           <button type="submit">Add Racer</button>
+          <img
+            src={racerImage}
+            alt="Racer"
+            style={{
+              width: "100px",
+              height: "auto",
+              marginTop: "10px",
+              padding: "8px",
+            }}
+          />
         </form>
       </div>
 
