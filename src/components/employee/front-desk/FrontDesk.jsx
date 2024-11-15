@@ -4,12 +4,12 @@ import "./FrontDesk.css";
 
 const FrontDesk = () => {
   const navigate = useNavigate();
-  const [raceName, setRaceName] = useState("");
-  const [races, setRaces] = useState([]);
-  const [editingRace, setEditingRace] = useState(null); // State for editing race
-  console.log("re", races);
 
-  // Fetch the list of races when the component mounts
+  const [raceName, setRaceName] = useState("");
+  const [startTime, setStartTime] = useState("");
+  const [races, setRaces] = useState([]);
+  const [editingRace, setEditingRace] = useState(null);
+
   useEffect(() => {
     const fetchRaces = async () => {
       try {
@@ -32,11 +32,14 @@ const FrontDesk = () => {
     fetchRaces();
   }, []);
 
-  // Handle form submission to add or update a race
+  // Handle form submission for adding or updating a race
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const raceData = { raceName };
+    const raceData = {
+      raceName,
+      startTime,
+    };
 
     try {
       let response;
@@ -58,15 +61,17 @@ const FrontDesk = () => {
         if (response.ok) {
           setRaces((prevRaces) =>
             prevRaces.map((race) =>
-              race._id === editingRace._id ? { ...race, raceName } : race
+              race._id === editingRace._id ? { ...race, ...raceData } : race
             )
           );
           setEditingRace(null);
           setRaceName("");
+          setStartTime("");
         } else {
           alert("Error updating race: " + result.message);
         }
       } else {
+        // Add new race
         response = await fetch(
           `${process.env.REACT_APP_SERVER_URL}/api/races`,
           {
@@ -82,6 +87,7 @@ const FrontDesk = () => {
         if (response.ok) {
           console.log("Race added successfully!");
           setRaceName("");
+          setStartTime("");
           setRaces((prevRaces) => [
             ...prevRaces,
             { ...result, _id: result.raceId },
@@ -100,6 +106,7 @@ const FrontDesk = () => {
   const handleEdit = (race) => {
     setEditingRace(race);
     setRaceName(race.raceName);
+    setStartTime(race.startTime);
   };
 
   // Handle deleting a race
@@ -152,7 +159,15 @@ const FrontDesk = () => {
             required
           />
         </div>
-
+        <div>
+          <label>Start Time:</label>
+          <input
+            type="datetime-local"
+            value={startTime}
+            onChange={(e) => setStartTime(e.target.value)}
+            required
+          />
+        </div>
         <button type="submit">
           {editingRace ? "Update Race" : "Add Race"}
         </button>
@@ -165,7 +180,7 @@ const FrontDesk = () => {
           <ul>
             {races.map((race) => (
               <li key={race._id}>
-                {race.raceName}
+                {race.raceName} - {new Date(race.startTime).toLocaleString()}
                 <button onClick={() => handleEdit(race)}>
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -184,18 +199,17 @@ const FrontDesk = () => {
                     width="16"
                     height="16"
                     fill="currentColor"
-                    className="bi bi-trash"
+                    className="bi bi-trash3"
                     viewBox="0 0 16 16"
                   >
-                    <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z" />
-                    <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z" />
+                    <path d="M6.5 1h3a.5.5 0 0 1 .5.5v1H6v-1a.5.5 0 0 1 .5-.5M11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3A1.5 1.5 0 0 0 5 1.5v1H1.5a.5.5 0 0 0 0 1h.538l.853 10.66A2 2 0 0 0 4.885 16h6.23a2 2 0 0 0 1.994-2.34l.854-10.66H14.5a.5.5 0 0 0 0-1H11zM5 3h6l.35 4.308a1.5 1.5 0 0 1-1.493 1.692H6.145A1.5 1.5 0 0 1 4.65 7.308L5 3z" />
                   </svg>
                 </button>
               </li>
             ))}
           </ul>
         ) : (
-          <p>No races available.</p>
+          <p>No races scheduled yet</p>
         )}
       </div>
     </div>

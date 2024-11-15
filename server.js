@@ -69,18 +69,43 @@ io.on("connection", (socket) => {
   });
 });
 
+// ADD RACES
 app.post("/api/races", async (req, res) => {
-  const { raceName } = req.body;
+  const {
+    raceName,
+    raceDrivers,
+    carAssignment,
+    raceTime,
+    raceFlags,
+    lapTimes,
+    startTime,
+    raceMode,
+    participants,
+    safetyBriefingStatus,
+    paddockAssignment,
+  } = req.body;
 
   if (!raceName) {
-    return res.status(400).json({ message: "All fields are required" });
+    return res.status(400).json({ message: "Race Name are required" });
   }
+
+  const raceData = {
+    raceName,
+    raceDrivers: Array.isArray(raceDrivers) ? raceDrivers : [],
+    carAssignment: carAssignment || [],
+    raceTime: raceTime || null,
+    raceFlags: raceFlags || null,
+    lapTimes: lapTimes || [],
+    startTime: startTime || null,
+    raceMode: raceMode || "Pending",
+    participants,
+    safetyBriefingStatus: safetyBriefingStatus || false,
+    paddockAssignment: paddockAssignment || {},
+  };
 
   try {
     const races = db.collection("races");
-    const result = await races.insertOne({
-      raceName,
-    });
+    const result = await races.insertOne(raceData);
 
     res
       .status(201)
@@ -91,6 +116,7 @@ app.post("/api/races", async (req, res) => {
   }
 });
 
+// GET ALL RACES
 app.get("/api/races", async (req, res) => {
   try {
     const races = db.collection("races");
@@ -103,6 +129,26 @@ app.get("/api/races", async (req, res) => {
   }
 });
 
+// GET SPECIFIC RACE
+app.get("/api/races/:id", async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const races = db.collection("races");
+    const race = await races.findOne({ _id: new ObjectId(id) });
+
+    if (race) {
+      res.status(200).json(race);
+    } else {
+      res.status(404).json({ message: "Race not found" });
+    }
+  } catch (error) {
+    console.error("Error fetching race:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
+
+//DELETE RACE
 app.delete("/api/races/:id", async (req, res) => {
   const { id } = req.params;
 
@@ -121,19 +167,43 @@ app.delete("/api/races/:id", async (req, res) => {
   }
 });
 
+// PATCH RACE (update any race fields)
 app.patch("/api/races/:id", async (req, res) => {
   const { id } = req.params;
-  const { raceName } = req.body;
-
-  if (!raceName) {
-    return res.status(400).json({ message: "Race name is required" });
-  }
+  const {
+    raceName,
+    raceDrivers,
+    carAssignment,
+    raceTime,
+    raceFlags,
+    lapTimes,
+    startTime,
+    raceMode,
+    participants,
+    safetyBriefingStatus,
+    paddockAssignment,
+  } = req.body;
 
   try {
     const races = db.collection("races");
+
+    let updateFields = {};
+    if (raceName) updateFields.raceName = raceName;
+    if (raceDrivers) updateFields.raceDrivers = raceDrivers;
+    if (carAssignment) updateFields.carAssignment = carAssignment;
+    if (raceTime) updateFields.raceTime = raceTime;
+    if (raceFlags) updateFields.raceFlags = raceFlags;
+    if (lapTimes) updateFields.lapTimes = lapTimes;
+    if (startTime) updateFields.startTime = startTime;
+    if (raceMode) updateFields.raceMode = raceMode;
+    if (participants) updateFields.participants = participants;
+    if (safetyBriefingStatus)
+      updateFields.safetyBriefingStatus = safetyBriefingStatus;
+    if (paddockAssignment) updateFields.paddockAssignment = paddockAssignment;
+
     const result = await races.updateOne(
       { _id: new ObjectId(id) },
-      { $set: { raceName } }
+      { $set: updateFields }
     );
 
     if (result.modifiedCount === 1) {
