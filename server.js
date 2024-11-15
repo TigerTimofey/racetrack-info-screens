@@ -73,7 +73,7 @@ io.on("connection", (socket) => {
 app.post("/api/races", async (req, res) => {
   const {
     raceName,
-    raceDrivers,
+    racers,
     carAssignment,
     raceTime,
     raceFlags,
@@ -91,7 +91,7 @@ app.post("/api/races", async (req, res) => {
 
   const raceData = {
     raceName,
-    raceDrivers: Array.isArray(raceDrivers) ? raceDrivers : [],
+    racers: Array.isArray(racers) ? racers : [],
     carAssignment: carAssignment || [],
     raceTime: raceTime || null,
     raceFlags: raceFlags || null,
@@ -172,7 +172,7 @@ app.patch("/api/races/:id", async (req, res) => {
   const { id } = req.params;
   const {
     raceName,
-    raceDrivers,
+    racers,
     carAssignment,
     raceTime,
     raceFlags,
@@ -189,7 +189,7 @@ app.patch("/api/races/:id", async (req, res) => {
 
     let updateFields = {};
     if (raceName) updateFields.raceName = raceName;
-    if (raceDrivers) updateFields.raceDrivers = raceDrivers;
+    if (racers) updateFields.racers = racers;
     if (carAssignment) updateFields.carAssignment = carAssignment;
     if (raceTime) updateFields.raceTime = raceTime;
     if (raceFlags) updateFields.raceFlags = raceFlags;
@@ -213,6 +213,35 @@ app.patch("/api/races/:id", async (req, res) => {
     }
   } catch (error) {
     console.error("Error updating race:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
+
+// PATCH (Update) Race by adding a Racer's Name
+app.patch("/api/races/:id/add-racer", async (req, res) => {
+  const { id } = req.params; // Extract race ID from URL
+  const { racerName } = req.body; // Extract racer name from request body
+
+  if (!racerName) {
+    return res.status(400).json({ message: "Racer Name is required" });
+  }
+
+  try {
+    const races = db.collection("races");
+    // Use the `$push` operator to add the racer object to the 'racers' array
+
+    const result = await races.updateOne(
+      { _id: new ObjectId(id) },
+      { $push: { racers: { name: racerName } } } // Adding the racer to the 'racers' array
+    );
+
+    if (result.modifiedCount === 1) {
+      res.status(200).json({ message: "Racer added to race successfully" });
+    } else {
+      res.status(404).json({ message: "Race not found" });
+    }
+  } catch (error) {
+    console.error("Error adding racer to race:", error);
     res.status(500).json({ message: "Internal server error" });
   }
 });

@@ -4,6 +4,7 @@
   font-size: 3.5rem;
   font-family: "Anton", sans-serif;
 }
+
 .front-desk-container {
   display: flex;
   flex-direction: column;
@@ -16,6 +17,7 @@
   padding: 20px;
   position: relative;
 }
+
 /* Error Container */
 .error-container {
   display: flex;
@@ -71,6 +73,7 @@
   top: 20px;
   left: 20px;
 }
+
 .back-to-main {
   position: relative;
   padding: 10px 20px;
@@ -89,15 +92,21 @@
   transform: scale(0.95);
 }
 
-/* Styling for the Race Form */
+/* Styling for the Race Form and Racer Form */
 form {
   margin-top: 20px;
   padding: 15px;
   background-color: rgba(255, 255, 255, 0.1);
   border-radius: 8px;
   box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.2);
-  width: 100%;
-  max-width: 300px;
+  width: 45%; /* Adjust width for side-by-side display */
+  margin-right: 5%; /* Space between the forms */
+  display: inline-block;
+  vertical-align: top;
+}
+
+form:last-of-type {
+  margin-right: 0; /* No margin for the last form */
 }
 
 form div {
@@ -111,7 +120,9 @@ form label {
   margin-bottom: 5px;
 }
 
-form input[type="text"] {
+form input[type="text"],
+form input[type="datetime-local"],
+form select {
   width: 100%;
   padding: 10px;
   font-size: 1rem;
@@ -122,9 +133,16 @@ form input[type="text"] {
   transition: border 0.3s ease;
 }
 
-form input[type="text"]:focus {
+form input[type="text"]:focus,
+form input[type="datetime-local"]:focus,
+form select:focus {
   outline: none;
   border: 1px solid #ffd814;
+}
+
+form select {
+  background-color: #f5f5f5;
+  color: #333;
 }
 
 /* Submit button styling */
@@ -163,8 +181,8 @@ form button:hover {
 }
 
 .race-list li {
-  display: grid;
-  grid-template-columns: 10fr 1fr 1fr;
+  display: flex;
+  justify-content: space-between;
   align-items: center;
   padding: 10px 15px;
   background-color: rgba(255, 255, 255, 0.15);
@@ -172,9 +190,7 @@ form button:hover {
   border-radius: 8px;
 }
 
-/* Race name on top */
-
-.race-list li button {
+.delete-button .edit-button {
   margin-left: 5px;
   padding: 6px 12px;
   font-size: 0.9rem;
@@ -186,18 +202,72 @@ form button:hover {
   transition: background-color 0.3s ease;
 }
 
-.race-list li button:nth-child(1) {
+.racer-name {
+  background-color: #ffd814;
+  color: #0f1111;
+  padding: 2px 6px;
+  margin-right: 5px;
+  border-radius: 4px;
+}
+
+.race-name {
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #ffd814;
+}
+
+.race-buttons {
+  display: flex;
+  gap: 5px;
+}
+
+.edit-button,
+.delete-button {
+  padding: 5px 8px;
+  font-size: 0.8rem;
+  font-weight: bold;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.edit-button {
   background-color: #4caf50;
 }
 
-.race-list li button:nth-child(1):hover {
+.edit-button:hover {
   background-color: #3e8e41;
 }
 
-.race-list li button:nth-child(2) {
+.delete-button {
   background-color: #ff6b6b;
 }
 
-.race-list li button:nth-child(2):hover {
+.delete-button:hover {
   background-color: #d9534f;
+}
+
+.race-details {
+  display: flex;
+  flex-direction: row; /* Changed from column to row */
+  gap: 15px; /* Added spacing between elements */
+  align-items: center; /* Ensure alignment of items on the same line */
+  max-width: 70%; /* Optional: Adjust width if necessary */
+}
+
+.racers {
+  display: flex; /* Ensure racer names appear inline */
+  flex-wrap: wrap; /* Wrap racers if they exceed available space */
+  gap: 5px; /* Spacing between racer names */
+}
+
+/* Add Flexbox container for both forms */
+.forms-container {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  max-width: 900px; /* Optional: Limit the container width */
+  margin: 0 auto;
 }
