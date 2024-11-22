@@ -178,18 +178,21 @@ const FrontDesk = () => {
 
     if (selectedRaceDetails) {
       const sessionId = selectedRaceDetails.id;
-      const nextCarNumber = selectedRaceDetails.drivers.length
-        ? Math.max(
-            ...selectedRaceDetails.drivers.map((driver) => driver.carNumber)
-          ) + 1
-        : 1;
+
+      const allCarNumbers = races.flatMap((race) =>
+        race.drivers.map((driver) => driver.carNumber)
+      );
+
+      let nextCarNumber = 1;
+      while (allCarNumbers.includes(nextCarNumber)) {
+        nextCarNumber++;
+      }
 
       const newDriver = {
         name: racerName,
         carNumber: nextCarNumber,
       };
 
-      // Optimistic UI update: add the new driver to the selected race
       setRaces((prevRaces) =>
         prevRaces.map((race) =>
           race.id === sessionId
@@ -216,7 +219,6 @@ const FrontDesk = () => {
 
         if (response.ok) {
           setRacerName("");
-          setCarNumber("");
           setSelectedRace("");
         } else {
           console.error("Error adding driver:", result);
@@ -297,7 +299,7 @@ const FrontDesk = () => {
               value={startTime}
               onChange={(e) => setStartTime(e.target.value)}
               required
-              min={new Date().toISOString().slice(0, 16)} // Ensure the start time is after the current time
+              min={new Date().toISOString().slice(0, 16)}
             />
           </div>
           <button type="submit">Add Race</button>
@@ -334,15 +336,7 @@ const FrontDesk = () => {
               required
             />
           </div>
-          <div>
-            <label>Car Number:</label>
-            <input
-              type="number"
-              value={carNumber}
-              onChange={(e) => setCarNumber(e.target.value)}
-              required
-            />
-          </div>
+
           <div>
             <label>Choose Race:</label>
             <select
@@ -359,6 +353,16 @@ const FrontDesk = () => {
             </select>
           </div>
           <button type="submit">Add Racer</button>
+          <img
+            src={racerImage}
+            alt="Racer"
+            style={{
+              width: "100px",
+              height: "auto",
+              marginTop: "10px",
+              padding: "8px",
+            }}
+          />
         </form>
       </div>
 
