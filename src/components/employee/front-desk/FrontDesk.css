@@ -181,7 +181,7 @@ form button:hover {
 
 .race-header {
   display: flex;
-  justify-content: space-around;
+  /* justify-content: space-around; */
   align-items: center;
   margin-bottom: 15px;
 }
@@ -194,7 +194,7 @@ form button:hover {
 }
 
 .race-time {
-  font-size: 1rem;
+  font-size: 1.2rem;
   color: #bbbbbb;
   font-style: italic;
 }
@@ -247,21 +247,26 @@ form button:hover {
   flex-wrap: wrap;
   gap: 10px;
   align-items: center;
+  margin-bottom: 20px;
 }
 
 .racers {
-  display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: 10px;
   padding-top: 10px;
+  margin-top: 20px;
 }
 
 .racers p {
   font-weight: bold;
   font-size: 1.2rem;
   color: #ffd814;
-  margin: 0;
+  margin-bottom: 10px;
+}
+
+.racer-name {
+  margin-bottom: 15px;
 }
 
 /* Accessibility and Responsiveness */

@@ -14,10 +14,8 @@ const FrontDesk = () => {
   const [racerName, setRacerName] = useState("");
   const [startTime, setStartTime] = useState("");
   const [races, setRaces] = useState([]);
-  const [editingRace, setEditingRace] = useState(null);
   const [selectedRace, setSelectedRace] = useState("");
   const [isLottieVisible, setIsLottieVisible] = useState(true);
-  const [carNumber, setCarNumber] = useState("");
 
   const editBtn = (
     <svg
