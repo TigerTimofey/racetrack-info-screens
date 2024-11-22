@@ -37,10 +37,10 @@ const FrontDesk = () => {
       width="16"
       height="16"
       fill="currentColor"
-      className="bi bi-trash3"
+      className="bi bi-x-lg"
       viewBox="0 0 16 16"
     >
-      <path d="M6.5 1h3a.5.5 0 0 1 .5.5v1H6v-1a.5.5 0 0 1 .5-.5M11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3A1.5 1.5 0 0 0 5 1.5v1H1.5a.5.5 0 0 0 0 1h.538l.853 10.66A2 2 0 0 0 4.885 16h6.23a2 2 0 0 0 1.994-2.34l.854-10.66H14.5a.5.5 0 0 0 0-1H11zM5 3h6l.35 4.308a1.5.5 0 0 1-1.493 1.692H6.145A1.5.5 0 0 1 4.65 7.308L5 3z" />
+      <path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8z" />
     </svg>
   );
   const backBtn = (
@@ -100,7 +100,8 @@ const FrontDesk = () => {
 
     fetchRaces();
   }, []);
-  // Handle add form submission
+
+  // Add race
   const handleAddRaceSession = async (e) => {
     e.preventDefault();
 
@@ -109,11 +110,10 @@ const FrontDesk = () => {
       startTime,
     };
 
-    // Optimistic UI update: add the new race immediately to the state
     const newRace = {
       ...raceData,
-      id: Date.now(), // Temporary ID to reflect the added race in the UI (you can replace this with the actual ID after the API call)
-      drivers: [], // Initially empty drivers
+      id: Date.now(),
+      drivers: [],
     };
     setRaces((prevRaces) => [...prevRaces, newRace]);
 
@@ -131,7 +131,6 @@ const FrontDesk = () => {
       const result = await response.json();
 
       if (response.ok) {
-        // Replace the temporary ID with the actual ID from the server
         setRaces((prevRaces) =>
           prevRaces.map((race) =>
             race.id === newRace.id ? { ...race, id: result.id } : race
@@ -146,8 +145,7 @@ const FrontDesk = () => {
       console.error("Error:", error);
     }
   };
-
-  // Handle deleting a race
+  // Delete race
   const handleDelete = async (id) => {
     try {
       // Optimistic UI update: remove the race from the state immediately
@@ -231,9 +229,46 @@ const FrontDesk = () => {
     }
   };
 
-  //TO-DO
   //edit racer
-  const handleEditRacer = async (raceId, racer) => {};
+  const handleEditRacer = async (raceId, racer) => {
+    const newName = prompt("Enter new name for the racer:", racer.name);
+    if (newName && newName !== racer.name) {
+      const updatedRacer = { ...racer, name: newName };
+
+      setRaces((prevRaces) =>
+        prevRaces.map((race) =>
+          race.id === raceId
+            ? {
+                ...race,
+                drivers: race.drivers.map((driver) =>
+                  driver.id === racer.id ? updatedRacer : driver
+                ),
+              }
+            : race
+        )
+      );
+
+      try {
+        const response = await fetch(
+          `${process.env.REACT_APP_SERVER_URL}/race-drivers/${racer.id}`,
+          {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(updatedRacer),
+          }
+        );
+
+        const result = await response.json();
+        if (!response.ok) {
+          console.error("Failed to update racer:", result.message);
+        }
+      } catch (error) {
+        console.error("Error editing racer:", error);
+      }
+    }
+  };
 
   //remove racer
   const handleRemoveRacer = async (driverId, raceId) => {
@@ -271,17 +306,13 @@ const FrontDesk = () => {
   };
 
   return (
-    <div className="race-control-container">
+    <div className="race-control">
       <div className="back-to-main" onClick={() => navigate("/")}>
         {backBtn}
       </div>
       <h2 className="front-title">Front Desk Interface</h2>
 
-      <p>Manage race sessions here</p>
-
       <div className="forms-container">
-        {/* Race Form */}
-
         <form onSubmit={handleAddRaceSession} className="form">
           <div>
             <label>Race Name:</label>
@@ -290,6 +321,7 @@ const FrontDesk = () => {
               value={sessionName}
               onChange={(e) => setSessionName(e.target.value)}
               required
+              maxLength={15}
             />
           </div>
           <div>
@@ -319,7 +351,6 @@ const FrontDesk = () => {
           {isLottieVisible && <Lottie options={lottieOptions} width={350} />}
         </div>
 
-        {/* TO-DO */}
         {/* Racer Form */}
         <form
           onSubmit={(e) => {
@@ -334,6 +365,7 @@ const FrontDesk = () => {
               value={racerName}
               onChange={(e) => setRacerName(e.target.value)}
               required
+              maxLength={15}
             />
           </div>
 
@@ -369,17 +401,28 @@ const FrontDesk = () => {
       {/* Displaying the list of races */}
       <div className="race-list">
         <h3>Current Races</h3>
-        {races.length > 0 ? (
-          <ul>
-            {races.map((race) => (
-              <li key={race.id || race.sessionName}>
-                <div className="race-details">
+        <div className="race-cards-container">
+          {races.length > 0 ? (
+            races.map((race) => (
+              <div className="race-card" key={race.id || race.sessionName}>
+                <div className="race-buttons">
+                  {" "}
                   <span className="race-name">{race.sessionName}</span>
+                  <button
+                    className="delete-button"
+                    onClick={() => handleDelete(race.id)}
+                  >
+                    {deleteBtn}
+                  </button>
+                </div>
+                <div className="race-header">
                   <span className="race-time">
                     {new Date(race.startTime).toLocaleString()}
                   </span>
-                  <span className="racers">
-                    Racers:{" "}
+                </div>
+                <div className="race-body">
+                  <div className="racers">
+                    <p>Racers</p>{" "}
                     {Array.isArray(race.drivers) && race.drivers.length > 0 ? (
                       race.drivers.map((driver, index) => (
                         <span key={index} className="racer-name">
@@ -401,24 +444,16 @@ const FrontDesk = () => {
                         </span>
                       ))
                     ) : (
-                      <span>No racers</span>
+                      <span>No racers yet</span>
                     )}
-                  </span>
+                  </div>
                 </div>
-                <div className="race-buttons">
-                  <button
-                    className="delete-button"
-                    onClick={() => handleDelete(race.id)}
-                  >
-                    {deleteBtn}
-                  </button>
-                </div>
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <p>No races scheduled yet</p>
-        )}
+              </div>
+            ))
+          ) : (
+            <p>No races available.</p>
+          )}
+        </div>
       </div>
     </div>
   );
