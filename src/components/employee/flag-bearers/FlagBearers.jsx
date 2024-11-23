@@ -2,101 +2,21 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Lottie from "react-lottie";
 import loadingAnimation from "../../../assets/lottie-animations/flag.json";
+import { useRaces } from "./hooks/useRaces";
+import { useRaceFlag } from "./hooks/useRaceFlag";
 import "./FlagBearers.css";
 
 const FlagBearers = () => {
   const navigate = useNavigate();
-  const [races, setRaces] = useState([]);
   const [selectedRace, setSelectedRace] = useState("");
-  const [currentFlag, setCurrentFlag] = useState("Safe");
-  const [selectedName, setSelectedName] = useState("");
-  const [isLottieVisible, setIsLottieVisible] = useState(true);
-  const lottieOptions = {
-    loop: true,
-    autoplay: true,
-    animationData: loadingAnimation,
-  };
-
-  // Fetch races on component mount
-  useEffect(() => {
-    const fetchRaces = async () => {
-      try {
-        const response = await fetch(
-          `${process.env.REACT_APP_SERVER_URL}/front-desk/sessions`
-        );
-        const result = await response.json();
-
-        if (response.ok) {
-          setRaces(result);
-        } else {
-          alert("Error fetching races: " + result.message);
-        }
-      } catch (error) {
-        console.error("Error:", error);
-        alert("Failed to fetch races");
-      }
-    };
-
-    fetchRaces();
-  }, []);
-
-  // Fetch flag data whenever a new race is selected
-  useEffect(() => {
-    const fetchFlagData = async () => {
-      if (selectedRace) {
-        try {
-          const response = await fetch(
-            `${process.env.REACT_APP_SERVER_URL}/race-sessions/${selectedRace}`
-          );
-          const result = await response.json();
-
-          if (response.ok) {
-            setCurrentFlag(result.currentFlag);
-            setSelectedName(result.sessionName);
-          } else {
-            alert("Error fetching flag data for selected race");
-          }
-        } catch (error) {
-          console.error("Error fetching flag data:", error);
-          alert("Failed to fetch flag data");
-        }
-      }
-    };
-
-    fetchFlagData();
-  }, [selectedRace]);
-
-  // Handle flag change and update on the server
-  const handleFlagChange = async (newFlag) => {
-    if (!selectedRace) {
-      alert("Please select a race");
-      return;
-    }
-
-    try {
-      const response = await fetch(
-        `${process.env.REACT_APP_SERVER_URL}/race-sessions/${selectedRace}`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            currentFlag: newFlag,
-          }),
-        }
-      );
-      const data = await response.json();
-      if (response.ok) {
-        setCurrentFlag(newFlag);
-      } else {
-        console.log(data.message || "Failed to update flag");
-      }
-    } catch (error) {
-      console.error("Error updating flag:", error);
-      alert("An error occurred while updating the flag");
-    }
-  };
+  const { races, isLoading: isRacesLoading, error: racesError } = useRaces();
+  const {
+    currentFlag,
+    setCurrentFlag,
+    sessionName,
+    isLoading: isFlagLoading,
+    error: flagError,
+  } = useRaceFlag(selectedRace);
 
   const flagOptions = [
     { name: "Safe", color: "#2ecc71" },
@@ -104,6 +24,37 @@ const FlagBearers = () => {
     { name: "Danger", color: "#e74c3c" },
     { name: "Finish", color: "#3498db" },
   ];
+
+  const handleFlagChange = async (newFlag) => {
+    if (!selectedRace) return alert("Please select a race");
+
+    try {
+      const response = await fetch(
+        `${process.env.REACT_APP_SERVER_URL}/race-sessions/${selectedRace}`,
+        {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ currentFlag: newFlag }),
+        }
+      );
+      const data = await response.json();
+
+      if (response.ok) {
+        setCurrentFlag(newFlag);
+      } else {
+        console.error(data.message || "Failed to update flag");
+      }
+    } catch (error) {
+      console.error("Error updating flag:", error);
+      alert("An error occurred while updating the flag");
+    }
+  };
+
+  const lottieOptions = {
+    loop: true,
+    autoplay: true,
+    animationData: loadingAnimation,
+  };
 
   return (
     <div className="race-control-container">
@@ -138,17 +89,25 @@ const FlagBearers = () => {
       </div>
 
       {/* Loading Animation */}
-      {isLottieVisible && (
+      {(isRacesLoading || isFlagLoading) && (
         <div className="loading-animation">
           <Lottie options={lottieOptions} width={350} />
         </div>
+      )}
+
+      {/* Error Handling */}
+      {racesError && (
+        <p className="error-message">Error fetching races: {racesError}</p>
+      )}
+      {flagError && (
+        <p className="error-message">Error fetching flag data: {flagError}</p>
       )}
 
       {/* Current Flag Status */}
       <div className="current-flag-display">
         <p>
           {selectedRace
-            ? `${selectedName} flag is ${currentFlag}`
+            ? `${sessionName} flag is ${currentFlag}`
             : "Please select a race to see flag."}
         </p>
       </div>
