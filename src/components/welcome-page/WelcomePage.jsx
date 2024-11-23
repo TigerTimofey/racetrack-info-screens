@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import AuthComponent from "../Auth/auth"; // Импортируем AuthComponent
+import AuthComponent from "../Auth/auth"; // Authentication Component
 import "./WelcomePage.css";
 
 import Lottie from "react-lottie";
@@ -11,21 +11,29 @@ const roles = {
     SafetyOfficial: "An employee who ensures safety and controls the race.",
     LapLineObserver: "Records when cars cross the lap line.",
     FlagBearer: "Communicates safety instructions using flags.",
-    Receptionist:
-        "Welcomes guests and registers race drivers at the desk.",
+    Receptionist: "Welcomes guests and registers race drivers at the desk.",
   },
   Guest: {
     RaceDriver:
-        "A guest who will participate in a race as a non-professional driver.",
+      "A guest who will participate in a race as a non-professional driver.",
     Spectator:
-        "A guest who watches the race and is interested in driver performances.",
+      "A guest who watches the race and is interested in driver performances.",
   },
 };
+
+// Reusable Button Component
+const RoleButton = ({ text, onClick }) => (
+  <button className="welcome-button learn-more" onClick={onClick}>
+    <div className="circle">
+      <div className="icon arrow"></div>
+    </div>
+    <span className="button-text">{text}</span>
+  </button>
+);
 
 const WelcomePage = () => {
   const [userType, setUserType] = useState("");
   const [selectedRole, setSelectedRole] = useState("");
-
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -38,7 +46,6 @@ const WelcomePage = () => {
     animationData: loadingAnimation,
   };
 
-  // Функция обработки успешной аутентификации
   const handleAuthenticated = () => {
     if (selectedRole === "Receptionist") {
       navigate("/front-desk");
@@ -50,125 +57,111 @@ const WelcomePage = () => {
   };
 
   return (
-      <div className="welcome-container">
-        <div className="loading-animation">
-          <Lottie options={lottieOptions} height={200} />
-        </div>
-        <h2 className="welcome-title">Welcome to the Beachside Racetrack</h2>
-        <p className="welcome-subtitle">Select your role to get started</p>
-        {/* Step 1: Choose User Type */}
+    <div className="welcome-container">
+      <div className="loading-animation">
+        <Lottie options={lottieOptions} height={200} />
+      </div>
+      <h2 className="welcome-title">Welcome to the Beachside Racetrack</h2>
+      <p className="welcome-subtitle">Select your role to get started</p>
 
-        <div className="user-type-selection">
-          <button
-              className={`user-type-button ${
-                  userType === "Employee" ? "selected" : ""
-              }`}
-              onClick={() => setUserType("Employee")}
-          >
-            {/* SVG Icon */}
-            Employee
-          </button>
-          <button
-              className={`user-type-button ${
-                  userType === "Guest" ? "selected" : ""
-              }`}
-              onClick={() => setUserType("Guest")}
-          >
-            {/* SVG Icon */}
-            Guest
-          </button>
-        </div>
-        {/* Reserved Space for Role Selection */}
-        <div className="role-selection-placeholder">
-          {userType && (
-              <div className="role-selection">
-                <label htmlFor="role-select" className="role-label">
-                  Choose Role:
-                </label>
-                <select
-                    id="role-select"
-                    className="role-dropdown"
-                    value={selectedRole}
-                    onChange={(e) => {
-                      setSelectedRole(e.target.value);
-                    }}
-                >
-                  <option value="">Select a Role</option>
-                  {Object.keys(roles[userType]).map((roleKey) => (
-                      <option key={roleKey} value={roleKey}>
-                        {roleKey.replace(/([A-Z])/g, " $1")}
-                      </option>
-                  ))}
-                </select>
-              </div>
-          )}
-        </div>
-        {/* Role Description and Buttons */}
-        <div className="role-description-placeholder">
-          {selectedRole && (
-              <div className="role-description">
-                <p>
-                  <b>{roles[userType][selectedRole]}</b>
-                </p>
-                {/* Используем AuthComponent для ролей, требующих аутентификации */}
-                {["Receptionist", "SafetyOfficial", "LapLineObserver"].includes(
-                    selectedRole
-                ) ? (
-                    <AuthComponent
-                        apiUrl="http://localhost:3000" // Замените на ваш реальный API URL
-                        role={selectedRole}
-                        onAuthenticated={handleAuthenticated}
+      {/* Step 1: Choose User Type */}
+      <div className="user-type-selection">
+        <button
+          className={`user-type-button ${
+            userType === "Employee" ? "selected" : ""
+          }`}
+          onClick={() => setUserType("Employee")}
+        >
+          Employee
+        </button>
+        <button
+          className={`user-type-button ${
+            userType === "Guest" ? "selected" : ""
+          }`}
+          onClick={() => setUserType("Guest")}
+        >
+          Guest
+        </button>
+      </div>
+
+      {/* Step 2: Role Selection */}
+      <div className="role-selection-placeholder">
+        {userType && (
+          <div className="role-selection">
+            <label htmlFor="role-select" className="role-label">
+              Choose Role:
+            </label>
+            <select
+              id="role-select"
+              className="role-dropdown"
+              value={selectedRole}
+              onChange={(e) => setSelectedRole(e.target.value)}
+            >
+              <option value="">Select a Role</option>
+              {Object.keys(roles[userType]).map((roleKey) => (
+                <option key={roleKey} value={roleKey}>
+                  {roleKey.replace(/([A-Z])/g, " $1")}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
+      </div>
+
+      {/* Step 3: Role Description and Navigation Buttons */}
+      <div className="role-description-placeholder">
+        {selectedRole && (
+          <div className="role-description">
+            <p>
+              <b>{roles[userType][selectedRole]}</b>
+            </p>
+
+            {/* Conditional Rendering of Buttons */}
+            {["Receptionist", "SafetyOfficial", "LapLineObserver"].includes(
+              selectedRole
+            ) ? (
+              <AuthComponent
+                apiUrl="http://localhost:3000"
+                role={selectedRole}
+                onAuthenticated={handleAuthenticated}
+              />
+            ) : (
+              <div>
+                {selectedRole === "FlagBearer" && (
+                  <RoleButton
+                    text="Flag Bearers"
+                    onClick={() => navigate("/flag-bearers")}
+                  />
+                )}
+                {(selectedRole === "RaceDriver" ||
+                  selectedRole === "Spectator") && (
+                  <RoleButton
+                    text="Leader Board"
+                    onClick={() => navigate("/leader-board")}
+                  />
+                )}
+                {selectedRole === "RaceDriver" && (
+                  <>
+                    <RoleButton
+                      text="Next Race"
+                      onClick={() => navigate("/next-race")}
                     />
-                ) : (
-                    // Для ролей, не требующих аутентификации, отображаем кнопки навигации
-                    <div>
-                      {selectedRole === "FlagBearer" && (
-                          <button
-                              className="welcome-button learn-more"
-                              onClick={() => navigate("/flag-bearers")}
-                          >
-                            Flag Bearers
-                          </button>
-                      )}
-                      {(selectedRole === "RaceDriver" ||
-                          selectedRole === "Spectator") && (
-                          <button
-                              className="welcome-button learn-more"
-                              onClick={() => navigate("/leader-board")}
-                          >
-                            Leader Board
-                          </button>
-                      )}
-                      {selectedRole === "RaceDriver" && (
-                          <>
-                            <button
-                                className="welcome-button learn-more"
-                                onClick={() => navigate("/next-race")}
-                            >
-                              Next Race
-                            </button>
-
-                            <button
-                                className="welcome-button learn-more"
-                                onClick={() => navigate("/race-countdown")}
-                            >
-                              Race Countdown
-                            </button>
-
-                            <button
-                                className="welcome-button learn-more"
-                                onClick={() => navigate("/race-flags")}
-                            >
-                              Race Flags
-                            </button>
-                          </>
-                      )}
-                    </div>
+                    <RoleButton
+                      text="Race Countdown"
+                      onClick={() => navigate("/race-countdown")}
+                    />
+                    <RoleButton
+                      text="Race Flags"
+                      onClick={() => navigate("/race-flags")}
+                    />
+                  </>
                 )}
               </div>
-          )}
-        </div>
+            )}
+          </div>
+        )}
       </div>
+    </div>
   );
 };
 
