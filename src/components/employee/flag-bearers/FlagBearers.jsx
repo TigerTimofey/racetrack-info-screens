@@ -9,6 +9,7 @@ const FlagBearers = () => {
   const [races, setRaces] = useState([]);
   const [selectedRace, setSelectedRace] = useState("");
   const [currentFlag, setCurrentFlag] = useState("Safe");
+  const [selectedName, setSelectedName] = useState("");
   const [isLottieVisible, setIsLottieVisible] = useState(true);
   const lottieOptions = {
     loop: true,
@@ -16,6 +17,7 @@ const FlagBearers = () => {
     animationData: loadingAnimation,
   };
 
+  // Fetch races on component mount
   useEffect(() => {
     const fetchRaces = async () => {
       try {
@@ -26,7 +28,6 @@ const FlagBearers = () => {
 
         if (response.ok) {
           setRaces(result);
-          console.log(result);
         } else {
           alert("Error fetching races: " + result.message);
         }
@@ -39,6 +40,33 @@ const FlagBearers = () => {
     fetchRaces();
   }, []);
 
+  // Fetch flag data whenever a new race is selected
+  useEffect(() => {
+    const fetchFlagData = async () => {
+      if (selectedRace) {
+        try {
+          const response = await fetch(
+            `${process.env.REACT_APP_SERVER_URL}/race-sessions/${selectedRace}`
+          );
+          const result = await response.json();
+
+          if (response.ok) {
+            setCurrentFlag(result.currentFlag);
+            setSelectedName(result.sessionName);
+          } else {
+            alert("Error fetching flag data for selected race");
+          }
+        } catch (error) {
+          console.error("Error fetching flag data:", error);
+          alert("Failed to fetch flag data");
+        }
+      }
+    };
+
+    fetchFlagData();
+  }, [selectedRace]);
+
+  // Handle flag change and update on the server
   const handleFlagChange = async (newFlag) => {
     if (!selectedRace) {
       alert("Please select a race");
@@ -46,16 +74,15 @@ const FlagBearers = () => {
     }
 
     try {
-      // Assuming the selectedRace is the sessionId for the race
       const response = await fetch(
-        `${process.env.REACT_APP_SERVER_URL}/race-sessions/${selectedRace}`, // Updated endpoint
+        `${process.env.REACT_APP_SERVER_URL}/race-sessions/${selectedRace}`,
         {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            currentFlag: newFlag, // Send the updated currentFlag in the body
+            currentFlag: newFlag,
           }),
         }
       );
@@ -67,19 +94,9 @@ const FlagBearers = () => {
       }
     } catch (error) {
       console.error("Error updating flag:", error);
-      console.log("An error occurred while updating the flag");
+      alert("An error occurred while updating the flag");
     }
   };
-
-  // Set current flag when a race is selected
-  useEffect(() => {
-    if (selectedRace) {
-      const selectedRaceData = races.find((race) => race._id === selectedRace);
-      if (selectedRaceData) {
-        setCurrentFlag(selectedRaceData.raceFlags || "Safe");
-      }
-    }
-  }, [selectedRace, races]);
 
   const flagOptions = [
     { name: "Safe", color: "#2ecc71" },
@@ -119,22 +136,24 @@ const FlagBearers = () => {
           ))}
         </select>
       </div>
-      <div className="loading-animation">
-        {isLottieVisible && <Lottie options={lottieOptions} width={350} />}
-      </div>
+
+      {/* Loading Animation */}
+      {isLottieVisible && (
+        <div className="loading-animation">
+          <Lottie options={lottieOptions} width={350} />
+        </div>
+      )}
 
       {/* Current Flag Status */}
       <div className="current-flag-display">
         <p>
           {selectedRace
-            ? `${
-                races.find((race) => race._id === selectedRace)?.sessionName
-              } flag is ${currentFlag}`
+            ? `${selectedName} flag is ${currentFlag}`
             : "Please select a race to see flag."}
         </p>
       </div>
 
-      {/* Flag Options - Disabled if no race is selected */}
+      {/* Flag Options */}
       {selectedRace && (
         <div className="flag-circles-container">
           {flagOptions.map((flag) => (
