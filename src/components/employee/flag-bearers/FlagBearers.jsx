@@ -18,11 +18,12 @@ const FlagBearers = () => {
     error: flagError,
   } = useRaceFlag(selectedRace);
 
+  // Update flag options to include Chequered Black/White flag
   const flagOptions = [
     { name: "Safe", color: "#2ecc71" },
     { name: "Hazard", color: "#f1c40f" },
     { name: "Danger", color: "#e74c3c" },
-    { name: "Finish", color: "#3498db" },
+    { name: "Finish", isChequered: true }, // Add a flag for chequered
   ];
 
   const handleFlagChange = async (newFlag) => {
@@ -89,11 +90,9 @@ const FlagBearers = () => {
       </div>
 
       {/* Loading Animation */}
-      {(isRacesLoading || isFlagLoading) && (
-        <div className="loading-animation">
-          <Lottie options={lottieOptions} width={350} />
-        </div>
-      )}
+      <div className="loading-animation">
+        <Lottie options={lottieOptions} width={350} />
+      </div>
 
       {/* Error Handling */}
       {racesError && (
@@ -105,11 +104,13 @@ const FlagBearers = () => {
 
       {/* Current Flag Status */}
       <div className="current-flag-display">
-        <p>
-          {selectedRace
-            ? `${sessionName} flag is ${currentFlag}`
-            : "Please select a race to see flag."}
-        </p>
+        {true && (
+          <p>
+            {selectedRace
+              ? `${sessionName} flag is ${currentFlag}`
+              : "Please select a race to see flag."}
+          </p>
+        )}
       </div>
 
       {/* Flag Options */}
@@ -120,12 +121,18 @@ const FlagBearers = () => {
               key={flag.name}
               className={`flag-circle ${
                 currentFlag === flag.name ? "active-flag" : ""
-              }`}
-              style={{ backgroundColor: flag.color }}
+              } ${flag.isChequered ? "chequered-flag" : ""}`}
+              style={{
+                backgroundColor: flag.isChequered ? "transparent" : flag.color,
+              }}
               onClick={() => handleFlagChange(flag.name)}
               title={flag.name}
             >
-              <span className="flag-name">{flag.name}</span>
+              {flag.isChequered ? (
+                <div className="chequered-pattern"></div> // Show chequered pattern
+              ) : (
+                <span className="flag-name">{flag.name}</span>
+              )}
             </div>
           ))}
         </div>
