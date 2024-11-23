@@ -40,24 +40,6 @@
 
 /* Back button styling */
 
-.back-to-main {
-  position: relative;
-  padding: 10px 20px;
-  font-size: 16px;
-  border-radius: 8px;
-  color: #0f1111;
-  transition: transform 0.3s ease;
-}
-
-.back-to-main:hover {
-  cursor: pointer;
-  transform: translateX(-7px);
-}
-
-.back-to-main:active {
-  transform: scale(0.95);
-}
-
 /* Loading container styling */
 .loading-container {
   display: flex;
