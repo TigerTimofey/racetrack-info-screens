@@ -173,6 +173,18 @@ const FrontDesk = () => {
     );
 
     if (selectedRaceDetails) {
+      // Check if the racer name already exists
+      const isRacerExists = selectedRaceDetails.drivers.some(
+        (driver) => driver.name.toLowerCase() === racerName.toLowerCase()
+      );
+
+      if (isRacerExists) {
+        alert(
+          "Racer name already exists in this race. Please choose a unique name."
+        );
+        return;
+      }
+
       const sessionId = selectedRaceDetails.id;
 
       const allCarNumbers = races.flatMap((race) =>
@@ -364,6 +376,7 @@ const FrontDesk = () => {
               onChange={(e) => setRacerName(e.target.value)}
               required
               maxLength={15}
+              disabled={races.length <= 0}
             />
           </div>
 
@@ -373,6 +386,7 @@ const FrontDesk = () => {
               value={selectedRace}
               onChange={(e) => setSelectedRace(e.target.value)}
               required
+              disabled={races.length <= 0}
             >
               <option>Choose race</option>
               {races.map((race) => (
@@ -382,7 +396,9 @@ const FrontDesk = () => {
               ))}
             </select>
           </div>
-          <button type="submit">Add Racer</button>
+          <button type="submit" disabled={races.length <= 0}>
+            Add Racer
+          </button>
           <img
             src={racerImage}
             alt="Racer"
