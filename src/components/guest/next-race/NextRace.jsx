@@ -1,4 +1,3 @@
-import "./NextRace.css";
 import { useNavigate } from "react-router-dom"; //
 const NextRace = () => {
   const navigate = useNavigate();

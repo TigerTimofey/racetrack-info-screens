@@ -1,4 +1,3 @@
-import "./LeaderBoard.css";
 import { useNavigate } from "react-router-dom"; //
 const LeaderBoard = () => {
   const navigate = useNavigate();

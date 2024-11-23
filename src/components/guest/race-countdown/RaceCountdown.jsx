@@ -1,4 +1,3 @@
-import "./RaceCountdown.css";
 import { useNavigate } from "react-router-dom";
 const RaceCountdown = () => {
   const navigate = useNavigate();
