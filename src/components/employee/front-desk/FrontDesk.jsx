@@ -400,7 +400,7 @@ const FrontDesk = () => {
             Add Racer
           </button>
           <img
-            src={raceImage}
+            src={racerImage}
             alt="Racer"
             style={{
               width: "100px",
