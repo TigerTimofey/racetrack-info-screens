@@ -1,0 +1,138 @@
+/* Lap Buttons Styling */
+.race-selection {
+  margin-top: 20px;
+}
+.lap-buttons-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin: 20px 0;
+}
+.lap-button {
+  font-size: 1.5rem;
+  padding: 15px 25px;
+  margin: 10px;
+  background: #4caf50;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: transform 0.2s, background-color 0.3s;
+}
+.lap-button:disabled {
+  background: #999;
+  cursor: not-allowed;
+}
+.lap-button:hover:not(:disabled) {
+  background: #45a049;
+  transform: translateY(-5px);
+}
+
+/* Lap Times List Styling */
+.lap-times,
+.fastest-laps {
+  margin-top: 30px;
+  padding: 20px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.15);
+}
+.lap-times h3,
+.fastest-laps h3 {
+  font-size: 1.5rem;
+  text-transform: uppercase;
+  color: #ffd700;
+  margin-bottom: 15px;
+}
+.lap-times ul,
+.fastest-laps ul {
+  list-style: none;
+  padding: 0;
+}
+.lap-times li,
+.fastest-laps li {
+  font-size: 1.2rem;
+  margin: 5px 0;
+  background: rgba(0, 0, 0, 0.2);
+  padding: 10px;
+  border-radius: 5px;
+  text-align: left;
+}
+
+/* Session Ended Message */
+.session-ended-message {
+  color: #ff6b6b;
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin: 20px 0;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+/* Cards */
+.lap-times-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  margin-top: 20px;
+}
+
+/* Card Styling */
+.lap-time-card {
+  background: rgba(255, 255, 255, 0.1);
+  border: 2px solid #4caf50;
+  border-radius: 15px;
+  padding: 20px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  color: white;
+  text-align: left;
+}
+
+.lap-time-card h4 {
+  font-size: 1.5rem;
+  margin-bottom: 15px;
+  text-transform: uppercase;
+  color: #ffd700;
+}
+
+.lap-time-card ul {
+  list-style: none;
+  padding: 0;
+}
+
+.lap-time-card li {
+  font-size: 1.2rem;
+  margin-bottom: 5px;
+  background: rgba(0, 0, 0, 0.2);
+  padding: 10px;
+  border-radius: 5px;
+}
+
+.lap-time-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+  border-color: #ffd700;
+}
+
+@media (max-width: 768px) {
+  .lap-times-grid {
+    grid-template-columns: 1fr;
+  }
+  .lap-times {
+    padding: 15px;
+  }
+  .lap-time-card h4 {
+    font-size: 1.3rem;
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .lap-button {
+    padding: 10px 20px;
+    font-size: 1.2rem;
+  }
+  .front-title {
+    font-size: 1.8rem;
+  }
+}
