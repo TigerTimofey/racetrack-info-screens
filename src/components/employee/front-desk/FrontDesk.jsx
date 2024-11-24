@@ -400,13 +400,13 @@ const FrontDesk = () => {
             Add Racer
           </button>
           <img
-            src={racerImage}
+            src={raceImage}
             alt="Racer"
             style={{
               width: "100px",
               height: "auto",
               marginTop: "10px",
-              padding: "8px",
+              padding: "10px",
             }}
           />
         </form>

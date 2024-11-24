@@ -2,8 +2,6 @@ import React from "react";
 
 import { useNavigate } from "react-router-dom";
 
-import "./LapLineTracker.css";
-
 const LapLineTracker = () => {
   const navigate = useNavigate();
 
