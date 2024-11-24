@@ -7,7 +7,7 @@
   justify-content: center;
   height: auto; /* Изменено для динамического расширения */
   min-height: 100vh; /* Гарантирует, что контейнер всегда будет по крайней мере высотой экрана */
-  background: linear-gradient(135deg, #4b79a1, #283e51);
+  background: linear-gradient(135deg, #283e51, #283e51);
   color: #fff;
   text-align: center;
   padding: 20px;

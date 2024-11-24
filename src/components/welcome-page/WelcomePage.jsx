@@ -8,7 +8,7 @@ import loadingAnimation from "../../assets/lottie-animations/race.json";
 
 const roles = {
   Employee: {
-    SafetyOfficial: "An employee who ensures safety and controls the race.",
+    SafetyOfficial: "Ensures safety and controls the race.",
     LapLineObserver: "Records when cars cross the lap line.",
     FlagBearer: "Communicates safety instructions using flags.",
     Receptionist: "Welcomes guests and registers race drivers at the desk.",
