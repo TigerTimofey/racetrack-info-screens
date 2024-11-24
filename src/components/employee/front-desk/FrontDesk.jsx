@@ -4,6 +4,7 @@ import Lottie from "react-lottie";
 import loadingAnimation from "../../../assets/lottie-animations/reception.json";
 import racerImage from "../../../assets/images/race.png";
 import raceImage from "../../../assets/images/flags.png";
+import { editBtn, deleteBtn, backButton } from "../../../assets/button/buttons";
 
 import "./FrontDesk.css";
 
@@ -16,43 +17,6 @@ const FrontDesk = () => {
   const [races, setRaces] = useState([]);
   const [selectedRace, setSelectedRace] = useState("");
   const [isLottieVisible, setIsLottieVisible] = useState(true);
-
-  const editBtn = (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width="16"
-      height="16"
-      fill="currentColor"
-      className="bi bi-pencil"
-      viewBox="0 0 16 16"
-    >
-      <path d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325" />
-    </svg>
-  );
-  const deleteBtn = (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width="16"
-      height="16"
-      fill="currentColor"
-      className="bi bi-x-lg"
-      viewBox="0 0 16 16"
-    >
-      <path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8z" />
-    </svg>
-  );
-  const backBtn = (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width="60"
-      height="60"
-      fill="#ffd814"
-      className="bi bi-arrow-left-circle-fill"
-      viewBox="0 0 16 16"
-    >
-      <path d="M8 0a8 8 0 1 0 0 16A8 8 0 0 0 8 0m3.5 7.5a.5.5 0 0 1 0 1H5.707l2.147 2.146a.5.5 0 0 1-.708.708l-3-3a.5.5 0 0 1 0-.708l3-3a.5.5 0 1 1 .708.708L5.707 7.5z" />
-    </svg>
-  );
 
   const lottieOptions = {
     loop: true,
@@ -318,7 +282,7 @@ const FrontDesk = () => {
   return (
     <div className="race-control">
       <div className="back-to-main" onClick={() => navigate("/")}>
-        {backBtn}
+        {backButton}
       </div>
       <h2 className="front-title">Front Desk Interface</h2>
 
