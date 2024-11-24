@@ -147,90 +147,89 @@ const LapLineTracker = () => {
       }
     }
   };
-
   return (
     <div className="race-control-container">
       <div className="back-to-main" onClick={() => navigate("/")}>
         {backButton}
       </div>
       <h2 className="front-title">Lap Line Tracker Interface</h2>
-      <div>
-        <h1>
-          Time left: {minutes}:{seconds < 10 ? `0${seconds}` : seconds}
-        </h1>
-      </div>
-
-      <div className="race-selection">
-        <label htmlFor="race-select">Select Race:</label>
-        <select
-          id="race-select"
-          onChange={(e) => {
-            const selectedRace = races.find(
-              (race) => race.id === parseInt(e.target.value)
-            );
-            setCurrentRace(selectedRace);
-          }}
-        >
-          {races.map((race) => (
-            <option key={race.id} value={race.id}>
-              {race.sessionName}
-            </option>
-          ))}
-        </select>
-      </div>
-
-      <div className="lap-buttons-container">
-        {cars.length > 0 ? (
-          cars.map((carNumber) => (
-            <button
-              key={carNumber}
-              className="lap-button"
-              onClick={() => handleLapCrossing(carNumber)}
-              disabled={raceEnded}
+      {races.length > 0 ? (
+        <>
+          <h1>
+            Time left: {minutes}:{seconds < 10 ? `0${seconds}` : seconds}
+          </h1>
+          <div className="race-selection">
+            <label htmlFor="race-select">Select Race:</label>
+            <select
+              id="race-select"
+              onChange={(e) => {
+                const selectedRace = races.find(
+                  (race) => race.id === parseInt(e.target.value)
+                );
+                setCurrentRace(selectedRace);
+              }}
             >
-              {carNumber}
-            </button>
-          ))
-        ) : (
-          <p>No cars available for this race.</p>
-        )}
-      </div>
-
-      {raceEnded && (
-        <p className="session-ended-message">Race session has ended.</p>
-      )}
-
-      <div className="lap-times">
-        <h3>Lap Times</h3>
-        <div className="lap-times-grid">
-          {Object.entries(lapTimes).map(([carNumber, times]) => (
-            <div key={carNumber} className="lap-time-card">
-              <h4>Car №{carNumber}</h4>
-              <ul>
-                {times.map((time, index) => (
-                  <li key={index}>{`Lap ${index + 1}: ${time}`}</li>
-                ))}
-              </ul>
+              {races.map((race) => (
+                <option key={race.id} value={race.id}>
+                  {race.sessionName}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="lap-buttons-container">
+            {cars.length > 0 ? (
+              cars.map((carNumber) => (
+                <button
+                  key={carNumber}
+                  className="lap-button"
+                  onClick={() => handleLapCrossing(carNumber)}
+                  disabled={raceEnded}
+                >
+                  {carNumber}
+                </button>
+              ))
+            ) : (
+              <p>No cars available for this race.</p>
+            )}
+          </div>
+          {raceEnded && (
+            <p className="session-ended-message">Race session has ended.</p>
+          )}
+          <div className="lap-times">
+            <h3>Lap Times</h3>
+            <div className="lap-times-grid">
+              {Object.entries(lapTimes).map(([carNumber, times]) => (
+                <div key={carNumber} className="lap-time-card">
+                  <h4>Car №{carNumber}</h4>
+                  <ul>
+                    {times.map((time, index) => (
+                      <li key={index}>{`Lap ${index + 1}: ${time}`}</li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
-      </div>
-
-      <div className="fastest-laps">
-        <h3>Fastest Laps</h3>
-        <ul>
-          {Object.entries(fastestLaps).map(([carNumber, time]) => (
-            <li key={carNumber}>
-              Car №{carNumber}:{" "}
-              {Number.isFinite(time) && time > 0
-                ? `${String(Math.floor(time / 60)).padStart(2, "0")}:${String(
-                    Math.floor(time % 60)
-                  ).padStart(2, "0")}`
-                : "No fastest lap set yet"}
-            </li>
-          ))}
-        </ul>
-      </div>
+          </div>
+          <div className="fastest-laps">
+            <h3>Fastest Laps</h3>
+            <ul>
+              {Object.entries(fastestLaps).map(([carNumber, time]) => (
+                <li key={carNumber}>
+                  Car №{carNumber}:{" "}
+                  {Number.isFinite(time) && time > 0
+                    ? `${String(Math.floor(time / 60)).padStart(
+                        2,
+                        "0"
+                      )}:${String(Math.floor(time % 60)).padStart(2, "0")}`
+                    : "No fastest lap set yet"}
+                </li>
+              ))}
+            </ul>
+          </div>
+        </>
+      ) : (
+        <div className="no-race">No races planned</div>
+      )}
     </div>
   );
 };

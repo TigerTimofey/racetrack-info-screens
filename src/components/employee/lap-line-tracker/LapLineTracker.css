@@ -125,6 +125,19 @@
     font-size: 1.3rem;
   }
 }
+.no-race {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 3rem;
+  font-weight: bold;
+  color: yellow;
+  text-align: center;
+  padding: 20px;
+  background-color: rgba(0, 0, 0, 0.5);
+  border-radius: 10px;
+}
 
 /* Responsive Design */
 @media (max-width: 768px) {
