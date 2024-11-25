@@ -17,32 +17,28 @@ const LapLineTracker = () => {
   const [lapStartTimes, setLapStartTimes] = useState({});
   const [timeLeft, setTimeLeft] = useState(timerDuration);
 
-  useEffect(() => {
-    console.log("Lap Times Updated:", lapTimes);
-    // Log details about each driver's laps
-    Object.entries(lapTimes).forEach(([carNumber, laps]) => {
-      console.log(`Car ${carNumber} Lap Times:`);
-      laps.forEach(({ lapNumber, time }) => {
-        console.log(`  Lap ${lapNumber}: ${time}`);
-      });
-    });
-  }, [lapTimes]);
+  // State to track visibility of components
+  const [isRaceSelected, setIsRaceSelected] = useState(false);
+  const [isNewButtonClicked, setIsNewButtonClicked] = useState(false);
 
-  // Timer logic
+  // Timer logic only runs when NEW BUTTON is clicked
   useEffect(() => {
-    const interval = setInterval(() => {
-      setTimeLeft((prevTime) => {
-        if (prevTime <= 0) {
-          clearInterval(interval);
-          setRaceEnded(true); // Mark race as ended
-          return 0;
-        }
-        return prevTime - 1000;
-      });
-    }, 1000);
+    let interval;
+    if (isNewButtonClicked) {
+      interval = setInterval(() => {
+        setTimeLeft((prevTime) => {
+          if (prevTime <= 0) {
+            clearInterval(interval);
+            setRaceEnded(true);
+            return 0;
+          }
+          return prevTime - 1000;
+        });
+      }, 1000);
+    }
 
-    return () => clearInterval(interval); // Cleanup timer
-  }, [timerDuration]);
+    return () => clearInterval(interval);
+  }, [isNewButtonClicked]); // Only re-run when NEW BUTTON is clicked
 
   const minutes = Math.floor(timeLeft / 60000);
   const seconds = Math.floor((timeLeft % 60000) / 1000);
@@ -92,7 +88,7 @@ const LapLineTracker = () => {
 
     const currentTime = new Date();
     const carLapTimes = lapTimes[carNumber] || [];
-    const lapCount = carLapTimes.length + 1; // Lap number starts at 1
+    const lapCount = carLapTimes.length + 1;
 
     setLapStartTimes((prevLapStartTimes) => {
       const previousLapStartTime = prevLapStartTimes[carNumber];
@@ -105,41 +101,36 @@ const LapLineTracker = () => {
           seconds
         ).padStart(2, "0")}`;
 
-        // Log each lap's data to ensure proper formatting
         console.log(
           `Car ${carNumber} completed Lap ${lapCount}: ${formattedLapTime}`
         );
 
-        // Update lap times for the car
         setLapTimes((prevLapTimes) => ({
           ...prevLapTimes,
           [carNumber]: [
             ...carLapTimes,
-            { lapNumber: lapCount, time: formattedLapTime }, // Ensure lapNumber and time are set correctly
+            { lapNumber: lapCount, time: formattedLapTime },
           ],
         }));
 
-        // Update fastest lap if necessary
         setFastestLaps((prevFastestLaps) => {
           const currentFastestLap = prevFastestLaps[carNumber];
           if (!currentFastestLap || lapTime < currentFastestLap) {
-            updateFastestLapBackend(carNumber, lapTime); // Update backend if faster lap
+            updateFastestLapBackend(carNumber, lapTime);
             return {
               ...prevFastestLaps,
-              [carNumber]: lapTime, // Store the new fastest lap time
+              [carNumber]: lapTime,
             };
           }
           return prevFastestLaps;
         });
 
-        // After finishing the current lap, reset start time for next lap
         return {
           ...prevLapStartTimes,
           [carNumber]: currentTime,
         };
       }
 
-      // If it's the first click, store the start time
       return {
         ...prevLapStartTimes,
         [carNumber]: currentTime,
@@ -153,10 +144,10 @@ const LapLineTracker = () => {
     const lapInProgress = lapStartTimes[carNumber];
 
     if (lapInProgress) {
-      return `Finish Lap ${lapCount}`;
+      return `Car №${carNumber} Finish Lap ${lapCount}`;
     }
 
-    return `Start Lap ${lapCount}`;
+    return `Car №${carNumber} Start Lap ${lapCount}`;
   };
 
   const updateFastestLapBackend = async (carNumber, lapTime) => {
@@ -186,28 +177,38 @@ const LapLineTracker = () => {
     }
   };
 
+  // Handle race selection
+  const handleRaceSelection = (e) => {
+    const selectedRace = races.find(
+      (race) => race.id === parseInt(e.target.value)
+    );
+    setCurrentRace(selectedRace);
+    setIsRaceSelected(true);
+    setIsNewButtonClicked(false);
+  };
+
+  // Handle "NEW BUTTON" click
+  const handleNewButtonClick = () => {
+    setIsNewButtonClicked(true);
+  };
+
   return (
     <div className="race-control-container">
       <div className="back-to-main" onClick={() => navigate("/")}>
         {backButton}
       </div>
       <h2 className="front-title">Lap Line Tracker Interface</h2>
+
       {races.length > 0 ? (
         <>
-          <h1>
+          {/* Race selection and NEW BUTTON */}
+          {/* <h1>
             Time left: {minutes}:{seconds < 10 ? `0${seconds}` : seconds}
-          </h1>
+          </h1> */}
           <div className="race-selection">
             <label htmlFor="race-select">Select Race:</label>
-            <select
-              id="race-select"
-              onChange={(e) => {
-                const selectedRace = races.find(
-                  (race) => race.id === parseInt(e.target.value)
-                );
-                setCurrentRace(selectedRace);
-              }}
-            >
+            <select id="race-select" onChange={handleRaceSelection}>
+              <option value="">-- Select a Race --</option>
               {races.map((race) => (
                 <option key={race.id} value={race.id}>
                   {race.sessionName}
@@ -215,59 +216,82 @@ const LapLineTracker = () => {
               ))}
             </select>
           </div>
-          <div className="lap-buttons-container">
-            {cars.length > 0 ? (
-              cars.map((carNumber) => (
-                <button
-                  key={carNumber}
-                  className="lap-button"
-                  onClick={() => handleLapCrossing(carNumber)}
-                  disabled={raceEnded}
-                >
-                  {getButtonLabel(carNumber)} s
-                </button>
-              ))
-            ) : (
-              <p>No cars available for this race.</p>
-            )}
-          </div>
 
-          {raceEnded && (
-            <p className="session-ended-message">Race session has ended.</p>
+          {/* NEW BUTTON */}
+
+          {isRaceSelected && (
+            <>
+              <h1>TODO: show afer flag? safety?</h1>
+              <button
+                className="start-race-button"
+                onClick={handleNewButtonClick}
+              >
+                START RACE
+              </button>
+            </>
           )}
 
-          <div className="lap-times">
-            <h3>Lap Times</h3>
-            <div className="lap-times-grid">
-              {Object.entries(lapTimes).map(([carNumber, laps]) => (
-                <div key={carNumber} className="lap-time-card">
-                  <h4>Car №{carNumber}</h4>
-                  <ul>
-                    {laps.map(({ lapNumber, time }, index) => (
-                      <li key={index}>{`Lap ${lapNumber}: ${time}`}</li>
-                    ))}
-                  </ul>
-                </div>
-              ))}
-            </div>
-          </div>
+          {/* Show components only when NEW BUTTON is clicked */}
+          {isNewButtonClicked && (
+            <>
+              <h1>
+                Time left: {minutes}:{seconds < 10 ? `0${seconds}` : seconds}
+              </h1>
+              <div className="lap-buttons-container">
+                {cars.length > 0 ? (
+                  cars.map((carNumber) => (
+                    <button
+                      key={carNumber}
+                      className="lap-button"
+                      onClick={() => handleLapCrossing(carNumber)}
+                      disabled={raceEnded}
+                    >
+                      {getButtonLabel(carNumber)} s
+                    </button>
+                  ))
+                ) : (
+                  <p>No cars available for this race.</p>
+                )}
+              </div>
 
-          <div className="fastest-laps">
-            <h3>Fastest Laps</h3>
-            <ul>
-              {Object.entries(fastestLaps).map(([carNumber, time]) => (
-                <li key={carNumber}>
-                  Car №{carNumber}:{" "}
-                  {Number.isFinite(time) && time > 0
-                    ? `${String(Math.floor(time / 60)).padStart(
-                        2,
-                        "0"
-                      )}:${String(Math.floor(time % 60)).padStart(2, "0")}`
-                    : "No fastest lap set yet"}
-                </li>
-              ))}
-            </ul>
-          </div>
+              {raceEnded && (
+                <p className="session-ended-message">Race session has ended.</p>
+              )}
+
+              <div className="lap-times">
+                <h3>Lap Times</h3>
+                <div className="lap-times-grid">
+                  {Object.entries(lapTimes).map(([carNumber, laps]) => (
+                    <div key={carNumber} className="lap-time-card">
+                      <h4>Car №{carNumber}</h4>
+                      <ul>
+                        {laps.map(({ lapNumber, time }, index) => (
+                          <li key={index}>{`Lap ${lapNumber}: ${time}`}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="fastest-laps">
+                <h3>Fastest Laps</h3>
+                <ul>
+                  {Object.entries(fastestLaps).map(([carNumber, time]) => (
+                    <li key={carNumber}>
+                      Car №{carNumber}:{" "}
+                      {Number.isFinite(time) && time > 0
+                        ? `${String(Math.floor(time / 60)).padStart(
+                            2,
+                            "0"
+                          )}:${String(Math.floor(time % 60)).padStart(2, "0")}`
+                        : "No fastest lap set yet"}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </>
+          )}
         </>
       ) : (
         <div className="no-race">No races planned</div>
