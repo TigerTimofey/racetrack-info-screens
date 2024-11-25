@@ -17,17 +17,6 @@ const LapLineTracker = () => {
   const [lapStartTimes, setLapStartTimes] = useState({});
   const [timeLeft, setTimeLeft] = useState(timerDuration);
 
-  useEffect(() => {
-    console.log("Lap Times Updated:", lapTimes);
-    // Log details about each driver's laps
-    Object.entries(lapTimes).forEach(([carNumber, laps]) => {
-      console.log(`Car ${carNumber} Lap Times:`);
-      laps.forEach(({ lapNumber, time }) => {
-        console.log(`  Lap ${lapNumber}: ${time}`);
-      });
-    });
-  }, [lapTimes]);
-
   // Timer logic
   useEffect(() => {
     const interval = setInterval(() => {
@@ -91,72 +80,45 @@ const LapLineTracker = () => {
     if (raceEnded) return;
 
     const currentTime = new Date();
-    const carLapTimes = lapTimes[carNumber] || [];
-    const lapCount = carLapTimes.length + 1; // Lap number starts at 1
 
     setLapStartTimes((prevLapStartTimes) => {
       const previousLapStartTime = prevLapStartTimes[carNumber];
 
       if (previousLapStartTime) {
-        const lapTime = (currentTime - previousLapStartTime) / 1000; // In seconds
+        const lapTime = (currentTime - previousLapStartTime) / 1000;
+
         const minutes = Math.floor(lapTime / 60);
         const seconds = Math.floor(lapTime % 60);
         const formattedLapTime = `${String(minutes).padStart(2, "0")}:${String(
           seconds
         ).padStart(2, "0")}`;
 
-        // Log each lap's data to ensure proper formatting
-        console.log(
-          `Car ${carNumber} completed Lap ${lapCount}: ${formattedLapTime}`
-        );
+        setLapTimes((prevLapTimes) => {
+          const carLapTimes = prevLapTimes[carNumber] || [];
+          return {
+            ...prevLapTimes,
+            [carNumber]: [...carLapTimes, formattedLapTime],
+          };
+        });
 
-        // Update lap times for the car
-        setLapTimes((prevLapTimes) => ({
-          ...prevLapTimes,
-          [carNumber]: [
-            ...carLapTimes,
-            { lapNumber: lapCount, time: formattedLapTime }, // Ensure lapNumber and time are set correctly
-          ],
-        }));
-
-        // Update fastest lap if necessary
         setFastestLaps((prevFastestLaps) => {
           const currentFastestLap = prevFastestLaps[carNumber];
           if (!currentFastestLap || lapTime < currentFastestLap) {
-            updateFastestLapBackend(carNumber, lapTime); // Update backend if faster lap
+            updateFastestLapBackend(carNumber, lapTime);
             return {
               ...prevFastestLaps,
-              [carNumber]: lapTime, // Store the new fastest lap time
+              [carNumber]: lapTime,
             };
           }
           return prevFastestLaps;
         });
-
-        // After finishing the current lap, reset start time for next lap
-        return {
-          ...prevLapStartTimes,
-          [carNumber]: currentTime,
-        };
       }
 
-      // If it's the first click, store the start time
       return {
         ...prevLapStartTimes,
         [carNumber]: currentTime,
       };
     });
-  };
-
-  const getButtonLabel = (carNumber) => {
-    const carLapTimes = lapTimes[carNumber] || [];
-    const lapCount = carLapTimes.length + 1;
-    const lapInProgress = lapStartTimes[carNumber];
-
-    if (lapInProgress) {
-      return `Finish Lap ${lapCount}`;
-    }
-
-    return `Start Lap ${lapCount}`;
   };
 
   const updateFastestLapBackend = async (carNumber, lapTime) => {
@@ -185,7 +147,6 @@ const LapLineTracker = () => {
       }
     }
   };
-
   return (
     <div className="race-control-container">
       <div className="back-to-main" onClick={() => navigate("/")}>
@@ -224,34 +185,31 @@ const LapLineTracker = () => {
                   onClick={() => handleLapCrossing(carNumber)}
                   disabled={raceEnded}
                 >
-                  {getButtonLabel(carNumber)} s
+                  {carNumber}
                 </button>
               ))
             ) : (
               <p>No cars available for this race.</p>
             )}
           </div>
-
           {raceEnded && (
             <p className="session-ended-message">Race session has ended.</p>
           )}
-
           <div className="lap-times">
             <h3>Lap Times</h3>
             <div className="lap-times-grid">
-              {Object.entries(lapTimes).map(([carNumber, laps]) => (
+              {Object.entries(lapTimes).map(([carNumber, times]) => (
                 <div key={carNumber} className="lap-time-card">
                   <h4>Car №{carNumber}</h4>
                   <ul>
-                    {laps.map(({ lapNumber, time }, index) => (
-                      <li key={index}>{`Lap ${lapNumber}: ${time}`}</li>
+                    {times.map((time, index) => (
+                      <li key={index}>{`Lap ${index + 1}: ${time}`}</li>
                     ))}
                   </ul>
                 </div>
               ))}
             </div>
           </div>
-
           <div className="fastest-laps">
             <h3>Fastest Laps</h3>
             <ul>
