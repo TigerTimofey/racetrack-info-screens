@@ -16,6 +16,7 @@ const LapLineTracker = () => {
   const [raceStartTime, setRaceStartTime] = useState(null);
   const [lapStartTimes, setLapStartTimes] = useState({});
   const [timeLeft, setTimeLeft] = useState(timerDuration);
+  console.log(races);
 
   // State to track visibility of components
   const [isRaceSelected, setIsRaceSelected] = useState(false);
@@ -225,6 +226,7 @@ const LapLineTracker = () => {
               <button
                 className="start-race-button"
                 onClick={handleNewButtonClick}
+                // disabled={true}
               >
                 START RACE
               </button>
@@ -294,7 +296,9 @@ const LapLineTracker = () => {
           )}
         </>
       ) : (
-        <div className="no-race">No races planned</div>
+        <>
+          <div className="no-race">No races planned</div>
+        </>
       )}
     </div>
   );
