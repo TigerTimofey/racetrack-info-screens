@@ -1,48 +1,29 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { backButton } from "../../../assets/button/buttons";
+import Timer from "../../timer/Timer";
+
 import "./LapLineTracker.css";
 
 const LapLineTracker = () => {
   const navigate = useNavigate();
-  const timerDuration = process.env.REACT_APP_TIMER_DURATION || 10 * 60 * 1000; // Default 10 minutes
 
   const [cars, setCars] = useState([]);
-  const [races, setRaces] = useState([]);
-  const [currentRace, setCurrentRace] = useState(null);
   const [raceEnded, setRaceEnded] = useState(false);
   const [lapTimes, setLapTimes] = useState({});
   const [fastestLaps, setFastestLaps] = useState({});
   const [raceStartTime, setRaceStartTime] = useState(null);
   const [lapStartTimes, setLapStartTimes] = useState({});
-  const [timeLeft, setTimeLeft] = useState(timerDuration);
-  console.log(races);
-
-  // State to track visibility of components
   const [isRaceSelected, setIsRaceSelected] = useState(false);
+
+  // ********* data will come by socket from safety official
+  const [races, setRaces] = useState([]); // <- if .map races === SAFETY race -> handleNewButtonClick to true
+  const [currentRace, setCurrentRace] = useState(null); // <- if currentRace NOW what comes from SAFETY race
   const [isNewButtonClicked, setIsNewButtonClicked] = useState(false);
-
-  // Timer logic only runs when NEW BUTTON is clicked
-  useEffect(() => {
-    let interval;
-    if (isNewButtonClicked) {
-      interval = setInterval(() => {
-        setTimeLeft((prevTime) => {
-          if (prevTime <= 0) {
-            clearInterval(interval);
-            setRaceEnded(true);
-            return 0;
-          }
-          return prevTime - 1000;
-        });
-      }, 1000);
-    }
-
-    return () => clearInterval(interval);
-  }, [isNewButtonClicked]); // Only re-run when NEW BUTTON is clicked
-
-  const minutes = Math.floor(timeLeft / 60000);
-  const seconds = Math.floor((timeLeft % 60000) / 1000);
+  const handleNewButtonClick = () => {
+    setIsNewButtonClicked(true);
+  };
+  // *********
 
   useEffect(() => {
     const fetchRaces = async () => {
@@ -80,9 +61,8 @@ const LapLineTracker = () => {
       setCars(carNumbers);
       setFastestLaps(fastestLaps);
       setRaceEnded(false);
-      setTimeLeft(timerDuration);
     }
-  }, [currentRace, timerDuration]);
+  }, [currentRace]);
 
   const handleLapCrossing = (carNumber) => {
     if (raceEnded) return;
@@ -178,7 +158,6 @@ const LapLineTracker = () => {
     }
   };
 
-  // Handle race selection
   const handleRaceSelection = (e) => {
     const selectedRace = races.find(
       (race) => race.id === parseInt(e.target.value)
@@ -186,11 +165,6 @@ const LapLineTracker = () => {
     setCurrentRace(selectedRace);
     setIsRaceSelected(true);
     setIsNewButtonClicked(false);
-  };
-
-  // Handle "NEW BUTTON" click
-  const handleNewButtonClick = () => {
-    setIsNewButtonClicked(true);
   };
 
   return (
@@ -202,10 +176,6 @@ const LapLineTracker = () => {
 
       {races.length > 0 ? (
         <>
-          {/* Race selection and NEW BUTTON */}
-          {/* <h1>
-            Time left: {minutes}:{seconds < 10 ? `0${seconds}` : seconds}
-          </h1> */}
           <div className="race-selection">
             <label htmlFor="race-select">Select Race:</label>
             <select id="race-select" onChange={handleRaceSelection}>
@@ -217,12 +187,9 @@ const LapLineTracker = () => {
               ))}
             </select>
           </div>
-
-          {/* NEW BUTTON */}
-
+          {/* 
           {isRaceSelected && (
             <>
-              <h1>TODO: show afer flag? safety?</h1>
               <button
                 className="start-race-button"
                 onClick={handleNewButtonClick}
@@ -231,14 +198,13 @@ const LapLineTracker = () => {
                 START RACE
               </button>
             </>
-          )}
+          )} */}
 
           {/* Show components only when NEW BUTTON is clicked */}
-          {isNewButtonClicked && (
+          {/* ************************************ Update state ************************************ */}
+          {!isNewButtonClicked && (
             <>
-              <h1>
-                Time left: {minutes}:{seconds < 10 ? `0${seconds}` : seconds}
-              </h1>
+              <Timer onTimerFinish={() => setRaceEnded(true)} />
               <div className="lap-buttons-container">
                 {cars.length > 0 ? (
                   cars.map((carNumber) => (
