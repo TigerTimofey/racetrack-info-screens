@@ -26,24 +26,7 @@ const LapLineTracker = () => {
 
   // ***************************DATA TO PASS FORWARD********************************
   const [fastestLapsData, setFastestLapsData] = useState([]);
-
   const [passingLapData, setPassingLapData] = useState([]);
-  useEffect(() => {
-    console.log("fastestLapsData", fastestLapsData);
-    console.log("passingLapData", passingLapData);
-    console.log("Cars and Fastest Laps:");
-
-    cars.forEach((carNumber, index) => {
-      const driverName = currentRace?.drivers?.find(
-        (driver) => driver.carNumber === carNumber
-      )?.name;
-      const fastestLap = fastestLaps[carNumber] ?? "No fastest lap set yet";
-      console.log(
-        `[Car ${index}]: Driver: ${driverName}, Fastest Lap: ${fastestLap}`
-      );
-    });
-  }, [fastestLapsData, passingLapData, fastestLaps]);
-
   // *********************************************************************************
 
   useEffect(() => {
