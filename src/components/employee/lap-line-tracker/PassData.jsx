@@ -30,30 +30,38 @@ const PassData = ({ fastestLapsData, passingLapData }) => {
     <div className="pass-data-container">
       <div className="fastest-laps-data">
         <h3>Fastest Laps Data</h3>
-        <ul>
-          {fastestLapsData.map((lap, index) => (
-            <li key={index}>
-              Car №{lap.carNumber}: {lap.driverName} - {lap.lapTime}
-            </li>
-          ))}
-        </ul>
+        {fastestLapsData.length > 0 ? (
+          <ul>
+            {fastestLapsData.map((lap, index) => (
+              <li key={index}>
+                Car №{lap.carNumber}: {lap.driverName} - {lap.lapTime}
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p>No fastest lap data available.</p>
+        )}
       </div>
 
       <div className="passing-lap-data">
         <h3>Passing Lap Data</h3>
-        <ul>
-          {passingLapData.map((lap, index) => (
-            <li key={index}>
-              Car №{lap.carNumber}: {lap.driverName} - Lap {lap.lapNumber} (
-              {lap.lapTime})
-            </li>
-          ))}
-        </ul>
+        {passingLapData.length > 0 ? (
+          <ul>
+            {passingLapData.map((lap, index) => (
+              <li key={index}>
+                Car №{lap.carNumber}: {lap.driverName} - Lap {lap.lapNumber} (
+                {lap.lapTime})
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p>No passing lap data available.</p>
+        )}
       </div>
 
       {responseMessage && (
         <div className="response-message">
-          <p>Server Response: {responseMessage}</p>{" "}
+          <p>Server Response: {responseMessage}</p>
         </div>
       )}
 

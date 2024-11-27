@@ -24,8 +24,10 @@ const LapLineTracker = () => {
     setIsNewButtonClicked(true);
   };
   // ************************************************************************
+
   // ***************************DATA TO PASS FORWARD********************************
   const [fastestLapsData, setFastestLapsData] = useState([]);
+
   const [passingLapData, setPassingLapData] = useState([]);
   useEffect(() => {
     console.log("fastestLapsData", fastestLapsData);
@@ -76,13 +78,26 @@ const LapLineTracker = () => {
         laps[driver.carNumber] = driver.fastestLap || Infinity;
         return laps;
       }, {});
-
       setCars(carNumbers);
       setFastestLaps(fastestLaps);
       setRaceEnded(false);
+
+      // Format the fastestLaps state into the required structure for PassData
+      const formattedFastestLapsData = carNumbers.map((carNumber) => {
+        const driverName = currentRace.drivers.find(
+          (driver) => driver.carNumber === carNumber
+        )?.name;
+        const fastestLap = fastestLaps[carNumber] || "No fastest lap set yet";
+        return {
+          carNumber,
+          driverName,
+          lapTime: fastestLap,
+        };
+      });
+
+      setFastestLapsData(formattedFastestLapsData);
     }
   }, [currentRace]);
-
   const handleLapCrossing = (carNumber) => {
     if (raceEnded) return;
 
