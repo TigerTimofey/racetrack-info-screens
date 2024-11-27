@@ -1,75 +1,38 @@
-import React, { useState, useEffect } from "react";
-import { useSocket } from "../../../hooks/useSocket";
+// src/components/employee/race-control/RaceControl.jsx
+import React from "react";
 import { useNavigate } from "react-router-dom";
-import config from "../../../config";
-import "./RaceControl.css";
+
+import Timer from "../../timer/Timer"; // Исправленный импорт
 
 const RaceControl = () => {
-  const socket = useSocket();
   const navigate = useNavigate();
-  const [authenticated, setAuthenticated] = useState(false);
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    if (socket && !authenticated) {
-      console.log("Attempting to authenticate...");
-      setLoading(true);
-
-      // Simulate loading time before attempting authentication
-      const loadingTimeout = setTimeout(() => {
-        socket.emit("authenticate", { key: config.keys.safety });
-
-        // Listen for authentication response
-        socket.on("authenticated", (status) => {
-          setLoading(false);
-          if (status) {
-            setAuthenticated(true);
-          } else {
-            setError("Invalid access key");
-          }
-        });
-      }, 2000);
-
-      return () => clearTimeout(loadingTimeout);
-    }
-  }, [socket, authenticated]);
-
-  if (loading) {
-    // Show loading spinner while authenticating
-    return (
-      <div className="loading-container">
-        <div className="spinner"></div>
-        <p>Authenticating Safety Official</p>
-      </div>
-    );
-  }
-
-  if (error) {
-    // Show error message and back button if the key is wrong
-    return (
-      <div className="error-container">
-        <div className="error-message">
-          <h3>{error}</h3>
-          <button className="back-button" onClick={() => navigate("/")}>
-            Back to Home
-          </button>
-        </div>
-      </div>
-    );
-  }
-
-  if (!authenticated) {
-    return <div>{error || "Authenticating..."}</div>;
-  }
+  // Колбэк, вызываемый, когда таймер завершается
+  const handleTimerFinish = () => {
+    console.log("Timer has finished in Race Control!");
+  };
 
   return (
     <div className="race-control-container">
-      <button className="back-button" onClick={() => navigate("/")}>
-        Back to Home
-      </button>
+      <div className="back-to-main" onClick={() => navigate("/")}>
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="60"
+          height="60"
+          fill="#ffd814"
+          className="bi bi-arrow-left-circle-fill"
+          viewBox="0 0 16 16"
+        >
+          <path d="M8 0a8 8 0 1 0 0 16A8 8 0 0 0 8 0m3.5 7.5a.5.5 0 0 1 0 1H5.707l2.147 2.146a.5.5 0 0 1-.708.708l-3-3a.5.5 0 0 1 0-.708l3-3a.5.5 0 1 1 .708.708L5.707 7.5z" />
+        </svg>
+      </div>
       <h2 className="race-control-title">Race Control Interface</h2>
       <p>Manage the race operations here</p>
+
+      {/* Встраиваем компонент таймера */}
+      <div className="timer-section">
+        <Timer onTimerFinish={handleTimerFinish} />
+      </div>
     </div>
   );
 };
