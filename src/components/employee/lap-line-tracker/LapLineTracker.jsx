@@ -2,11 +2,10 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { backButton } from "../../../assets/button/buttons";
 import Timer from "../../timer/Timer";
-import { io } from "socket.io-client";
 
 import "./LapLineTracker.css";
-import PassData from "./PassData";
-const socket = io("http://localhost:3000");
+import PassData from "./passing-data-socket/PassData";
+
 const LapLineTracker = () => {
   const navigate = useNavigate();
 

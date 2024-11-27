@@ -51,7 +51,18 @@ const LeaderBoard = () => {
                     <strong>
                       Car {lap.carNumber} - Driver: {lap.driverName}
                     </strong>
-                    : {lap.lapTime} (Fastest Lap Time)
+                    :{" "}
+                    {Number.isFinite(lap.lapTime) && lap.lapTime > 0
+                      ? `${String(Math.floor(lap.lapTime / 60)).padStart(
+                          2,
+                          "0"
+                        )}:${String(Math.floor(lap.lapTime % 60)).padStart(
+                          2,
+                          "0"
+                        )} (${((lap.lapTime % 1) * 1000)
+                          .toFixed(0)
+                          .padStart(3, "0")} ms)`
+                      : "On the way"}
                   </li>
                 ))}
             </ul>

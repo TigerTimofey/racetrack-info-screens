@@ -28,7 +28,7 @@ const PassData = ({ fastestLapsData, passingLapData }) => {
 
   return (
     <div className="pass-data-container">
-      <div className="fastest-laps-data">
+      {/* <div className="fastest-laps-data">
         <h3>Fastest Laps Data</h3>
         {fastestLapsData.length > 0 ? (
           <ul>
@@ -77,7 +77,7 @@ const PassData = ({ fastestLapsData, passingLapData }) => {
             <pre>{JSON.stringify(responseData.passingLapData, null, 2)}</pre>
           </div>
         </div>
-      )}
+      )} */}
     </div>
   );
 };
