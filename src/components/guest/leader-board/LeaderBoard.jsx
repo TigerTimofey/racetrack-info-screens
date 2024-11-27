@@ -10,6 +10,7 @@ const LeaderBoard = () => {
   const [leaderBoardData, setLeaderBoardData] = useState([]);
   const [responseMessage, setResponseMessage] = useState("");
   const [responseData, setResponseData] = useState(null);
+  const [showLaps, setShowLaps] = useState(false);
 
   useEffect(() => {
     socket.emit("findAllFastestLap");
@@ -18,6 +19,13 @@ const LeaderBoard = () => {
       console.log("Received response from server:", response);
       setResponseMessage(response.message);
       setResponseData(response);
+    });
+
+    const timerSocket = io("http://localhost:3000/timer");
+    timerSocket.on("message", (msg) => {
+      if (msg === "Timer finished") {
+        setShowLaps(true);
+      }
     });
 
     return () => {
@@ -67,10 +75,12 @@ const LeaderBoard = () => {
                 ))}
             </ul>
           </div>
-          <div>
-            <h4>Passing Lap Data - SEE ONLY WHEN RACE IS ENDED!</h4>
-            <pre>{JSON.stringify(responseData.passingLapData, null, 2)}</pre>
-          </div>
+          {showLaps && (
+            <div>
+              <h4>Passing Lap Data - SEE ONLY WHEN RACE IS ENDED!</h4>
+              <pre>{JSON.stringify(responseData.passingLapData, null, 2)}</pre>
+            </div>
+          )}
         </div>
       )}
 
