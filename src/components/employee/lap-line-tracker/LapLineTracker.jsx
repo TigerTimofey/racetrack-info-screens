@@ -2,9 +2,11 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { backButton } from "../../../assets/button/buttons";
 import Timer from "../../timer/Timer";
+import { io } from "socket.io-client";
 
 import "./LapLineTracker.css";
-
+import PassData from "./PassData";
+const socket = io("http://localhost:3000");
 const LapLineTracker = () => {
   const navigate = useNavigate();
 
@@ -12,9 +14,7 @@ const LapLineTracker = () => {
   const [raceEnded, setRaceEnded] = useState(false);
   const [lapTimes, setLapTimes] = useState({});
   const [fastestLaps, setFastestLaps] = useState({});
-  const [raceStartTime, setRaceStartTime] = useState(null);
   const [lapStartTimes, setLapStartTimes] = useState({});
-  const [isRaceSelected, setIsRaceSelected] = useState(false);
 
   // ********* data will come by socket from safety official
   const [races, setRaces] = useState([]); // <- if .map races === SAFETY race -> handleNewButtonClick to true
@@ -23,7 +23,27 @@ const LapLineTracker = () => {
   const handleNewButtonClick = () => {
     setIsNewButtonClicked(true);
   };
-  // *********
+  // ************************************************************************
+  // ***************************DATA TO PASS FORWARD********************************
+  const [fastestLapsData, setFastestLapsData] = useState([]);
+  const [passingLapData, setPassingLapData] = useState([]);
+  useEffect(() => {
+    console.log("fastestLapsData", fastestLapsData);
+    console.log("passingLapData", passingLapData);
+    console.log("Cars and Fastest Laps:");
+
+    cars.forEach((carNumber, index) => {
+      const driverName = currentRace?.drivers?.find(
+        (driver) => driver.carNumber === carNumber
+      )?.name;
+      const fastestLap = fastestLaps[carNumber] ?? "No fastest lap set yet";
+      console.log(
+        `[Car ${index}]: Driver: ${driverName}, Fastest Lap: ${fastestLap}`
+      );
+    });
+  }, [fastestLapsData, passingLapData, fastestLaps]);
+
+  // *********************************************************************************
 
   useEffect(() => {
     const fetchRaces = async () => {
@@ -37,7 +57,6 @@ const LapLineTracker = () => {
           setRaces(result);
           if (result.length > 0) {
             setCurrentRace(result[0]);
-            setRaceStartTime(new Date(result[0].startTime));
           }
         } else {
           alert("Error fetching races: " + result.message);
@@ -75,7 +94,7 @@ const LapLineTracker = () => {
       const previousLapStartTime = prevLapStartTimes[carNumber];
 
       if (previousLapStartTime) {
-        const lapTime = (currentTime - previousLapStartTime) / 1000; // In seconds
+        const lapTime = (currentTime - previousLapStartTime) / 1000;
         const minutes = Math.floor(lapTime / 60);
         const seconds = Math.floor(lapTime % 60);
         const formattedLapTime = `${String(minutes).padStart(2, "0")}:${String(
@@ -98,12 +117,53 @@ const LapLineTracker = () => {
           const currentFastestLap = prevFastestLaps[carNumber];
           if (!currentFastestLap || lapTime < currentFastestLap) {
             updateFastestLapBackend(carNumber, lapTime);
+
+            setFastestLapsData((prevFastestLapsData) => {
+              const updatedFastestLaps = prevFastestLapsData.filter(
+                (lap) => lap.carNumber !== carNumber
+              );
+              const fastestLapEntry = {
+                carNumber,
+                driverName:
+                  currentRace.drivers.find(
+                    (driver) => driver.carNumber === carNumber
+                  )?.name || `Driver ${carNumber}`,
+                lapTime: formattedLapTime,
+              };
+
+              return [...updatedFastestLaps, fastestLapEntry];
+            });
+
             return {
               ...prevFastestLaps,
               [carNumber]: lapTime,
             };
           }
           return prevFastestLaps;
+        });
+
+        setPassingLapData((prevPassingLapData) => {
+          const newPassingEntry = {
+            carNumber,
+            driverName:
+              currentRace.drivers.find(
+                (driver) => driver.carNumber === carNumber
+              )?.name || `Driver ${carNumber}`,
+            lapNumber: lapCount,
+            lapTime: formattedLapTime,
+          };
+
+          const exists = prevPassingLapData.some(
+            (entry) =>
+              entry.carNumber === newPassingEntry.carNumber &&
+              entry.lapNumber === newPassingEntry.lapNumber
+          );
+
+          if (exists) {
+            return prevPassingLapData;
+          }
+
+          return [...prevPassingLapData, newPassingEntry];
         });
 
         return {
@@ -137,6 +197,7 @@ const LapLineTracker = () => {
     );
     if (racer) {
       const updatedRacer = { ...racer, fastestLap: lapTime };
+
       try {
         const response = await fetch(
           `${process.env.REACT_APP_SERVER_URL}/race-drivers/${racer.id}`,
@@ -163,7 +224,6 @@ const LapLineTracker = () => {
       (race) => race.id === parseInt(e.target.value)
     );
     setCurrentRace(selectedRace);
-    setIsRaceSelected(true);
     setIsNewButtonClicked(false);
   };
 
@@ -205,6 +265,10 @@ const LapLineTracker = () => {
           {!isNewButtonClicked && (
             <>
               <Timer onTimerFinish={() => setRaceEnded(true)} />
+              <PassData
+                fastestLapsData={fastestLapsData}
+                passingLapData={passingLapData}
+              />
               <div className="lap-buttons-container">
                 {cars.length > 0 ? (
                   cars.map((carNumber) => (
@@ -252,7 +316,12 @@ const LapLineTracker = () => {
                         ? `${String(Math.floor(time / 60)).padStart(
                             2,
                             "0"
-                          )}:${String(Math.floor(time % 60)).padStart(2, "0")}`
+                          )}:${String(Math.floor(time % 60)).padStart(
+                            2,
+                            "0"
+                          )} (${((time % 1) * 1000)
+                            .toFixed(0)
+                            .padStart(3, "0")} ms)`
                         : "No fastest lap set yet"}
                     </li>
                   ))}
