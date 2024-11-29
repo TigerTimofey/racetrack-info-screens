@@ -5,6 +5,7 @@ const RaceStatusDisplay = () => {
     const [raceStatus, setRaceStatus] = useState({
         id: "Неизвестно",
         status: "Нет данных",
+        sessionName: "Нет данных", // Добавлено поле sessionName
     });
     const [connectionStatus, setConnectionStatus] = useState("Не подключено");
 
@@ -31,6 +32,7 @@ const RaceStatusDisplay = () => {
             setRaceStatus({
                 id: data.sessionId || "Неизвестно",
                 status: data.status || "Нет данных",
+                sessionName: data.sessionName || "Нет данных", // Установка имени сессии
             });
         });
 
@@ -48,6 +50,7 @@ const RaceStatusDisplay = () => {
             <h2>Текущий статус гонки</h2>
             <p>Статус соединения: <strong>{connectionStatus}</strong></p>
             <p>Гонка ID: <strong>{raceStatus.id}</strong></p>
+            <p>Имя гонки: <strong>{raceStatus.sessionName}</strong></p>
             <p>Статус: <strong>{raceStatus.status}</strong></p>
         </div>
     );
