@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { backButton } from "../../../assets/button/buttons";
 import Timer from "../../timer/Timer";
 import "./LeaderBoard.css";
+import { raceStatusSocket } from "../../../socket";
 
 const socket = io("http://localhost:3000/fast");
 const flagOptions = [
@@ -22,15 +23,30 @@ const LeaderBoard = () => {
   const [raceEnded, setRaceEnded] = useState(false);
 
   //**************************************** COMES FROM SOCKET ****************************************************
-  const [currentFlag, setCurrentFlag] = useState(flagOptions[0]); // Default to "Safe"
-  const [currentRace, setCurrentRace] = useState(
-    "Racename from SAFETY OFFICIAL socket"
-  );
+  const [currentFlag, setCurrentFlag] = useState(flagOptions[0]);
+  const [currentRace, setCurrentRace] = useState("HUI");
+  const [raceStatus, setRaceStatus] = useState({
+    id: "no id",
+    status: "no data",
+  });
 
   const handleSetCurrentRace = () => {
     setCurrentRace(); // WHAT WILL COME FROM SOCKET
   };
+  useEffect(() => {
+    // Слушаем обновления статуса гонки
+    raceStatusSocket.on("raceStatusUpdate", (data) => {
+      console.log("Получено обновление статуса гонки:", data);
+      setRaceStatus({
+        id: data.sessionId || "no id",
+        status: data.status || "no status",
+      });
+    });
 
+    return () => {
+      raceStatusSocket.off("raceStatusUpdate");
+    };
+  }, []);
   // ***********************************************************************************************************
 
   useEffect(() => {

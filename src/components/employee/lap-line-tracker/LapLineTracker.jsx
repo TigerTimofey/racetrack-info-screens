@@ -6,6 +6,8 @@ import Timer from "../../timer/Timer";
 import "./LapLineTracker.css";
 import PassData from "./passing-data-socket/PassData";
 
+import { raceStatusSocket } from "../../../socket";
+
 const LapLineTracker = () => {
   const navigate = useNavigate();
 
@@ -14,20 +16,40 @@ const LapLineTracker = () => {
   const [lapTimes, setLapTimes] = useState({});
   const [fastestLaps, setFastestLaps] = useState({});
   const [lapStartTimes, setLapStartTimes] = useState({});
-
-  // ********* data will come by socket from safety official
-  const [races, setRaces] = useState([]); // <- if .map races === SAFETY race -> handleNewButtonClick to true
-  const [currentRace, setCurrentRace] = useState(null); // <- if currentRace NOW what comes from SAFETY race
-  const [isNewButtonClicked, setIsNewButtonClicked] = useState(false);
-  const handleNewButtonClick = () => {
-    setIsNewButtonClicked(true);
-  };
-  // ************************************************************************
-
-  // ***************************DATA TO PASS FORWARD********************************
+  const [races, setRaces] = useState([]);
+  const [currentRace, setCurrentRace] = useState(null);
+  const [raceStatus, setRaceStatus] = useState({
+    id: "no id",
+    status: "no status",
+  });
   const [fastestLapsData, setFastestLapsData] = useState([]);
   const [passingLapData, setPassingLapData] = useState([]);
-  // *********************************************************************************
+
+  useEffect(() => {
+    raceStatusSocket.on("raceStatusUpdate", (data) => {
+      console.log("socket data:", data);
+      setRaceStatus({
+        id: data.sessionId || "no id",
+        status: data.status || "no data",
+      });
+    });
+
+    return () => {
+      raceStatusSocket.off("raceStatusUpdate");
+    };
+  }, []);
+
+  useEffect(() => {
+    const matchingRace = races.find(
+      (race) => race.id === Number(raceStatus.id)
+    );
+    if (matchingRace) {
+      console.log("matchingRace", matchingRace);
+      setCurrentRace(matchingRace);
+    } else {
+      setCurrentRace(null);
+    }
+  }, [raceStatus, races]);
 
   useEffect(() => {
     const fetchRaces = async () => {
@@ -216,14 +238,6 @@ const LapLineTracker = () => {
     }
   };
 
-  const handleRaceSelection = (e) => {
-    const selectedRace = races.find(
-      (race) => race.id === parseInt(e.target.value)
-    );
-    setCurrentRace(selectedRace);
-    setIsNewButtonClicked(false);
-  };
-
   return (
     <div className="race-control-container">
       <div className="back-to-main" onClick={() => navigate("/")}>
@@ -234,32 +248,16 @@ const LapLineTracker = () => {
       {races.length > 0 ? (
         <>
           <div className="race-selection">
-            <label htmlFor="race-select">Select Race:</label>
-            <select id="race-select" onChange={handleRaceSelection}>
-              <option value="">-- Select a Race --</option>
-              {races.map((race) => (
-                <option key={race.id} value={race.id}>
-                  {race.sessionName}
-                </option>
-              ))}
-            </select>
+            <label htmlFor="race-select">
+              <h1>{currentRace?.sessionName}</h1>
+            </label>
           </div>
-          {/* 
-          {isRaceSelected && (
-            <>
-              <button
-                className="start-race-button"
-                onClick={handleNewButtonClick}
-                // disabled={true}
-              >
-                START RACE
-              </button>
-            </>
-          )} */}
 
-          {/* Show components only when NEW BUTTON is clicked */}
-          {/* ************************************ Update state ************************************ */}
-          {!isNewButtonClicked && (
+          {!currentRace ? (
+            <div className="no-race">
+              Waiting confirmation from Safety Official
+            </div>
+          ) : (
             <>
               <Timer onTimerFinish={() => setRaceEnded(true)} />
               <PassData
