@@ -2,6 +2,7 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import Timer from "../../timer/Timer"; // Исправленный импорт
+
 import StartRaceButton from "../../../assets/button/StartRaceButton"; // Импорт кнопки
 import RaceStatusDisplay from "../../RaceStatusDisplay";
 
@@ -45,6 +46,7 @@ const RaceControl = () => {
             </div>
         </div>
     );
+
 };
 
 export default RaceControl;

@@ -1,48 +1,33 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { backButton } from "../../../assets/button/buttons";
+import Timer from "../../timer/Timer";
+
 import "./LapLineTracker.css";
+import PassData from "./passing-data-socket/PassData";
 
 const LapLineTracker = () => {
   const navigate = useNavigate();
-  const timerDuration = process.env.REACT_APP_TIMER_DURATION || 10 * 60 * 1000; // Default 10 minutes
 
   const [cars, setCars] = useState([]);
-  const [races, setRaces] = useState([]);
-  const [currentRace, setCurrentRace] = useState(null);
   const [raceEnded, setRaceEnded] = useState(false);
   const [lapTimes, setLapTimes] = useState({});
   const [fastestLaps, setFastestLaps] = useState({});
-  const [raceStartTime, setRaceStartTime] = useState(null);
   const [lapStartTimes, setLapStartTimes] = useState({});
-  const [timeLeft, setTimeLeft] = useState(timerDuration);
-  console.log(races);
 
-  // State to track visibility of components
-  const [isRaceSelected, setIsRaceSelected] = useState(false);
+  // ********* data will come by socket from safety official
+  const [races, setRaces] = useState([]); // <- if .map races === SAFETY race -> handleNewButtonClick to true
+  const [currentRace, setCurrentRace] = useState(null); // <- if currentRace NOW what comes from SAFETY race
   const [isNewButtonClicked, setIsNewButtonClicked] = useState(false);
+  const handleNewButtonClick = () => {
+    setIsNewButtonClicked(true);
+  };
+  // ************************************************************************
 
-  // Timer logic only runs when NEW BUTTON is clicked
-  useEffect(() => {
-    let interval;
-    if (isNewButtonClicked) {
-      interval = setInterval(() => {
-        setTimeLeft((prevTime) => {
-          if (prevTime <= 0) {
-            clearInterval(interval);
-            setRaceEnded(true);
-            return 0;
-          }
-          return prevTime - 1000;
-        });
-      }, 1000);
-    }
-
-    return () => clearInterval(interval);
-  }, [isNewButtonClicked]); // Only re-run when NEW BUTTON is clicked
-
-  const minutes = Math.floor(timeLeft / 60000);
-  const seconds = Math.floor((timeLeft % 60000) / 1000);
+  // ***************************DATA TO PASS FORWARD********************************
+  const [fastestLapsData, setFastestLapsData] = useState([]);
+  const [passingLapData, setPassingLapData] = useState([]);
+  // *********************************************************************************
 
   useEffect(() => {
     const fetchRaces = async () => {
@@ -56,7 +41,6 @@ const LapLineTracker = () => {
           setRaces(result);
           if (result.length > 0) {
             setCurrentRace(result[0]);
-            setRaceStartTime(new Date(result[0].startTime));
           }
         } else {
           alert("Error fetching races: " + result.message);
@@ -76,14 +60,26 @@ const LapLineTracker = () => {
         laps[driver.carNumber] = driver.fastestLap || Infinity;
         return laps;
       }, {});
-
       setCars(carNumbers);
       setFastestLaps(fastestLaps);
       setRaceEnded(false);
-      setTimeLeft(timerDuration);
-    }
-  }, [currentRace, timerDuration]);
 
+      // Format the fastestLaps state into the required structure for PassData
+      const formattedFastestLapsData = carNumbers.map((carNumber) => {
+        const driverName = currentRace.drivers.find(
+          (driver) => driver.carNumber === carNumber
+        )?.name;
+        const fastestLap = fastestLaps[carNumber] || "No fastest lap set yet";
+        return {
+          carNumber,
+          driverName,
+          lapTime: fastestLap,
+        };
+      });
+
+      setFastestLapsData(formattedFastestLapsData);
+    }
+  }, [currentRace]);
   const handleLapCrossing = (carNumber) => {
     if (raceEnded) return;
 
@@ -95,7 +91,7 @@ const LapLineTracker = () => {
       const previousLapStartTime = prevLapStartTimes[carNumber];
 
       if (previousLapStartTime) {
-        const lapTime = (currentTime - previousLapStartTime) / 1000; // In seconds
+        const lapTime = (currentTime - previousLapStartTime) / 1000;
         const minutes = Math.floor(lapTime / 60);
         const seconds = Math.floor(lapTime % 60);
         const formattedLapTime = `${String(minutes).padStart(2, "0")}:${String(
@@ -118,12 +114,53 @@ const LapLineTracker = () => {
           const currentFastestLap = prevFastestLaps[carNumber];
           if (!currentFastestLap || lapTime < currentFastestLap) {
             updateFastestLapBackend(carNumber, lapTime);
+
+            setFastestLapsData((prevFastestLapsData) => {
+              const updatedFastestLaps = prevFastestLapsData.filter(
+                (lap) => lap.carNumber !== carNumber
+              );
+              const fastestLapEntry = {
+                carNumber,
+                driverName:
+                  currentRace.drivers.find(
+                    (driver) => driver.carNumber === carNumber
+                  )?.name || `Driver ${carNumber}`,
+                lapTime: formattedLapTime,
+              };
+
+              return [...updatedFastestLaps, fastestLapEntry];
+            });
+
             return {
               ...prevFastestLaps,
               [carNumber]: lapTime,
             };
           }
           return prevFastestLaps;
+        });
+
+        setPassingLapData((prevPassingLapData) => {
+          const newPassingEntry = {
+            carNumber,
+            driverName:
+              currentRace.drivers.find(
+                (driver) => driver.carNumber === carNumber
+              )?.name || `Driver ${carNumber}`,
+            lapNumber: lapCount,
+            lapTime: formattedLapTime,
+          };
+
+          const exists = prevPassingLapData.some(
+            (entry) =>
+              entry.carNumber === newPassingEntry.carNumber &&
+              entry.lapNumber === newPassingEntry.lapNumber
+          );
+
+          if (exists) {
+            return prevPassingLapData;
+          }
+
+          return [...prevPassingLapData, newPassingEntry];
         });
 
         return {
@@ -157,6 +194,7 @@ const LapLineTracker = () => {
     );
     if (racer) {
       const updatedRacer = { ...racer, fastestLap: lapTime };
+
       try {
         const response = await fetch(
           `${process.env.REACT_APP_SERVER_URL}/race-drivers/${racer.id}`,
@@ -178,19 +216,12 @@ const LapLineTracker = () => {
     }
   };
 
-  // Handle race selection
   const handleRaceSelection = (e) => {
     const selectedRace = races.find(
       (race) => race.id === parseInt(e.target.value)
     );
     setCurrentRace(selectedRace);
-    setIsRaceSelected(true);
     setIsNewButtonClicked(false);
-  };
-
-  // Handle "NEW BUTTON" click
-  const handleNewButtonClick = () => {
-    setIsNewButtonClicked(true);
   };
 
   return (
@@ -202,10 +233,6 @@ const LapLineTracker = () => {
 
       {races.length > 0 ? (
         <>
-          {/* Race selection and NEW BUTTON */}
-          {/* <h1>
-            Time left: {minutes}:{seconds < 10 ? `0${seconds}` : seconds}
-          </h1> */}
           <div className="race-selection">
             <label htmlFor="race-select">Select Race:</label>
             <select id="race-select" onChange={handleRaceSelection}>
@@ -217,12 +244,9 @@ const LapLineTracker = () => {
               ))}
             </select>
           </div>
-
-          {/* NEW BUTTON */}
-
+          {/* 
           {isRaceSelected && (
             <>
-              <h1>TODO: show afer flag? safety?</h1>
               <button
                 className="start-race-button"
                 onClick={handleNewButtonClick}
@@ -231,14 +255,17 @@ const LapLineTracker = () => {
                 START RACE
               </button>
             </>
-          )}
+          )} */}
 
           {/* Show components only when NEW BUTTON is clicked */}
-          {isNewButtonClicked && (
+          {/* ************************************ Update state ************************************ */}
+          {!isNewButtonClicked && (
             <>
-              <h1>
-                Time left: {minutes}:{seconds < 10 ? `0${seconds}` : seconds}
-              </h1>
+              <Timer onTimerFinish={() => setRaceEnded(true)} />
+              <PassData
+                fastestLapsData={fastestLapsData}
+                passingLapData={passingLapData}
+              />
               <div className="lap-buttons-container">
                 {cars.length > 0 ? (
                   cars.map((carNumber) => (
@@ -286,7 +313,12 @@ const LapLineTracker = () => {
                         ? `${String(Math.floor(time / 60)).padStart(
                             2,
                             "0"
-                          )}:${String(Math.floor(time % 60)).padStart(2, "0")}`
+                          )}:${String(Math.floor(time % 60)).padStart(
+                            2,
+                            "0"
+                          )} (${((time % 1) * 1000)
+                            .toFixed(0)
+                            .padStart(3, "0")} ms)`
                         : "No fastest lap set yet"}
                     </li>
                   ))}
