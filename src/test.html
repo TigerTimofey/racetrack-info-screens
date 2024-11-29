@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebSocket Test</title>
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+</head>
+<body>
+<h1>WebSocket Test</h1>
+<div id="status">Status: Not Connected</div>
+<div id="messages"></div>
+<button id="connect">Connect</button>
+<button id="send">Send Test Update</button>
+
+<script>
+    let socket;
+
+    document.getElementById('connect').onclick = () => {
+        // Используем Socket.IO клиент для подключения
+        socket = io('http://localhost:3000');
+
+        socket.on('connect', () => {
+            document.getElementById('status').textContent = 'Status: Connected';
+            console.log('Connected to WebSocket server');
+        });
+
+        socket.on('raceStatusUpdate', (data) => {
+            const message = document.createElement('div');
+            message.textContent = `Message: ${JSON.stringify(data)}`;
+            document.getElementById('messages').appendChild(message);
+        });
+
+        socket.on('disconnect', () => {
+            document.getElementById('status').textContent = 'Status: Disconnected';
+            console.log('Disconnected from server');
+        });
+
+        socket.on('connect_error', (error) => {
+            console.error('Connection error:', error);
+        });
+    };
+
+    document.getElementById('send').onclick = () => {
+        if (socket && socket.connected) {
+            socket.emit('raceStatusUpdate', { sessionId: 1, status: 'InProgress' });
+            console.log('Test update sent');
+        } else {
+            console.log('Socket is not connected');
+        }
+    };
+</script>
+</body>
+</html>

@@ -1,77 +1,52 @@
-import React, { useState, useEffect } from "react";
-import { useSocket } from "../../../hooks/useSocket";
+// src/components/employee/race-control/RaceControl.jsx
+import React from "react";
 import { useNavigate } from "react-router-dom";
-import config from "../../../config";
-import "./RaceControl.css";
+import Timer from "../../timer/Timer"; // Исправленный импорт
+
+import StartRaceButton from "../../../assets/button/StartRaceButton"; // Импорт кнопки
+import RaceStatusDisplay from "../../RaceStatusDisplay";
 
 const RaceControl = () => {
-  const socket = useSocket();
-  const navigate = useNavigate();
-  const [authenticated, setAuthenticated] = useState(false);
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(true);
+    const navigate = useNavigate();
 
-  useEffect(() => {
-    if (socket && !authenticated) {
-      console.log("Attempting to authenticate...");
-      setLoading(true);
+    // Колбэк, вызываемый, когда таймер завершается
+    const handleTimerFinish = () => {
+        console.log("Timer has finished in Race Control!");
+    };
 
-      // Simulate loading time before attempting authentication
-      const loadingTimeout = setTimeout(() => {
-        socket.emit("authenticate", { key: config.keys.safety });
+    // Колбэк для начала гонки
+    const handleStartRace = () => {
+        console.log("Race started!");
+    };
 
-        // Listen for authentication response
-        socket.on("authenticated", (status) => {
-          setLoading(false);
-          if (status) {
-            setAuthenticated(true);
-          } else {
-            setError("Invalid access key");
-          }
-        });
-      }, 2000);
-
-      return () => clearTimeout(loadingTimeout);
-    }
-  }, [socket, authenticated]);
-
-  if (loading) {
-    // Show loading spinner while authenticating
     return (
-      <div className="loading-container">
-        <div className="spinner"></div>
-        <p>Authenticating Safety Official</p>
-      </div>
-    );
-  }
+        <div className="race-control-container">
+            {/* Кнопка назад */}
+            <button className="back-to-main" onClick={() => navigate("/")}>
+                Back to Main
+            </button>
 
-  if (error) {
-    // Show error message and back button if the key is wrong
-    return (
-      <div className="error-container">
-        <div className="error-message">
-          <h3>{error}</h3>
-          <button className="back-button" onClick={() => navigate("/")}>
-            Back to Home
-          </button>
+            <h2 className="race-control-title">Race Control Interface</h2>
+            <p>Manage the race operations here</p>
+
+            {/* Встраиваем компонент таймера */}
+            <div className="timer-section">
+                <Timer onTimerFinish={handleTimerFinish}/>
+            </div>
+
+            {/* Встраиваем кнопку начала гонки */}
+            <div className="start-race-section">
+                <StartRaceButton onClick={handleStartRace}>
+                    Start Race
+                </StartRaceButton>
+            </div>
+            <div className="race-control-container">
+                <h2 className="race-control-title">Race Control Interface</h2>
+                <RaceStatusDisplay/>
+            </div>
         </div>
-      </div>
     );
-  }
 
-  if (!authenticated) {
-    return <div>{error || "Authenticating..."}</div>;
-  }
-
-  return (
-    <div className="race-control-container">
-      <button className="back-button" onClick={() => navigate("/")}>
-        Back to Home
-      </button>
-      <h2 className="race-control-title">Race Control Interface</h2>
-      <p>Manage the race operations here</p>
-    </div>
-  );
 };
 
 export default RaceControl;

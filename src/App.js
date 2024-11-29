@@ -4,10 +4,11 @@ import FrontDesk from "./components/employee/front-desk/FrontDesk";
 import WelcomePage from "./components/welcome-page/WelcomePage";
 import RaceControl from "./components/employee/race-control/RaceControl";
 import LapLineTracker from "./components/employee/lap-line-tracker/LapLineTracker";
-
-import LeaderBoardModal from "./components/guest/leader-board/LeaderBoardModal";
-// import NextRace from "./components/NextRace";
-// import RaceFlags from "./components/RaceFlags";
+import LeaderBoard from "./components/guest/leader-board/LeaderBoard";
+import NextRace from "./components/guest/next-race/NextRace";
+import RaceCountdown from "./components/guest/race-countdown/RaceCountdown";
+import RaceFlag from "./components/guest/race-flag/RaceFlag";
+import FlagBearers from "./components/employee/flag-bearers/FlagBearers";
 
 const App = () => (
   <Router>
@@ -16,9 +17,11 @@ const App = () => (
       <Route path="/front-desk" element={<FrontDesk />} />
       <Route path="/race-control" element={<RaceControl />} />
       <Route path="/lap-line-tracker" element={<LapLineTracker />} />
-      <Route path="/leader-board" element={<LeaderBoardModal />} />
-      {/* <Route path="/next-race" element={<NextRace />} /> */}
-      {/* <Route path="/race-flags" element={<RaceFlags />} /> */}
+      <Route path="/flag-bearers" element={<FlagBearers />} />
+      <Route path="/leader-board" element={<LeaderBoard />} />
+      <Route path="/next-race" element={<NextRace />} />
+      <Route path="/race-countdown" element={<RaceCountdown />} />
+      <Route path="/race-flags" element={<RaceFlag />} />
     </Routes>
   </Router>
 );

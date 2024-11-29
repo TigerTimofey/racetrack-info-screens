@@ -1,12 +1,14 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-// import LeaderBoardModal from "./LeaderBoardModal";
+import AuthComponent from "../Auth/auth"; // Authentication Component
 import "./WelcomePage.css";
-import LeaderBoardModal from "../guest/leader-board/LeaderBoardModal";
+
+import Lottie from "react-lottie";
+import loadingAnimation from "../../assets/lottie-animations/race.json";
 
 const roles = {
   Employee: {
-    SafetyOfficial: "An employee who ensures safety and controls the race.",
+    SafetyOfficial: "Ensures safety and controls the race.",
     LapLineObserver: "Records when cars cross the lap line.",
     FlagBearer: "Communicates safety instructions using flags.",
     Receptionist: "Welcomes guests and registers race drivers at the desk.",
@@ -19,17 +21,46 @@ const roles = {
   },
 };
 
+// Reusable Button Component
+const RoleButton = ({ text, onClick }) => (
+  <button className="welcome-button learn-more" onClick={onClick}>
+    <div className="circle">
+      <div className="icon arrow"></div>
+    </div>
+    <span className="button-text">{text}</span>
+  </button>
+);
+
 const WelcomePage = () => {
   const [userType, setUserType] = useState("");
   const [selectedRole, setSelectedRole] = useState("");
-  const [isModalOpen, setModalOpen] = useState(false);
   const navigate = useNavigate();
 
-  const openModal = () => setModalOpen(true);
-  const closeModal = () => setModalOpen(false);
+  useEffect(() => {
+    setSelectedRole("");
+  }, [userType]);
+
+  const lottieOptions = {
+    loop: true,
+    autoplay: true,
+    animationData: loadingAnimation,
+  };
+
+  const handleAuthenticated = () => {
+    if (selectedRole === "Receptionist") {
+      navigate("/front-desk");
+    } else if (selectedRole === "SafetyOfficial") {
+      navigate("/race-control");
+    } else if (selectedRole === "LapLineObserver") {
+      navigate("/lap-line-tracker");
+    }
+  };
 
   return (
     <div className="welcome-container">
+      <div className="loading-animation">
+        <Lottie options={lottieOptions} height={200} />
+      </div>
       <h2 className="welcome-title">Welcome to the Beachside Racetrack</h2>
       <p className="welcome-subtitle">Select your role to get started</p>
 
@@ -53,7 +84,7 @@ const WelcomePage = () => {
         </button>
       </div>
 
-      {/* Reserved Space for Role Selection */}
+      {/* Step 2: Role Selection */}
       <div className="role-selection-placeholder">
         {userType && (
           <div className="role-selection">
@@ -77,48 +108,59 @@ const WelcomePage = () => {
         )}
       </div>
 
-      {/* Role Description and Buttons */}
+      {/* Step 3: Role Description and Navigation Buttons */}
       <div className="role-description-placeholder">
         {selectedRole && (
           <div className="role-description">
-            <p>{roles[userType][selectedRole]}</p>
-            {selectedRole === "Receptionist" && (
-              <button
-                className="welcome-button"
-                onClick={() => navigate("/front-desk")}
-              >
-                Front Desk
-              </button>
-            )}
-            {selectedRole === "SafetyOfficial" && (
-              <button
-                className="welcome-button"
-                onClick={() => navigate("/race-control")}
-              >
-                Race Control
-              </button>
-            )}
-            {selectedRole === "LapLineObserver" && (
-              <>
-                <button
-                  className="welcome-button"
-                  onClick={() => navigate("/lap-line-tracker")}
-                >
-                  Lap-line Tracker
-                </button>
-              </>
-            )}
-            {selectedRole === "RaceDriver" && (
-              <button className="welcome-button" onClick={openModal}>
-                Leader Board
-              </button>
+            <p>
+              <b>{roles[userType][selectedRole]}</b>
+            </p>
+
+            {/* Conditional Rendering of Buttons */}
+            {["Receptionist", "SafetyOfficial", "LapLineObserver"].includes(
+              selectedRole
+            ) ? (
+              <AuthComponent
+                apiUrl="http://localhost:3000"
+                role={selectedRole}
+                onAuthenticated={handleAuthenticated}
+              />
+            ) : (
+              <div>
+                {selectedRole === "FlagBearer" && (
+                  <RoleButton
+                    text="Flag Bearers"
+                    onClick={() => navigate("/flag-bearers")}
+                  />
+                )}
+                {(selectedRole === "RaceDriver" ||
+                  selectedRole === "Spectator") && (
+                  <RoleButton
+                    text="Leader Board"
+                    onClick={() => navigate("/leader-board")}
+                  />
+                )}
+                {selectedRole === "RaceDriver" && (
+                  <>
+                    <RoleButton
+                      text="Next Race"
+                      onClick={() => navigate("/next-race")}
+                    />
+                    <RoleButton
+                      text="Race Countdown"
+                      onClick={() => navigate("/race-countdown")}
+                    />
+                    <RoleButton
+                      text="Race Flags"
+                      onClick={() => navigate("/race-flags")}
+                    />
+                  </>
+                )}
+              </div>
             )}
           </div>
         )}
       </div>
-
-      <LeaderBoardModal isOpen={isModalOpen} onClose={closeModal} />
-      {/* <LeaderBoardModal isOpen={isModalOpen} onClose={closeModal} /> */}
     </div>
   );
 };
