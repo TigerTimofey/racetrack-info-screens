@@ -16,7 +16,7 @@ const PassData = ({ fastestLapsData, passingLapData }) => {
     }
 
     socket.on("lapDataResponse", (response) => {
-      console.log("Received response from server:", response);
+      console.log("", response);
       setResponseMessage(response.message);
       setResponseData(response);
     });

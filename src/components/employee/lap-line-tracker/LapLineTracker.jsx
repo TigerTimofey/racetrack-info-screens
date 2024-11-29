@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { backButton } from "../../../assets/button/buttons";
+import { backButton, carPersona } from "../../../assets/button/buttons";
 import Timer from "../../timer/Timer";
 
 import "./LapLineTracker.css";
@@ -21,6 +21,7 @@ const LapLineTracker = () => {
   const [raceStatus, setRaceStatus] = useState({
     id: "no id",
     status: "no status",
+    name: "no name",
   });
   const [fastestLapsData, setFastestLapsData] = useState([]);
   const [passingLapData, setPassingLapData] = useState([]);
@@ -44,7 +45,6 @@ const LapLineTracker = () => {
       (race) => race.id === Number(raceStatus.id)
     );
     if (matchingRace) {
-      console.log("matchingRace", matchingRace);
       setCurrentRace(matchingRace);
     } else {
       setCurrentRace(null);
@@ -203,11 +203,15 @@ const LapLineTracker = () => {
     const lapCount = carLapTimes.length + 1;
     const lapInProgress = lapStartTimes[carNumber];
 
-    if (lapInProgress) {
-      return `Car №${carNumber} Finish Lap ${lapCount}`;
-    }
+    const labelAction = lapInProgress
+      ? `Finish Lap ${lapCount}`
+      : `Start Lap ${lapCount}`;
 
-    return `Car №${carNumber} Start Lap ${lapCount}`;
+    return (
+      <>
+        {carPersona} №{carNumber} {labelAction}
+      </>
+    );
   };
 
   const updateFastestLapBackend = async (carNumber, lapTime) => {
@@ -273,7 +277,7 @@ const LapLineTracker = () => {
                       onClick={() => handleLapCrossing(carNumber)}
                       disabled={raceEnded}
                     >
-                      {getButtonLabel(carNumber)} s
+                      {getButtonLabel(carNumber)}
                     </button>
                   ))
                 ) : (
@@ -290,7 +294,9 @@ const LapLineTracker = () => {
                 <div className="lap-times-grid">
                   {Object.entries(lapTimes).map(([carNumber, laps]) => (
                     <div key={carNumber} className="lap-time-card">
-                      <h4>Car №{carNumber}</h4>
+                      <h4>
+                        {carPersona} № {carNumber}
+                      </h4>
                       <ul>
                         {laps.map(({ lapNumber, time }, index) => (
                           <li key={index}>{`Lap ${lapNumber}: ${time}`}</li>
@@ -306,7 +312,7 @@ const LapLineTracker = () => {
                 <ul>
                   {Object.entries(fastestLaps).map(([carNumber, time]) => (
                     <li key={carNumber}>
-                      Car №{carNumber}:{" "}
+                      {carPersona} № {carNumber}:{" "}
                       {Number.isFinite(time) && time > 0
                         ? `${String(Math.floor(time / 60)).padStart(
                             2,
