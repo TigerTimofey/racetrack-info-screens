@@ -1,0 +1,24 @@
+/* Основной стиль кнопки */
+.start-race-button {
+    padding: 10px 20px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+/* Ховер эффект */
+.start-race-button:hover {
+    background-color: #45a049;
+    transform: scale(1.05);
+}
+
+/* Стиль кнопки, если гонка началась */
+.start-race-button.race-started {
+    background-color: #FF5733; /* Оранжевый цвет */
+    cursor: not-allowed;
+    transform: scale(1);
+}

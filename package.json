@@ -26,7 +26,7 @@
     "web-vitals": "^2.1.4"
   },
   "scripts": {
-    "start": "cross-env REACT_APP_TIMER_DURATION=600000 react-scripts start",
+    "start": "cross-env PORT=4000 react-scripts start",
     "dev": "cross-env REACT_APP_TIMER_DURATION=60000 react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
