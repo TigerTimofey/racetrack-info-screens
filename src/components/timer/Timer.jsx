@@ -1,16 +1,17 @@
 import React, { useEffect, useState } from "react";
-import socket from "../../socket"; // Убедитесь, что путь верный
+import { timerSocket } from "../../socket"; // Используем именованный экспорт timerSocket
 import "./Timer.css"; // Подключаем CSS
 
 const Timer = ({ onTimerFinish }) => {
     const [timer, setTimer] = useState("00:00");
 
     useEffect(() => {
-        socket.on("timeUpdate", (time) => {
+        // Подписываемся на события таймера
+        timerSocket.on("timeUpdate", (time) => {
             setTimer(time);
         });
 
-        socket.on("message", (msg) => {
+        timerSocket.on("message", (msg) => {
             if (msg === "Timer finished") {
                 setTimer("00:00");
                 if (onTimerFinish) {
@@ -19,9 +20,10 @@ const Timer = ({ onTimerFinish }) => {
             }
         });
 
+        // Отписываемся от событий при размонтировании компонента
         return () => {
-            socket.off("timeUpdate");
-            socket.off("message");
+            timerSocket.off("timeUpdate");
+            timerSocket.off("message");
         };
     }, [onTimerFinish]);
 

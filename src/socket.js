@@ -1,6 +1,7 @@
-// src/socket.js
 import { io } from 'socket.io-client';
 
-const socket = io('http://localhost:3000/timer'); // Убедитесь, что путь совпадает с namespace на сервере
+// Подключение для таймера
+export const timerSocket = io('http://localhost:3000/timer');
 
-export default socket;
+// Подключение для статуса гонки
+export const raceStatusSocket = io('http://localhost:3000/race-status');
