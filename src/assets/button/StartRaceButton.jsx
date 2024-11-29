@@ -35,16 +35,35 @@ const StartRaceButton = () => {
         if (upcomingRace) {
             try {
                 // Обновляем статус гонки на сервере
-                const response = await fetch(`http://localhost:3000/race-sessions/${upcomingRace.id}/status`, {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ status: 'InProgress' }),
-                });
+                const statusResponse = await fetch(
+                    `http://localhost:3000/race-sessions/${upcomingRace.id}/status`,
+                    {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ status: 'InProgress' }),
+                    }
+                );
 
-                if (!response.ok) {
+                if (!statusResponse.ok) {
                     throw new Error('Ошибка при обновлении статуса гонки');
+                }
+
+                // Запускаем таймер на сервере
+                const timerResponse = await fetch(
+                    `http://localhost:3000/race-sessions/${upcomingRace.id}/start-timer`,
+                    {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ duration: 10 }), // Продолжительность таймера в минутах
+                    }
+                );
+
+                if (!timerResponse.ok) {
+                    throw new Error('Ошибка при запуске таймера');
                 }
 
                 // Уведомляем всех клиентов через WebSocket
@@ -53,7 +72,7 @@ const StartRaceButton = () => {
                     status: 'InProgress',
                 });
 
-                console.log(`Гонка "${upcomingRace.sessionName}" началась!`);
+                console.log(`Гонка "${upcomingRace.sessionName}" началась, таймер запущен!`);
                 setRaceStarted(true); // Обновляем состояние после успешного запуска
             } catch (error) {
                 console.error("Ошибка при запуске гонки:", error);
