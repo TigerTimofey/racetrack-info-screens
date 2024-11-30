@@ -1,11 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { io } from "socket.io-client";
 import { useNavigate } from "react-router-dom";
-import {
-  backButton,
-  carPersona,
-  driverPersona,
-} from "../../../assets/button/buttons";
+import { backButton, carPersona } from "../../../assets/button/buttons";
 import Timer from "../../timer/Timer";
 import "./LeaderBoard.css";
 import { raceStatusSocket } from "../../../socket";
@@ -20,7 +16,6 @@ const flagOptions = [
 
 const LeaderBoard = () => {
   const navigate = useNavigate();
-  const [leaderBoardData, setLeaderBoardData] = useState([]);
   const [responseMessage, setResponseMessage] = useState("");
   const [responseData, setResponseData] = useState(null);
   const [showLaps, setShowLaps] = useState(false);
@@ -28,20 +23,15 @@ const LeaderBoard = () => {
 
   //**************************************** COMES FROM SOCKET ****************************************************
   const [currentFlag, setCurrentFlag] = useState(flagOptions[0]);
-  const [currentRace, setCurrentRace] = useState("");
+
   const [raceStatus, setRaceStatus] = useState({
     id: "no id",
     status: "no data",
     sessionName: "",
   });
 
-  const handleSetCurrentRace = () => {
-    setCurrentRace(); // WHAT WILL COME FROM SOCKET
-  };
   useEffect(() => {
-    // Слушаем обновления статуса гонки
     raceStatusSocket.on("raceStatusUpdate", (data) => {
-      console.log("Получено обновление статуса гонки:", data);
       setRaceStatus({
         id: data.sessionId || "no id",
         status: data.status || "no status",
