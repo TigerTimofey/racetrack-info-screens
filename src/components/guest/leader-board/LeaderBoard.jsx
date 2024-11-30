@@ -1,9 +1,14 @@
 import React, { useEffect, useState } from "react";
 import { io } from "socket.io-client";
 import { useNavigate } from "react-router-dom";
-import { backButton } from "../../../assets/button/buttons";
+import {
+  backButton,
+  carPersona,
+  driverPersona,
+} from "../../../assets/button/buttons";
 import Timer from "../../timer/Timer";
 import "./LeaderBoard.css";
+import { raceStatusSocket } from "../../../socket";
 
 const socket = io("http://localhost:3000/fast");
 const flagOptions = [
@@ -22,22 +27,38 @@ const LeaderBoard = () => {
   const [raceEnded, setRaceEnded] = useState(false);
 
   //**************************************** COMES FROM SOCKET ****************************************************
-  const [currentFlag, setCurrentFlag] = useState(flagOptions[0]); // Default to "Safe"
-  const [currentRace, setCurrentRace] = useState(
-    "Racename from SAFETY OFFICIAL socket"
-  );
+  const [currentFlag, setCurrentFlag] = useState(flagOptions[0]);
+  const [currentRace, setCurrentRace] = useState("HUI");
+  const [raceStatus, setRaceStatus] = useState({
+    id: "no id",
+    status: "no data",
+    sessionName: "",
+  });
 
   const handleSetCurrentRace = () => {
     setCurrentRace(); // WHAT WILL COME FROM SOCKET
   };
+  useEffect(() => {
+    // Слушаем обновления статуса гонки
+    raceStatusSocket.on("raceStatusUpdate", (data) => {
+      console.log("Получено обновление статуса гонки:", data);
+      setRaceStatus({
+        id: data.sessionId || "no id",
+        status: data.status || "no status",
+        sessionName: data.sessionName || "no name",
+      });
+    });
 
+    return () => {
+      raceStatusSocket.off("raceStatusUpdate");
+    };
+  }, []);
   // ***********************************************************************************************************
 
   useEffect(() => {
     socket.emit("findAllFastestLap");
 
     socket.on("lapDataResponse", (response) => {
-      console.log("Received response from server:", response);
       setResponseMessage(response.message);
       setResponseData(response);
     });
@@ -65,7 +86,7 @@ const LeaderBoard = () => {
       {responseMessage === "OK" && responseData && (
         <>
           <div className="race-name">
-            <h2 className="race-name-title">{`${currentRace}`} </h2>
+            <h2 className="race-name-title">{`${raceStatus.sessionName}`} </h2>
             <div
               className={`flag-box ${
                 currentFlag.isChequered ? "flag-box--chequered" : ""
@@ -90,43 +111,76 @@ const LeaderBoard = () => {
               <h4>Fastest Laps</h4>
               <ul>
                 {responseData.fastestLapsData &&
-                  responseData.fastestLapsData.map((lap, index) => {
-                    let lapTimeToDisplay;
+                  responseData.fastestLapsData
+                    .filter(
+                      (lap) =>
+                        lap.lapTime !== "On the way" && lap.lapTime !== null
+                    ) // Exclude "On the way" and null
+                    .sort((lapA, lapB) => {
+                      const convertLapTimeToSeconds = (lapTime) => {
+                        if (lapTime === "00:00") {
+                          return 0; // Treat "00:00" as the fastest (smallest) time
+                        }
+                        if (typeof lapTime === "string") {
+                          const [minutes, seconds] = lapTime
+                            .split(":")
+                            .map(Number);
+                          return minutes * 60 + seconds;
+                        }
+                        return lapTime; // Assuming it's already in seconds
+                      };
 
-                    if (lap.lapTime === "00:00") {
-                      lapTimeToDisplay = "00:00";
-                    } else if (typeof lap.lapTime === "string") {
-                      const [minutes, seconds] = lap.lapTime
-                        .split(":")
-                        .map(Number);
-                      const lapTimeInMilliseconds =
-                        (minutes * 60 + seconds) * 1000;
+                      return (
+                        convertLapTimeToSeconds(lapA.lapTime) -
+                        convertLapTimeToSeconds(lapB.lapTime)
+                      );
+                    })
+                    .map((lap, index) => {
+                      let lapTimeToDisplay;
 
-                      lapTimeToDisplay = `${String(
-                        Math.floor(lapTimeInMilliseconds / 60000)
-                      ).padStart(2, "0")}:${String(
-                        Math.floor((lapTimeInMilliseconds % 60000) / 1000)
-                      ).padStart(2, "0")}`;
-                    } else if (typeof lap.lapTime === "number") {
-                      const lapTimeInMilliseconds = lap.lapTime * 1000;
-                      lapTimeToDisplay = `${String(
-                        Math.floor(lapTimeInMilliseconds / 60000)
-                      ).padStart(2, "0")}:${String(
-                        Math.floor((lapTimeInMilliseconds % 60000) / 1000)
-                      ).padStart(2, "0")}`;
-                    } else if (lap.lapTime === null) {
-                      lapTimeToDisplay = "On the way";
-                    }
+                      if (lap.lapTime === "00:00") {
+                        lapTimeToDisplay = "00:00"; // Fastest lap time display
+                      } else if (typeof lap.lapTime === "string") {
+                        lapTimeToDisplay = lap.lapTime; // Display as is for string times
+                      } else if (typeof lap.lapTime === "number") {
+                        const lapTimeInMilliseconds = lap.lapTime * 1000;
+                        lapTimeToDisplay = `${String(
+                          Math.floor(lapTimeInMilliseconds / 60000)
+                        ).padStart(2, "0")}:${String(
+                          Math.floor((lapTimeInMilliseconds % 60000) / 1000)
+                        ).padStart(2, "0")}`;
+                      }
 
-                    return (
-                      <li key={index}>
-                        <strong>
-                          Car {lap.carNumber} - Driver: {lap.driverName}
-                        </strong>
-                        : {lapTimeToDisplay}
-                      </li>
-                    );
-                  })}
+                      return (
+                        <li key={index}>
+                          <strong>
+                            {carPersona} № {lap.carNumber} - Driver:{" "}
+                            {lap.driverName}
+                          </strong>
+                          : {lapTimeToDisplay}
+                          {responseData.passingLapData &&
+                            (() => {
+                              // Find the fastest lap for this car
+                              const fastestLap = responseData.passingLapData
+                                .filter(
+                                  (passingLap) =>
+                                    passingLap.carNumber === lap.carNumber
+                                )
+                                .reduce(
+                                  (fastest, current) =>
+                                    current.lapTime < fastest.lapTime
+                                      ? current
+                                      : fastest,
+                                  responseData.passingLapData[0]
+                                );
+
+                              return fastestLap
+                                ? ` (Lap ${fastestLap.lapNumber})`
+                                : "";
+                            })()}
+                        </li>
+                      );
+                    })}
               </ul>
             </div>
 

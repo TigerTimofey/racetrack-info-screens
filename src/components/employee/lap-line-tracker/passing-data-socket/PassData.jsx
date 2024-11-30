@@ -6,7 +6,6 @@ const socket = io("http://localhost:3000/fast");
 const PassData = ({ fastestLapsData, passingLapData }) => {
   const [responseMessage, setResponseMessage] = useState("");
   const [responseData, setResponseData] = useState(null);
-  console.log("fdsfsjgkdakdjkafslhjkl", responseData);
 
   useEffect(() => {
     if (fastestLapsData.length > 0 || passingLapData.length > 0) {
@@ -17,7 +16,7 @@ const PassData = ({ fastestLapsData, passingLapData }) => {
     }
 
     socket.on("lapDataResponse", (response) => {
-      console.log("Received response from server:", response);
+      console.log("", response);
       setResponseMessage(response.message);
       setResponseData(response);
     });
