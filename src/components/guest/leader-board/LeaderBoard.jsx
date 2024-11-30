@@ -28,7 +28,7 @@ const LeaderBoard = () => {
 
   //**************************************** COMES FROM SOCKET ****************************************************
   const [currentFlag, setCurrentFlag] = useState(flagOptions[0]);
-  const [currentRace, setCurrentRace] = useState("HUI");
+  const [currentRace, setCurrentRace] = useState("");
   const [raceStatus, setRaceStatus] = useState({
     id: "no id",
     status: "no data",
