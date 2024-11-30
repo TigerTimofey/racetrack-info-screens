@@ -158,6 +158,26 @@ const LeaderBoard = () => {
                             {lap.driverName}
                           </strong>
                           : {lapTimeToDisplay}
+                          {responseData.passingLapData &&
+                            (() => {
+                              // Find the fastest lap for this car
+                              const fastestLap = responseData.passingLapData
+                                .filter(
+                                  (passingLap) =>
+                                    passingLap.carNumber === lap.carNumber
+                                )
+                                .reduce(
+                                  (fastest, current) =>
+                                    current.lapTime < fastest.lapTime
+                                      ? current
+                                      : fastest,
+                                  responseData.passingLapData[0]
+                                );
+
+                              return fastestLap
+                                ? ` (Lap ${fastestLap.lapNumber})`
+                                : "";
+                            })()}
                         </li>
                       );
                     })}
