@@ -18,12 +18,32 @@ const FrontDesk = () => {
   const [selectedRace, setSelectedRace] = useState("");
   const [isLottieVisible, setIsLottieVisible] = useState(true);
 
+  // ********************************* ACCEPT SOCKET AND REMOVE SESSION *********************************
+  // Race sessions disappear from the Front Desk interface once it is safe to start.
+  const [socketCame, setSocketCame] = useState(false);
+  useEffect(() => {
+    //socket
+    //if true -> 'Safe'
+    handleDelete(); //id from socket
+  }, []);
+  // The race drivers cannot be edited after the race is safe to start.
+  const [raceHasStarted, setRaceHasStarted] = useState(false);
+  useEffect(() => {
+    //socket
+    //if true -> 'Safe'
+    if (socketCame === true) {
+      setRaceHasStarted(true); //id from socket
+    }
+    //socketCame
+  }, [socketCame]);
+
+  // *****************************************************************************************************
+
   const lottieOptions = {
     loop: true,
     autoplay: true,
     animationData: loadingAnimation,
   };
-
   // Hide Lottie when changing size
   useEffect(() => {
     const handleResize = () => {
@@ -62,7 +82,6 @@ const FrontDesk = () => {
 
     fetchRaces();
   }, []);
-
   // Add race
   const handleAddRaceSession = async (e) => {
     e.preventDefault();
@@ -127,7 +146,6 @@ const FrontDesk = () => {
       console.error("Error deleting race:", error);
     }
   };
-
   // Add racer to a specific race
   const handleAddRacer = async (e) => {
     e.preventDefault();
@@ -202,7 +220,6 @@ const FrontDesk = () => {
       console.error("Selected race not found.");
     }
   };
-
   //edit racer
   const handleEditRacer = async (raceId, racer) => {
     const newName = prompt("Enter new name for the racer:", racer.name);
@@ -243,7 +260,6 @@ const FrontDesk = () => {
       }
     }
   };
-
   //remove racer
   const handleRemoveRacer = async (driverId, raceId) => {
     try {
@@ -408,6 +424,7 @@ const FrontDesk = () => {
                           <button
                             className="edit-racer-btn"
                             onClick={() => handleEditRacer(race.id, driver)}
+                            disabled={raceHasStarted}
                           >
                             {editBtn}
                           </button>
@@ -416,6 +433,7 @@ const FrontDesk = () => {
                             onClick={() =>
                               handleRemoveRacer(driver.id, race.id)
                             }
+                            disabled={raceHasStarted}
                           >
                             {deleteBtn}
                           </button>

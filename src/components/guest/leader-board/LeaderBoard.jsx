@@ -11,7 +11,7 @@ const flagOptions = [
   { name: "Safe", color: "#2ecc71" },
   { name: "Hazard", color: "#f1c40f" },
   { name: "Danger", color: "#e74c3c" },
-  { name: "Finish", isChequered: true }, // Add a flag for chequered
+  { name: "Finish", isChequered: true },
 ];
 
 const LeaderBoard = () => {
@@ -28,6 +28,7 @@ const LeaderBoard = () => {
     id: "no id",
     status: "no data",
     sessionName: "",
+    //ADD FLAG
   });
 
   useEffect(() => {
@@ -36,12 +37,15 @@ const LeaderBoard = () => {
         id: data.sessionId || "no id",
         status: data.status || "no status",
         sessionName: data.sessionName || "no name",
+        //ADD FLAG
       });
     });
 
     return () => {
       raceStatusSocket.off("raceStatusUpdate");
     };
+
+    //NEED TO ALWAYS UPDATE
   }, []);
   // ***********************************************************************************************************
 
@@ -57,6 +61,8 @@ const LeaderBoard = () => {
     timerSocket.on("message", (msg) => {
       if (msg === "Timer finished") {
         setShowLaps(true);
+
+        //ADD FLAG -> SOCKET
         setCurrentFlag(flagOptions[3]);
       }
     });
@@ -109,7 +115,7 @@ const LeaderBoard = () => {
                     .sort((lapA, lapB) => {
                       const convertLapTimeToSeconds = (lapTime) => {
                         if (lapTime === "00:00") {
-                          return 0; // Treat "00:00" as the fastest (smallest) time
+                          return 0;
                         }
                         if (typeof lapTime === "string") {
                           const [minutes, seconds] = lapTime
@@ -117,7 +123,7 @@ const LeaderBoard = () => {
                             .map(Number);
                           return minutes * 60 + seconds;
                         }
-                        return lapTime; // Assuming it's already in seconds
+                        return lapTime;
                       };
 
                       return (
@@ -150,7 +156,6 @@ const LeaderBoard = () => {
                           : {lapTimeToDisplay}
                           {responseData.passingLapData &&
                             (() => {
-                              // Find the fastest lap for this car
                               const fastestLap = responseData.passingLapData
                                 .filter(
                                   (passingLap) =>

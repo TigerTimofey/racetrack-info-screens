@@ -17,11 +17,10 @@ const App = () => (
       <Route path="/front-desk" element={<FrontDesk />} />
       <Route path="/race-control" element={<RaceControl />} />
       <Route path="/lap-line-tracker" element={<LapLineTracker />} />
-      <Route path="/flag-bearers" element={<FlagBearers />} />
       <Route path="/leader-board" element={<LeaderBoard />} />
       <Route path="/next-race" element={<NextRace />} />
       <Route path="/race-countdown" element={<RaceCountdown />} />
-      <Route path="/race-flags" element={<RaceFlag />} />
+      <Route path="/race-flags" element={<FlagBearers />} />
     </Routes>
   </Router>
 );
