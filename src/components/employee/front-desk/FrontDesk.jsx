@@ -5,6 +5,7 @@ import loadingAnimation from "../../../assets/lottie-animations/reception.json";
 import racerImage from "../../../assets/images/race.png";
 import raceImage from "../../../assets/images/flags.png";
 import { editBtn, deleteBtn, backButton } from "../../../assets/button/buttons";
+import { raceStatusSocket } from "../../../socket";
 
 import "./FrontDesk.css";
 
@@ -19,6 +20,23 @@ const FrontDesk = () => {
   const [isLottieVisible, setIsLottieVisible] = useState(true);
 
   // ********************************* ACCEPT SOCKET AND REMOVE SESSION *********************************
+  const [raceStatus, setRaceStatus] = useState({
+    id: "no id",
+    status: "no data",
+    sessionName: "",
+    //ADD FLAG
+  });
+  console.log(raceStatus);
+
+  raceStatusSocket.on("raceStatusUpdate", (data) => {
+    setRaceStatus({
+      id: data.sessionId || "no id",
+      status: data.status || "no status",
+      sessionName: data.sessionName || "no name",
+      //ADD FLAG
+    });
+  });
+
   // Race sessions disappear from the Front Desk interface once it is safe to start.
   const [socketCame, setSocketCame] = useState(false);
   useEffect(() => {
