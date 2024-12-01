@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { backButton } from "../../../assets/button/buttons";
 import Lottie from "react-lottie";
@@ -10,12 +10,11 @@ import "./FlagBearers.css";
 const FlagBearers = () => {
   const navigate = useNavigate();
   const [selectedRace, setSelectedRace] = useState("");
-  const { races, isLoading: isRacesLoading, error: racesError } = useRaces();
+  const { races, error: racesError } = useRaces();
   const {
     currentFlag,
-    setCurrentFlag,
     sessionName,
-    isLoading: isFlagLoading,
+
     error: flagError,
   } = useRaceFlag(selectedRace);
 
@@ -26,31 +25,6 @@ const FlagBearers = () => {
     { name: "Danger", color: "#e74c3c" },
     { name: "Finish", isChequered: true }, // Add a flag for chequered
   ];
-
-  const handleFlagChange = async (newFlag) => {
-    if (!selectedRace) return alert("Please select a race");
-
-    try {
-      const response = await fetch(
-        `${process.env.REACT_APP_SERVER_URL}/race-sessions/${selectedRace}`,
-        {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ currentFlag: newFlag }),
-        }
-      );
-      const data = await response.json();
-
-      if (response.ok) {
-        setCurrentFlag(newFlag);
-      } else {
-        console.error(data.message || "Failed to update flag");
-      }
-    } catch (error) {
-      console.error("Error updating flag:", error);
-      alert("An error occurred while updating the flag");
-    }
-  };
 
   const lottieOptions = {
     loop: true,
@@ -96,12 +70,23 @@ const FlagBearers = () => {
 
       {/* Current Flag Status */}
       <div className="current-flag-display">
-        {true && (
+        {selectedRace ? (
           <p>
-            {selectedRace
-              ? `${sessionName} flag is ${currentFlag}`
-              : "Please select a race to see flag."}
+            <span>
+              {`${sessionName} flag is `}
+              <span
+                style={{
+                  color:
+                    flagOptions.find((flag) => flag.name === currentFlag)
+                      ?.color || "inherit",
+                }}
+              >
+                {currentFlag}
+              </span>
+            </span>
           </p>
+        ) : (
+          <p>Please select a race to see flag.</p>
         )}
       </div>
 
@@ -117,11 +102,10 @@ const FlagBearers = () => {
               style={{
                 backgroundColor: flag.isChequered ? "transparent" : flag.color,
               }}
-              onClick={() => handleFlagChange(flag.name)}
               title={flag.name}
             >
               {flag.isChequered ? (
-                <div className="chequered-pattern"></div> // Show chequered pattern
+                <div className="chequered-pattern"></div>
               ) : (
                 <span className="flag-name">{flag.name}</span>
               )}

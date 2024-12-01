@@ -10,7 +10,6 @@ const roles = {
   Employee: {
     SafetyOfficial: "Ensures safety and controls the race.",
     LapLineObserver: "Records when cars cross the lap line.",
-    FlagBearer: "Communicates safety instructions using flags.",
     Receptionist: "Welcomes guests and registers race drivers at the desk.",
   },
   Guest: {
@@ -127,12 +126,6 @@ const WelcomePage = () => {
               />
             ) : (
               <div>
-                {selectedRole === "FlagBearer" && (
-                  <RoleButton
-                    text="Flag Bearers"
-                    onClick={() => navigate("/flag-bearers")}
-                  />
-                )}
                 {(selectedRole === "RaceDriver" ||
                   selectedRole === "Spectator") && (
                   <RoleButton

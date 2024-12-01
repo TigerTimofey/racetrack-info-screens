@@ -6,7 +6,7 @@ const RaceFlag = () => {
   return (
     <div className="race-control-container">
       <div className="back-to-main" onClick={() => navigate("/")}>
-        {{ backButton }}
+        {backButton}
       </div>
       <h2 className="front-title">Race Flag Interface</h2>
       <p>Record lap crossings here</p>

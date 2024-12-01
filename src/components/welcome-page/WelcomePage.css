@@ -5,8 +5,8 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  height: auto; /* Изменено для динамического расширения */
-  min-height: 100vh; /* Гарантирует, что контейнер всегда будет по крайней мере высотой экрана */
+  height: auto;
+  min-height: 100vh;
   background: linear-gradient(135deg, #283e51, #283e51);
   color: #fff;
   text-align: center;
@@ -37,7 +37,7 @@
   margin-top: 1em;
   display: flex;
   gap: 10px;
-  justify-content: center; /* Размещение кнопок по центру */
+  justify-content: center;
 }
 
 .user-type-button {
@@ -63,7 +63,8 @@
 }
 
 .user-type-button.selected {
-  background: #f7ca00;
+  color: white;
+  background: #d45c12;
   border-color: #f2c200;
 }
 

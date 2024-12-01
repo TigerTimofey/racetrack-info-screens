@@ -5,6 +5,7 @@ import loadingAnimation from "../../../assets/lottie-animations/reception.json";
 import racerImage from "../../../assets/images/race.png";
 import raceImage from "../../../assets/images/flags.png";
 import { editBtn, deleteBtn, backButton } from "../../../assets/button/buttons";
+import { raceStatusSocket } from "../../../socket";
 
 import "./FrontDesk.css";
 
@@ -18,12 +19,49 @@ const FrontDesk = () => {
   const [selectedRace, setSelectedRace] = useState("");
   const [isLottieVisible, setIsLottieVisible] = useState(true);
 
+  // ********************************* ACCEPT SOCKET AND REMOVE SESSION *********************************
+  const [raceStatus, setRaceStatus] = useState({
+    id: "no id",
+    status: "no data",
+    sessionName: "",
+    //ADD FLAG
+  });
+  console.log(raceStatus);
+
+  raceStatusSocket.on("raceStatusUpdate", (data) => {
+    setRaceStatus({
+      id: data.sessionId || "no id",
+      status: data.status || "no status",
+      sessionName: data.sessionName || "no name",
+      //ADD FLAG
+    });
+  });
+
+  // Race sessions disappear from the Front Desk interface once it is safe to start.
+  const [socketCame, setSocketCame] = useState(false);
+  useEffect(() => {
+    //socket
+    //if true -> 'Safe'
+    handleDelete(); //id from socket
+  }, []);
+  // The race drivers cannot be edited after the race is safe to start.
+  const [raceHasStarted, setRaceHasStarted] = useState(false);
+  useEffect(() => {
+    //socket
+    //if true -> 'Safe'
+    if (socketCame === true) {
+      setRaceHasStarted(true); //id from socket
+    }
+    //socketCame
+  }, [socketCame]);
+
+  // *****************************************************************************************************
+
   const lottieOptions = {
     loop: true,
     autoplay: true,
     animationData: loadingAnimation,
   };
-
   // Hide Lottie when changing size
   useEffect(() => {
     const handleResize = () => {
@@ -62,7 +100,6 @@ const FrontDesk = () => {
 
     fetchRaces();
   }, []);
-
   // Add race
   const handleAddRaceSession = async (e) => {
     e.preventDefault();
@@ -127,7 +164,6 @@ const FrontDesk = () => {
       console.error("Error deleting race:", error);
     }
   };
-
   // Add racer to a specific race
   const handleAddRacer = async (e) => {
     e.preventDefault();
@@ -202,7 +238,6 @@ const FrontDesk = () => {
       console.error("Selected race not found.");
     }
   };
-
   //edit racer
   const handleEditRacer = async (raceId, racer) => {
     const newName = prompt("Enter new name for the racer:", racer.name);
@@ -243,7 +278,6 @@ const FrontDesk = () => {
       }
     }
   };
-
   //remove racer
   const handleRemoveRacer = async (driverId, raceId) => {
     try {
@@ -408,6 +442,7 @@ const FrontDesk = () => {
                           <button
                             className="edit-racer-btn"
                             onClick={() => handleEditRacer(race.id, driver)}
+                            disabled={raceHasStarted}
                           >
                             {editBtn}
                           </button>
@@ -416,6 +451,7 @@ const FrontDesk = () => {
                             onClick={() =>
                               handleRemoveRacer(driver.id, race.id)
                             }
+                            disabled={raceHasStarted}
                           >
                             {deleteBtn}
                           </button>

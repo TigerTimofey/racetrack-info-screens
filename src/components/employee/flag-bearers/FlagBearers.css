@@ -42,14 +42,9 @@
   text-align: center;
 }
 
-.flag-circle:hover {
-  transform: scale(1.1);
-  box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
-}
-
 .flag-circle.active-flag {
   border: 5px solid #ffffff;
-  transform: scale(1.1);
+  transform: scale(1.15);
 }
 
 .current-flag-display p {
@@ -100,6 +95,6 @@ div label {
 }
 @media screen and (max-width: 850px) {
   .loading-animation {
-    display: none; /* Hides the element */
+    display: none;
   }
 }
