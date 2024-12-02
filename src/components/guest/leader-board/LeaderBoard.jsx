@@ -31,22 +31,16 @@ const LeaderBoard = () => {
     //ADD FLAG
   });
 
-  useEffect(() => {
-    raceStatusSocket.on("raceStatusUpdate", (data) => {
-      setRaceStatus({
-        id: data.sessionId || "no id",
-        status: data.status || "no status",
-        sessionName: data.sessionName || "no name",
-        //ADD FLAG
-      });
+  // useEffect(() => {
+  raceStatusSocket.on("raceStatusUpdate", (data) => {
+    setRaceStatus({
+      id: data.sessionId || "no id",
+      status: data.status || "no status",
+      sessionName: data.sessionName || "no name",
+      //ADD FLAG
     });
+  });
 
-    return () => {
-      raceStatusSocket.off("raceStatusUpdate");
-    };
-
-    //NEED TO ALWAYS UPDATE
-  }, []);
   // ***********************************************************************************************************
 
   useEffect(() => {
