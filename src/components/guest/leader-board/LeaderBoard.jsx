@@ -1,12 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { io } from "socket.io-client";
+
 import { useNavigate } from "react-router-dom";
 import { backButton, carPersona } from "../../../assets/button/buttons";
 import Timer from "../../timer/Timer";
 import "./LeaderBoard.css";
-import { raceStatusSocket } from "../../../socket";
+import { raceStatusSocket, timerSocket, fastSocket } from "../../../socket";
 
-const socket = io("http://localhost:3000/fast");
 const flagOptions = [
   { name: "Safe", color: "#2ecc71" },
   { name: "Hazard", color: "#f1c40f" },
@@ -44,14 +43,13 @@ const LeaderBoard = () => {
   // ***********************************************************************************************************
 
   useEffect(() => {
-    socket.emit("findAllFastestLap");
+    fastSocket.emit("findAllFastestLap");
 
-    socket.on("lapDataResponse", (response) => {
+    fastSocket.on("lapDataResponse", (response) => {
       setResponseMessage(response.message);
       setResponseData(response);
     });
 
-    const timerSocket = io("http://localhost:3000/timer");
     timerSocket.on("message", (msg) => {
       if (msg === "Timer finished") {
         setShowLaps(true);
@@ -62,7 +60,7 @@ const LeaderBoard = () => {
     });
 
     return () => {
-      socket.off("lapDataResponse");
+      fastSocket.off("lapDataResponse");
     };
   }, []);
 
