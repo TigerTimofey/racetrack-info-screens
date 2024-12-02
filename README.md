@@ -1,8 +1,6 @@
 # Racetrack Info-Screens
 
-# CREATE DEMO!!!
-
-[![Live Demo](https://img.shields.io/badge/Live%20Demo-Available-blue)](https://your-project-link)
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-Available-blue)](https://vimeo.com/1035353693/6b7174d499?share=copy)
 
 ## Table of Contents
 

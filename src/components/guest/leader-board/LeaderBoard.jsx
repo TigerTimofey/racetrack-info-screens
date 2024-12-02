@@ -172,9 +172,9 @@ const LeaderBoard = () => {
             </div>
 
             {/* Passing Laps Card */}
-            {!showLaps && <Timer onTimerFinish={() => setRaceEnded(true)} />}
+            {!raceEnded && <Timer onTimerFinish={() => setRaceEnded(true)} />}
 
-            {showLaps && responseData.passingLapData && (
+            {raceEnded && responseData.passingLapData && (
               <div className="passing-lap-card">
                 <h4>Passing Laps</h4>
                 {Object.entries(
