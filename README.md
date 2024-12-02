@@ -29,6 +29,7 @@ Key features include:
 - **Leaderboard functionalities**: Record lap times and display standings based on the fastest lap.
 - **Driver results**: At the end of the timer, drivers see their results for each lap.
 - **Employee access**: Safety Officials, Receptionists, and Lap-Line Observers are employees and have their own passwords to access the interface.
+- **Next Race display: Highlights the next race, showing drivers' names, their assigned cars, and instructions to proceed to the paddock.**
 
 ---
 
