@@ -1,0 +1,118 @@
+/* Next Race Section */
+.next-race-title {
+  font-size: 2rem;
+  color: #ffd700;
+  margin-top: 20px;
+  margin-bottom: 15px;
+  text-transform: uppercase;
+  text-align: left;
+}
+
+.next-race {
+  padding: 20px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  color: #ddd;
+}
+
+.race-name {
+  font-size: 1.5rem;
+  color: white;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+/* Drivers List */
+.drivers-list {
+  margin-top: 15px;
+}
+
+.drivers-title {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #ffd700;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+
+.drivers-info {
+  list-style: none;
+  padding: 0;
+}
+
+.drivers-info li {
+  font-size: 1.2rem;
+  margin: 5px 0;
+  padding: 10px;
+  border-radius: 5px;
+  background: rgba(0, 0, 0, 0.3);
+  text-align: center;
+  color: #fff;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+}
+
+.driver-name {
+  font-weight: bold;
+  color: #ffd700;
+}
+
+.car-number {
+  font-weight: bold;
+  color: #4caf50;
+}
+
+/* Proceed to Paddrock Section */
+.proceed-to-paddrock {
+  margin-top: 30px;
+  padding: 20px;
+  background: rgba(72, 239, 128, 0.2);
+  border: 1px solid #4caf50;
+  border-radius: 10px;
+  color: #4caf50;
+  font-size: 1.3rem;
+  font-weight: bold;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+/* No Races Message */
+.no-race {
+  margin-top: 50px;
+  font-size: 2.5rem;
+  font-weight: bold;
+  color: #ffd700;
+  text-align: center;
+  text-shadow: 0px 3px 5px rgba(0, 0, 0, 0.5);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .next-race-title {
+    font-size: 1.6rem;
+  }
+
+  .race-name {
+    font-size: 1.3rem;
+  }
+
+  .drivers-title {
+    font-size: 1.4rem;
+  }
+
+  .drivers-info li {
+    font-size: 1.1rem;
+    padding: 10px;
+  }
+
+  .proceed-to-paddrock {
+    font-size: 1.2rem;
+    padding: 15px;
+  }
+
+  .no-race {
+    font-size: 2rem;
+  }
+}
