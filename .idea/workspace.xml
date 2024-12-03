@@ -5,8 +5,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="5c0cee91-c9d1-46ff-976b-e9f61986d114" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/src/components/employee/race-control/index.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/components/employee/flag-bearers/FlagBearers.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/employee/flag-bearers/FlagBearers.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/App.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/App.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/employee/flag-bearers/FlagBearers.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/employee/flag-bearers/FlagFetcher.jsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/components/employee/race-control/RaceControl.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/employee/race-control/RaceControl.jsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />

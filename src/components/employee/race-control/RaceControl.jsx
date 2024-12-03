@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import Timer from "../../timer/Timer"; // Исправленный импорт
 import StartRaceButton from "../../../assets/button/StartRaceButton"; // Импорт кнопки
 import RaceStatusDisplay from "../../RaceStatusDisplay";
-import FlagBearers from "../flag-bearers/FlagBearers"; // Импорт FlagBearers
+import FlagFetcher from "../flag-bearers/FlagFetcher"; // Импорт FlagFetcher
 
 const RaceControl = () => {
     const navigate = useNavigate();
@@ -22,7 +22,7 @@ const RaceControl = () => {
         <div className="race-control-container">
             {/* Кнопка назад */}
             <button className="back-to-main" onClick={() => navigate("/")}>
-                Back to Main
+                Back to Ma
             </button>
 
             <h2 className="race-control-title">Race Control Interface</h2>
@@ -45,9 +45,9 @@ const RaceControl = () => {
                 <RaceStatusDisplay />
             </div>
 
-            {/* Компонент FlagBearers */}
+            {/* Компонент FlagFetcher */}
             <div className="flag-bearers-section">
-                <FlagBearers />
+                <FlagFetcher />
             </div>
         </div>
     );

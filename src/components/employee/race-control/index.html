@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Race Status and Flag Test</title>
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+</head>
+<body>
+<h1>Race Status and Flag Test</h1>
+<div id="status">Not connected</div>
+<div id="messages"></div>
+<button id="connect">Connect</button>
+<button id="sendFlag">Send Flag Update</button>
+<button id="sendStatus">Send Race Status Update</button>
+
+<script>
+    let socket;
+
+    document.getElementById('connect').onclick = () => {
+        // Подключаемся к race-status namespace
+        socket = io('http://localhost:3000/race-status');
+
+        // Обработка успешного подключения
+        socket.on('connect', () => {
+            document.getElementById('status').textContent = 'Connected';
+            console.log('Connected to /race-status');
+        });
+
+        // Обработка событий обновления статуса гонки
+        socket.on('raceStatusUpdate', (data) => {
+            const message = document.createElement('div');
+            message.textContent = `Race Status Update: ${JSON.stringify(data)}`;
+            document.getElementById('messages').appendChild(message);
+        });
+
+        // Обработка событий обновления флагов
+        socket.on('flagUpdate', (data) => {
+            const message = document.createElement('div');
+            message.textContent = `Flag Update: ${JSON.stringify(data)}`;
+            document.getElementById('messages').appendChild(message);
+        });
+
+        // Обработка отключения
+        socket.on('disconnect', () => {
+            document.getElementById('status').textContent = 'Disconnected';
+            console.log('Disconnected from /race-status');
+        });
+    };
+
+    // Отправка обновления флага
+    document.getElementById('sendFlag').onclick = () => {
+        if (socket && socket.connected) {
+            socket.emit('updateFlag', { sessionId: 1, flag: 'Hazard' });
+            console.log('Flag update sent');
+        } else {
+            console.log('Not connected');
+        }
+    };
+
+    // Отправка обновления статуса гонки
+    document.getElementById('sendStatus').onclick = () => {
+        if (socket && socket.connected) {
+            socket.emit('updateRaceStatus', {
+                sessionId: 1,
+                status: 'InProgress',
+                sessionName: 'Test Race',
+            });
+            console.log('Race status update sent');
+        } else {
+            console.log('Not connected');
+        }
+    };
+</script>
+</body>
+</html>

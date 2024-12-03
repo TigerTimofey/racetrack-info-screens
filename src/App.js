@@ -8,7 +8,7 @@ import LeaderBoard from "./components/guest/leader-board/LeaderBoard";
 import NextRace from "./components/guest/next-race/NextRace";
 import RaceCountdown from "./components/guest/race-countdown/RaceCountdown";
 import RaceFlag from "./components/guest/race-flag/RaceFlag";
-import FlagBearers from "./components/employee/flag-bearers/FlagBearers";
+import FlagFetcher from "./components/employee/flag-bearers/FlagFetcher";
 
 const App = () => (
   <Router>
@@ -20,7 +20,7 @@ const App = () => (
       <Route path="/leader-board" element={<LeaderBoard />} />
       <Route path="/next-race" element={<NextRace />} />
       <Route path="/race-countdown" element={<RaceCountdown />} />
-      <Route path="/race-flags" element={<FlagBearers />} />
+      <Route path="/race-flags" element={<FlagFetcher />} />
     </Routes>
   </Router>
 );

@@ -4,7 +4,7 @@ import loadingAnimation from "../../../assets/lottie-animations/flag.json";
 import { raceStatusSocket } from "../../../socket";
 import "./FlagBearers.css";
 
-const FlagBearers = () => {
+const FlagFetcher = () => {
     const [currentRace, setCurrentRace] = useState({
         id: "Unknown",
         sessionName: "No data",
@@ -13,6 +13,7 @@ const FlagBearers = () => {
 
     const [currentFlag, setCurrentFlag] = useState("Safe");
     const [updateMessage, setUpdateMessage] = useState(""); // For flag update notifications
+    const [nextRace, setNextRace] = useState(null); // Prepare for the next race
 
     // Flag options
     const flagOptions = [
@@ -25,7 +26,7 @@ const FlagBearers = () => {
     useEffect(() => {
         // Listen for race status updates via WebSocket
         raceStatusSocket.on("raceStatusUpdate", (data) => {
-            console.log("Received race status update in FlagBearers:", data);
+            console.log("Received race status update in FlagFetcher:", data);
             setCurrentRace({
                 id: data.sessionId || "Unknown",
                 sessionName: data.sessionName || "No data",
@@ -34,44 +35,45 @@ const FlagBearers = () => {
             setCurrentFlag(data.status || "Safe");
         });
 
+        raceStatusSocket.on("nextRace", (data) => {
+            console.log("Next race prepared:", data);
+            setNextRace(data);
+        });
+
         // Clean up WebSocket events on component unmount
         return () => {
             raceStatusSocket.off("raceStatusUpdate");
+            raceStatusSocket.off("nextRace");
         };
     }, []);
 
-    const handleFlagChange = async (newFlag) => {
+    const handleFlagChange = (newFlag) => {
         if (currentRace.id === "Unknown") {
             alert("No race selected.");
             return;
         }
 
-        try {
-            const response = await fetch(
-                `${process.env.REACT_APP_SERVER_URL}/race-sessions/${currentRace.id}`,
-                {
-                    method: "PUT",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ currentFlag: newFlag }),
-                }
-            );
+        // Send flag update via WebSocket
+        raceStatusSocket.emit("updateFlag", {
+            sessionId: currentRace.id,
+            flag: newFlag,
+        });
 
-            const data = await response.json();
+        setCurrentFlag(newFlag);
+        setUpdateMessage(`Flag successfully updated to: ${newFlag}`);
+        setTimeout(() => setUpdateMessage(""), 5000); // Clear the message after 5 seconds
 
-            if (response.ok) {
-                setCurrentFlag(newFlag);
-                setUpdateMessage(`Flag successfully updated to: ${newFlag}`); // Set notification message
-                console.log(`Flag successfully updated: ${newFlag}`);
-                setTimeout(() => setUpdateMessage(""), 5000); // Clear the message after 5 seconds
-            } else {
-                console.error(data.message || "Failed to update the flag.");
-                setUpdateMessage("Error updating the flag.");
-                setTimeout(() => setUpdateMessage(""), 5000);
-            }
-        } catch (error) {
-            console.error("Error updating the flag:", error);
-            setUpdateMessage("An error occurred while updating the flag.");
-            setTimeout(() => setUpdateMessage(""), 5000);
+        if (newFlag === "Finish") {
+            // Notify the server to stop the timer and prepare a new race
+            raceStatusSocket.emit("finishRace", { sessionId: currentRace.id });
+        }
+    };
+
+    const startNextRace = () => {
+        if (nextRace) {
+            raceStatusSocket.emit("startRace", { sessionId: nextRace.id });
+            console.log("Starting next race:", nextRace);
+            setNextRace(null); // Clear next race after starting
         }
     };
 
@@ -125,8 +127,10 @@ const FlagBearers = () => {
                     ))}
                 </div>
             )}
+
+
         </div>
     );
 };
 
-export default FlagBearers;
+export default FlagFetcher;
