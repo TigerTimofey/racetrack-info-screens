@@ -1,7 +1,12 @@
 import { useNavigate } from "react-router-dom";
 import { backButton } from "../../../assets/button/buttons";
+import Timer from "../../timer/Timer";
 const RaceCountdown = () => {
   const navigate = useNavigate();
+
+  const handleTimerFinish = () => {
+    console.log("Timer has finished in Race Countdown!");
+  };
 
   return (
     <div className="race-control-container">
@@ -9,7 +14,9 @@ const RaceCountdown = () => {
         {backButton}
       </div>
       <h2 className="front-title">Race Countdown Interface</h2>
-      <p>Record lap crossings here</p>
+      <div className="timer-section">
+        <Timer onTimerFinish={handleTimerFinish} />
+      </div>
     </div>
   );
 };
