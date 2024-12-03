@@ -1,29 +1,30 @@
 <!DOCTYPE html>
 <html lang="ru">
-<head>
-    <meta charset="UTF-8">
+  <head>
+    <meta charset="UTF-8" />
     <title>Тест клиента Socket.IO</title>
-</head>
-<body>
-<script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
-<script>
-    const socket = io('http://localhost:3000/timer'); // Используйте '/timer', если у вас указан namespace
+  </head>
+  <body>
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+    <script>
+      //   const socket = io("http://localhost:3000/timer"); // Используйте '/timer', если у вас указан namespace
+      const socket = io(`${process.env.REACT_APP_SERVER_URL}/timer`); // Используйте '/timer', если у вас указан namespace
 
-    socket.on('connect', () => {
-        console.log('Подключено к серверу Socket.IO');
-    });
+      socket.on("connect", () => {
+        console.log("Подключено к серверу Socket.IO");
+      });
 
-    socket.on('message', (msg) => {
-        console.log('Сообщение от сервера:', msg);
-    });
+      socket.on("message", (msg) => {
+        console.log("Сообщение от сервера:", msg);
+      });
 
-    socket.on('timeUpdate', (time) => {
-        console.log('Обновление времени:', time);
-    });
+      socket.on("timeUpdate", (time) => {
+        console.log("Обновление времени:", time);
+      });
 
-    socket.on('disconnect', () => {
-        console.log('Отключено от сервера');
-    });
-</script>
-</body>
+      socket.on("disconnect", () => {
+        console.log("Отключено от сервера");
+      });
+    </script>
+  </body>
 </html>
