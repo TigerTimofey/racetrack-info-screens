@@ -26,34 +26,44 @@ const FrontDesk = () => {
     sessionName: "",
     //ADD FLAG
   });
-  console.log(raceStatus);
-
-  raceStatusSocket.on("raceStatusUpdate", (data) => {
-    setRaceStatus({
-      id: data.sessionId || "no id",
-      status: data.status || "no status",
-      sessionName: data.sessionName || "no name",
-      //ADD FLAG
-    });
-  });
-
-  // Race sessions disappear from the Front Desk interface once it is safe to start.
-  const [socketCame, setSocketCame] = useState(false);
-  useEffect(() => {
-    //socket
-    //if true -> 'Safe'
-    handleDelete(); //id from socket
-  }, []);
-  // The race drivers cannot be edited after the race is safe to start.
   const [raceHasStarted, setRaceHasStarted] = useState(false);
-  useEffect(() => {
-    //socket
-    //if true -> 'Safe'
-    if (socketCame === true) {
-      setRaceHasStarted(true); //id from socket
-    }
-    //socketCame
-  }, [socketCame]);
+  const [startedRaceId, setStartedRaceId] = useState(null);
+
+  raceStatusSocket.on(
+    "raceStatusUpdate",
+    (data) => {
+      setRaceStatus({
+        id: data.sessionId || "no id",
+        status: data.status || "no status",
+        sessionName: data.sessionName || "no name",
+        //ADD FLAG
+      });
+
+      raceStatusSocket.on("flagUpdate", (data) => {
+        console.log("Received flagUpdate data:", JSON.stringify(data));
+
+        if (data.flag) {
+          console.log("Flag is:", data.flag);
+          // The race drivers cannot be edited after the race is safe to start.
+          if (data.flag === "Safe") {
+            setRaceHasStarted(true);
+            setStartedRaceId(data.sessionId);
+            // Race sessions disappear from the Front Desk interface once it is safe to start.
+            handleDelete(data.sessionId);
+          }
+        } else {
+          console.log("Flag property is missing in the data");
+        }
+      });
+
+      // Clean up WebSocket events on component unmount
+      return () => {
+        raceStatusSocket.off("raceStatusUpdate");
+        raceStatusSocket.off("nextRace");
+      };
+    },
+    []
+  );
 
   // *****************************************************************************************************
 
@@ -442,7 +452,7 @@ const FrontDesk = () => {
                           <button
                             className="edit-racer-btn"
                             onClick={() => handleEditRacer(race.id, driver)}
-                            disabled={raceHasStarted}
+                            disabled={startedRaceId === race.id}
                           >
                             {editBtn}
                           </button>
@@ -451,7 +461,7 @@ const FrontDesk = () => {
                             onClick={() =>
                               handleRemoveRacer(driver.id, race.id)
                             }
-                            disabled={raceHasStarted}
+                            disabled={startedRaceId === race.id}
                           >
                             {deleteBtn}
                           </button>
