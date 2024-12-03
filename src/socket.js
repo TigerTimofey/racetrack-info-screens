@@ -5,7 +5,7 @@ export const timerSocket = io(`${process.env.REACT_APP_SERVER_URL}/timer`);
 
 // Подключение для статуса гонки
 export const raceStatusSocket = io(
-  `${process.env.REACT_APP_SERVER_URL}/race-status`
+  `http://localhost:3000/race-status`
 );
 
 //Connecting for receive faster lap and lap time data

@@ -1,109 +1,112 @@
 import React, { useEffect, useState } from "react";
-import { raceStatusSocket } from "../../socket"; // Используем именованный экспорт raceStatusSocket
-import "./StartRaceButton.css"; // Подключение CSS для стилей
+import { raceStatusSocket } from "../../socket";
+import "./StartRaceButton.css";
 
 const StartRaceButton = () => {
   const [upcomingRace, setUpcomingRace] = useState(null);
   const [raceStarted, setRaceStarted] = useState(false);
 
   useEffect(() => {
-    // Загружаем все сессии гонок и определяем ближайшую
+    // Fetch upcoming races and determine the next race
     const fetchUpcomingRace = async () => {
       try {
-        const response = await fetch(
-          `${process.env.REACT_APP_SERVER_URL}/race-sessions`
-        );
+        const response = await fetch("http://localhost:3000/race-sessions");
         if (!response.ok) {
-          throw new Error("Ошибка при загрузке сессий гонок");
+          throw new Error("Error fetching race sessions");
         }
 
         const raceSessions = await response.json();
+        const pendingRaces = raceSessions.filter((race) => race.status === "Pending");
 
-        // Находим ближайшую гонку, которая еще не началась
-        const pendingRaces = raceSessions.filter(
-          (race) => race.status === "Pending"
-        );
         if (pendingRaces.length > 0) {
-          const sortedRaces = pendingRaces.sort(
-            (a, b) => new Date(a.startTime) - new Date(b.startTime)
-          );
+          const sortedRaces = pendingRaces.sort((a, b) => new Date(a.startTime) - new Date(b.startTime));
           setUpcomingRace(sortedRaces[0]);
         }
       } catch (error) {
-        console.error("Ошибка при загрузке сессий гонок:", error);
+        console.error("Error fetching race sessions:", error);
       }
     };
 
     fetchUpcomingRace();
+
+    // Listen for race status updates
+    raceStatusSocket.on("raceStatusUpdate", (data) => {
+      console.log("Received race status update:", data);
+
+      if (data.flag === "Finish") {
+        console.log("Race finished. Ready for the next race.");
+        setRaceStarted(false); // Reset button state
+        fetchUpcomingRace(); // Fetch next pending race
+      }
+    });
+
+    // Cleanup listeners on unmount
+    return () => {
+      raceStatusSocket.off("raceStatusUpdate");
+    };
   }, []);
 
   const handleStartRace = async () => {
     if (upcomingRace) {
       try {
-        // Обновляем статус гонки на сервере
+        // Update race status on the server
         const statusResponse = await fetch(
-          `${process.env.REACT_APP_SERVER_URL}/race-sessions/${upcomingRace.id}/status`,
-          {
-            method: "PUT",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ status: "InProgress" }),
-          }
+            `http://localhost:3000/race-sessions/${upcomingRace.id}/status`,
+            {
+              method: "PUT",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({ status: "InProgress" }),
+            }
         );
 
         if (!statusResponse.ok) {
-          throw new Error("Ошибка при обновлении статуса гонки");
+          throw new Error("Error updating race status");
         }
 
-        // Запускаем таймер на сервере
-        const timerResponse = await fetch(
-          `${process.env.REACT_APP_SERVER_URL}/race-sessions/${upcomingRace.id}/start-timer`,
-          {
-            method: "PUT",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ duration: 10 }), // Продолжительность таймера в минутах
-          }
-        );
-
-        if (!timerResponse.ok) {
-          throw new Error("Ошибка при запуске таймера");
-        }
-
-        // Уведомляем всех клиентов через WebSocket
-        raceStatusSocket.emit("raceStatusUpdate", {
-          sessionId: upcomingRace.id,
-          status: "InProgress",
+        // Start the timer on the server
+        const timerResponse = await fetch("http://localhost:3000/timer/start", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
         });
 
-        console.log(
-          `Гонка "${upcomingRace.sessionName}" началась, таймер запущен!`
-        );
-        setRaceStarted(true); // Обновляем состояние после успешного запуска
+        if (!timerResponse.ok) {
+          throw new Error("Error starting the timer");
+        }
+
+        // Notify all clients about the race status update
+        raceStatusSocket.emit("updateRaceStatus", {
+          sessionId: upcomingRace.id,
+          status: "InProgress",
+          sessionName: upcomingRace.sessionName,
+          flag: "Safe", // Default flag when race starts
+        });
+
+        console.log(`Race "${upcomingRace.sessionName}" started and timer initialized.`);
+        setRaceStarted(true); // Disable the button until the next race
       } catch (error) {
-        console.error("Ошибка при запуске гонки:", error);
+        console.error("Error starting the race:", error);
       }
     }
   };
 
   return (
-    <div>
-      {upcomingRace ? (
-        <button
-          onClick={handleStartRace}
-          className={`start-race-button ${raceStarted ? "started" : ""}`}
-          disabled={raceStarted} // Отключаем кнопку после запуска
-        >
-          {raceStarted
-            ? `Гонка началась: ${upcomingRace.sessionName}`
-            : `Начать гонку: ${upcomingRace.sessionName}`}
-        </button>
-      ) : (
-        <p>Нет предстоящих гонок для запуска</p>
-      )}
-    </div>
+      <div>
+        {upcomingRace ? (
+            <button
+                onClick={handleStartRace}
+                className={`start-race-button ${raceStarted ? "started" : ""}`}
+                disabled={raceStarted}
+            >
+              {raceStarted ? `Race in progress: ${upcomingRace.sessionName}` : `Start Race: ${upcomingRace.sessionName}`}
+            </button>
+        ) : (
+            <p>No upcoming races available</p>
+        )}
+      </div>
   );
 };
 

@@ -39,6 +39,17 @@ const FlagFetcher = () => {
             console.log("Next race prepared:", data);
             setNextRace(data);
         });
+        raceStatusSocket.on('flagUpdate', (data) => {
+            // Log the entire object for debugging
+            console.log('Received flagUpdate data:', JSON.stringify(data));
+
+            // Log only the flag property
+            if (data.flag) {
+                console.log('Flag is:', data.flag);
+            } else {
+                console.log('Flag property is missing in the data');
+            }
+        });
 
         // Clean up WebSocket events on component unmount
         return () => {

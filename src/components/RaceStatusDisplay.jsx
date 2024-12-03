@@ -10,6 +10,7 @@ const RaceStatusDisplay = () => {
   const [connectionStatus, setConnectionStatus] = useState("Не подключено");
 
   useEffect(() => {
+
     // Подключение к WebSocket
     raceStatusSocket.on("connect", () => {
       console.log("Подключение к WebSocket (Race Status) установлено");

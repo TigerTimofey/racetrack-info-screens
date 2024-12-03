@@ -3,7 +3,8 @@ import { useNavigate } from "react-router-dom";
 import Timer from "../../timer/Timer"; // Исправленный импорт
 import StartRaceButton from "../../../assets/button/StartRaceButton"; // Импорт кнопки
 import RaceStatusDisplay from "../../RaceStatusDisplay";
-import FlagFetcher from "../flag-bearers/FlagFetcher"; // Импорт FlagFetcher
+import FlagFetcher from "../flag-bearers/FlagFetcher";
+import {raceStatusSocket} from "../../../socket"; // Импорт FlagFetcher
 
 const RaceControl = () => {
     const navigate = useNavigate();
@@ -51,6 +52,7 @@ const RaceControl = () => {
             </div>
         </div>
     );
+
 };
 
 export default RaceControl;

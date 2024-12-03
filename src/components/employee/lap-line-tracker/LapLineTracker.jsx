@@ -27,6 +27,7 @@ const LapLineTracker = () => {
   const [passingLapData, setPassingLapData] = useState([]);
 
   useEffect(() => {
+    // Listen for race status updates
     raceStatusSocket.on("raceStatusUpdate", (data) => {
       console.log("socket data:", data);
       setRaceStatus({
@@ -35,10 +36,24 @@ const LapLineTracker = () => {
       });
     });
 
+    // Listen for flag updates
+    raceStatusSocket.on("flagUpdate", (data) => {
+      console.log("Received flagUpdate data:", JSON.stringify(data));
+      if (data.flag) {
+        console.log("Flag is:", data.flag);
+        // You can set or update state here if needed for flags
+      } else {
+        console.log("Flag property is missing in the data");
+      }
+    });
+
+    // Cleanup listeners on component unmount
     return () => {
       raceStatusSocket.off("raceStatusUpdate");
+      raceStatusSocket.off("flagUpdate");
     };
   }, []);
+
 
   useEffect(() => {
     const matchingRace = races.find(
