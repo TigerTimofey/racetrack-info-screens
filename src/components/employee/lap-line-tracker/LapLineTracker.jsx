@@ -46,6 +46,9 @@ const LapLineTracker = () => {
     );
     if (matchingRace) {
       setCurrentRace(matchingRace);
+      setFastestLaps({});
+      setLapTimes({});
+      setPassingLapData([]);
     } else {
       setCurrentRace(null);
     }

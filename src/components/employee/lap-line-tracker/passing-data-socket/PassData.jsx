@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { io } from "socket.io-client";
 
-const socket = io("http://localhost:3000/fast");
+import { fastSocket } from "../../../../socket";
 
 const PassData = ({ fastestLapsData, passingLapData }) => {
   const [responseMessage, setResponseMessage] = useState("");
@@ -9,20 +8,20 @@ const PassData = ({ fastestLapsData, passingLapData }) => {
 
   useEffect(() => {
     if (fastestLapsData.length > 0 || passingLapData.length > 0) {
-      socket.emit("createLapData", {
+      fastSocket.emit("createLapData", {
         fastestLapsData,
         passingLapData,
       });
     }
 
-    socket.on("lapDataResponse", (response) => {
+    fastSocket.on("lapDataResponse", (response) => {
       console.log("", response);
       setResponseMessage(response.message);
       setResponseData(response);
     });
 
     return () => {
-      socket.off("lapDataResponse");
+      fastSocket.off("lapDataResponse");
     };
   }, [fastestLapsData, passingLapData]);
 

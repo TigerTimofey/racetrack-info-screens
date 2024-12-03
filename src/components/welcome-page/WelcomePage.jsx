@@ -120,7 +120,7 @@ const WelcomePage = () => {
               selectedRole
             ) ? (
               <AuthComponent
-                apiUrl="http://localhost:3000"
+                apiUrl={process.env.REACT_APP_SERVER_URL}
                 role={selectedRole}
                 onAuthenticated={handleAuthenticated}
               />

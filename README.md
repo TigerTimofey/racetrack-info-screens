@@ -1,34 +1,34 @@
 # Racetrack Info-Screens
 
-# CREATE DEMO!!!
-
-[![Live Demo](https://img.shields.io/badge/Live%20Demo-Available-blue)](https://your-project-link)
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-Available-blue)](https://vimeo.com/1035353693/6b7174d499?share=copy)
 
 ## Table of Contents
 
-🚀 [What does the app do?](#what-does-the-app-do)<br/>
+🚀 [About project](#about-project)<br/>
+🚀 [Core functionality](#core-functionality)<br/>
 💡 [How to start using the app](#how-to-start-using-the-app)<br/>
 ⚙️ [App functionality](#app-functionality)<br/>
 🔒 [Security features](#security-features)<br/>
 ☕ [Version](#version)<br/>
 🤝 [Contributors](#contributors)
 
-## What does the app do?
+## About project
 
 The **Racetrack Info-Screens** system provides real-time updates and interfaces for managing races and informing guests at the Beachside Racetrack. The system automates tasks like race setup, lap tracking, and displaying race updates for spectators, reducing the reliance on staff.
 
-Key features include:
+## Core functionality
 
-- **Real-time communication**: Powered by Socket.IO for instant updates.
-- **Role-specific interfaces**: Tailored for employees (e.g., Safety Officials) and guests (e.g., Race Drivers).
-- **Public displays**: Show race progress, lap times, and safety statuses.
-- **Simplified race management**: Configure and control races with intuitive tools.
-- **Receptionist functionalities**: Add and remove races, add drivers, assign drivers to cars, and edit driver names.
-- **Safety Official functionalities**: Assign races and set statuses and flags for races.
-- **Lap-Line Observer functionalities**: Track when each racer completes a lap.
-- **Leaderboard functionalities**: Record lap times and display standings based on the fastest lap.
-- **Driver results**: At the end of the timer, drivers see their results for each lap.
-- **Employee access**: Safety Officials, Receptionists, and Lap-Line Observers are employees and have their own passwords to access the interface.
+- **Real-time communication**: Powered by Socket.IO for instant updates.<br/><br/>
+- **Role-specific interfaces**: Tailored for employees (e.g., Safety Officials) and guests (e.g., Race Drivers).<br/><br/>
+- **Public displays**: Show race progress, lap times, and safety statuses.<br/><br/>
+- **Simplified race management**: Configure and control races with intuitive tools.<br/><br/>
+- **Receptionist functionalities**: Add and remove races, add drivers, assign drivers to cars, and edit driver names.<br/><br/>
+- **Safety Official functionalities**: Assign races and set statuses and flags for races.<br/><br/>
+- **Lap-Line Observer functionalities**: Track when each racer completes a lap.<br/><br/>
+- **Leaderboard functionalities**: Record lap times and display standings based on the fastest lap.<br/><br/>
+- **Driver results**: At the end of the timer, drivers see their results for each lap.<br/><br/>
+- **Employee access**: Safety Officials, Receptionists, and Lap-Line Observers are employees and have their own passwords to access the interface.<br/><br/>
+- **Next Race display: Highlights the next race, showing drivers' names, their assigned cars, and instructions to proceed to the paddock.**
 
 ---
 
@@ -71,30 +71,6 @@ To set up and run the Racetrack Info-Screens project:
      ```
 
 ---
-
-## App functionality
-
-### Key Features:
-
-- **Configure Upcoming Races**:
-
-  - Add, remove, or edit race sessions and drivers.
-  - Assign drivers to cars.
-
-- **Announce Next Race**:
-
-  - Automatically notify drivers about their car assignments and race schedule.
-
-- **Start and Control Races**:
-
-  - Start races, update race modes (e.g., Safe, Hazard), and display the appropriate flags in real-time.
-
-- **Record Lap Times**:
-
-  - Track lap times with a tablet interface for observers.
-
-- **Real-Time Leaderboard**:
-  - Display live race updates and rankings for spectators.
 
 ### Interfaces:
 
@@ -142,5 +118,5 @@ To set up and run the Racetrack Info-Screens project:
 
 ## Contributors
 
-[Timofey Babisashvili](https://github.com/TigerTimofey) <br/>
+[Timofey Babisashvili](https://github.com/TigerTimofey) <br/><br/>
 [Denis Lomakin](https://github.com/Dkartik123) <br/>
