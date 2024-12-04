@@ -21,7 +21,7 @@ const LeaderBoard = () => {
   const [raceEnded, setRaceEnded] = useState(false);
 
   //**************************************** COMES FROM SOCKET ****************************************************
-  const [currentFlag, setCurrentFlag] = useState(flagOptions[0]);
+  const [currentFlag, setCurrentFlag] = useState("Safe");
 
   const [raceStatus, setRaceStatus] = useState({
     id: "no id",
@@ -29,16 +29,37 @@ const LeaderBoard = () => {
     sessionName: "",
     //ADD FLAG
   });
-
-  // useEffect(() => {
-  raceStatusSocket.on("raceStatusUpdate", (data) => {
-    setRaceStatus({
-      id: data.sessionId || "no id",
-      status: data.status || "no status",
-      sessionName: data.sessionName || "no name",
-      //ADD FLAG
+  useEffect(() => {
+    // Listen for race status updates
+    raceStatusSocket.on("raceStatusUpdate", (data) => {
+      setRaceStatus({
+        id: data.sessionId || "no id",
+        status: data.status || "no status",
+        sessionName: data.sessionName || "no name",
+      });
     });
-  });
+
+    raceStatusSocket.on("flagUpdate", (data) => {
+      console.log("Received flagUpdate data:", JSON.stringify(data));
+
+      if (data.flag) {
+        const matchingFlag = flagOptions.find(
+          (flag) => flag.name === data.flag
+        );
+        if (matchingFlag) {
+          setCurrentFlag(matchingFlag);
+        } else {
+          console.error(`Unknown flag received: ${data.flag}`);
+        }
+      }
+    });
+
+    return () => {
+      // Clean up listeners to avoid memory leaks
+      raceStatusSocket.off("raceStatusUpdate");
+      raceStatusSocket.off("flagUpdate");
+    };
+  }, []);
 
   // ***********************************************************************************************************
 
@@ -48,13 +69,14 @@ const LeaderBoard = () => {
     fastSocket.on("lapDataResponse", (response) => {
       setResponseMessage(response.message);
       setResponseData(response);
+      if (!responseData && currentFlag.name === "Safe") {
+        console.log("First lap data received with 'Safe' flag.");
+      }
     });
 
     timerSocket.on("message", (msg) => {
       if (msg === "Timer finished") {
         setShowLaps(true);
-
-        //ADD FLAG -> SOCKET
         setCurrentFlag(flagOptions[3]);
       }
     });
@@ -63,6 +85,8 @@ const LeaderBoard = () => {
       fastSocket.off("lapDataResponse");
     };
   }, []);
+  if (setRaceEnded) {
+  }
 
   return (
     <div className="race-control-container">
