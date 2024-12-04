@@ -16,7 +16,7 @@ const NextRace = () => {
     sessionName: "",
   });
   const [nextRaceIndex, setNextRaceIndex] = useState(-1);
-
+  const [raceHasStarted, setRaceHasStarted] = useState(false);
   useEffect(() => {
     const fetchRaces = async () => {
       try {
@@ -53,18 +53,26 @@ const NextRace = () => {
         sessionName: data.sessionName || "no name",
       });
 
-      // Move to the next race in the sequence
-      if (nextRaceIndex + 1 < races.length) {
+      // Progress to the next race only if it's safe
+      if (raceHasStarted && nextRaceIndex + 1 < races.length) {
         setNextRaceIndex(nextRaceIndex + 1);
       }
     };
 
     raceStatusSocket.on("raceStatusUpdate", handleRaceStatusUpdate);
 
+    raceStatusSocket.on("flagUpdate", (data) => {
+      console.log("Received flagUpdate data:", JSON.stringify(data));
+
+      if (data.flag === "Safe") {
+        setRaceHasStarted(true);
+      }
+    });
+
     return () => {
       raceStatusSocket.off("raceStatusUpdate", handleRaceStatusUpdate);
     };
-  }, [races, nextRaceIndex]);
+  }, [races, nextRaceIndex, raceHasStarted]);
 
   useEffect(() => {
     const handleTimerMessage = (msg) => {
@@ -89,9 +97,7 @@ const NextRace = () => {
       </div>
       <h2 className="front-title">Next Race Interface</h2>
 
-      {races.length <= 0 ? (
-        <div className="no-race">No races planned</div>
-      ) : (
+      {races.length > 0 && raceHasStarted ? (
         currentRace && (
           <>
             <h3 className="next-race-title">Next Race</h3>
@@ -117,9 +123,13 @@ const NextRace = () => {
             </div>
           </>
         )
+      ) : (
+        <div className="waiting-for-safe-flag">
+          Waiting for the previous race to become safe to start...
+        </div>
       )}
 
-      {proceedToPaddrock && (
+      {proceedToPaddrock && races.length > 0 && (
         <div className="proceed-to-paddrock">
           <p>Proceed to paddock for your race</p>
         </div>
