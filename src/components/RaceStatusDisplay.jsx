@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { raceStatusSocket } from "../socket"; // Используем raceStatusSocket
+import { raceStatusSocket } from "../socket";
 
 const RaceStatusDisplay = () => {
   const [raceStatus, setRaceStatus] = useState({
@@ -9,18 +9,80 @@ const RaceStatusDisplay = () => {
     status: "No data"
   });
 
+  useEffect(() => {
+    // Явно подключаем сокет, если он не подключен
+    if (!raceStatusSocket.connected) {
+      console.log('Socket not connected, connecting...');
+      raceStatusSocket.connect();
+    }
+
+    const handleConnect = () => {
+      console.log('Socket connected successfully');
+      setRaceStatus(prev => ({
+        ...prev,
+        connectionStatus: "Connected"
+      }));
+    };
+
+    const handleDisconnect = () => {
+      console.log('Socket disconnected');
+      setRaceStatus(prev => ({
+        ...prev,
+        connectionStatus: "Disconnected"
+      }));
+    };
+
+    const handleRaceStatusUpdate = (data) => {
+      console.log('Received race status update:', data);
+      setRaceStatus(prev => ({
+        ...prev,
+        raceId: data.sessionId || "Unknown",
+        raceName: data.sessionName || "No data",
+        status: data.status || "No data"
+      }));
+    };
+
+    const handleConnectError = (error) => {
+      console.error('Socket connection error:', error);
+      setRaceStatus(prev => ({
+        ...prev,
+        connectionStatus: "Error"
+      }));
+    };
+
+    // Добавляем слушатели
+    raceStatusSocket.on("connect", handleConnect);
+    raceStatusSocket.on("disconnect", handleDisconnect);
+    raceStatusSocket.on("connect_error", handleConnectError);
+    raceStatusSocket.on("raceStatusUpdate", handleRaceStatusUpdate);
+
+    // Вызываем restoreRaceState после установки соединения
+    if (raceStatusSocket.connected) {
+      restoreRaceState();
+    }
+
+    return () => {
+      console.log('Cleaning up socket listeners');
+      raceStatusSocket.off("connect", handleConnect);
+      raceStatusSocket.off("disconnect", handleDisconnect);
+      raceStatusSocket.off("connect_error", handleConnectError);
+      raceStatusSocket.off("raceStatusUpdate", handleRaceStatusUpdate);
+    };
+  }, []);
+
   const restoreRaceState = async () => {
     try {
+      console.log('Restoring race state...');
       const response = await fetch("http://localhost:3000/race-sessions/current-race");
 
       if (!response.ok) {
-        // Если нет активной гонки, очищаем localStorage
         localStorage.removeItem('currentRace');
         localStorage.removeItem('currentTimer');
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
       const result = await response.json();
+      console.log('Restored race state:', result);
 
       if (result.success && result.data.sessionId !== "Unknown") {
         setRaceStatus({
@@ -30,7 +92,6 @@ const RaceStatusDisplay = () => {
           status: result.data.status
         });
       } else {
-        // Если нет активной гонки, очищаем localStorage и состояние
         localStorage.removeItem('currentRace');
         localStorage.removeItem('currentTimer');
         setRaceStatus({
@@ -41,10 +102,9 @@ const RaceStatusDisplay = () => {
         });
       }
     } catch (error) {
-      // При ошибке очищаем localStorage
+      console.error("Error restoring race state:", error);
       localStorage.removeItem('currentRace');
       localStorage.removeItem('currentTimer');
-      console.error("Error restoring race state:", error);
       setRaceStatus({
         connectionStatus: "Error",
         raceId: "Unknown",
@@ -53,45 +113,6 @@ const RaceStatusDisplay = () => {
       });
     }
   };
-
-  useEffect(() => {
-    // Восстанавливаем состояние при первой загрузке
-    restoreRaceState();
-
-    // Обработка подключения WebSocket
-    const handleConnect = () => {
-      setRaceStatus(prev => ({
-        ...prev,
-        connectionStatus: "Connected"
-      }));
-    };
-
-    const handleDisconnect = () => {
-      setRaceStatus(prev => ({
-        ...prev,
-        connectionStatus: "Disconnected"
-      }));
-    };
-
-    // Слушаем обновления статуса гонки
-    raceStatusSocket.on("connect", handleConnect);
-    raceStatusSocket.on("disconnect", handleDisconnect);
-    raceStatusSocket.on("raceStatusUpdate", (data) => {
-      setRaceStatus(prev => ({
-        ...prev,
-        raceId: data.sessionId || "Unknown",
-        raceName: data.sessionName || "No data",
-        status: data.status || "No data"
-      }));
-    });
-
-    // Очищаем слушатели при размонтировании
-    return () => {
-      raceStatusSocket.off("connect", handleConnect);
-      raceStatusSocket.off("disconnect", handleDisconnect);
-      raceStatusSocket.off("raceStatusUpdate");
-    };
-  }, []);
 
   return (
       <div className="race-status-container">
