@@ -12,8 +12,8 @@ const FlagFetcher = () => {
     });
 
     const [currentFlag, setCurrentFlag] = useState("Safe");
-    const [updateMessage, setUpdateMessage] = useState(""); // For flag update notifications
-    const [nextRace, setNextRace] = useState(null); // Prepare for the next race
+    const [updateMessage, setUpdateMessage] = useState("");
+    const [nextRace, setNextRace] = useState(null);
 
     // Flag options
     const flagOptions = [
@@ -23,8 +23,60 @@ const FlagFetcher = () => {
         { name: "Finish", isChequered: true },
     ];
 
+    // Функция для восстановления состояния гонки
+    const restoreRaceState = async () => {
+        try {
+            const response = await fetch("http://localhost:3000/race-sessions/current-race");
+
+            if (!response.ok) {
+                // Если нет активной гонки, очищаем localStorage
+                localStorage.removeItem('currentRace');
+                localStorage.removeItem('currentTimer');
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const result = await response.json();
+
+            if (result.success && result.data.sessionId !== "Unknown") {
+                // Если есть активная гонка, обновляем состояние
+                setCurrentRace({
+                    id: result.data.sessionId,
+                    sessionName: result.data.sessionName,
+                    status: result.data.status,
+                });
+                setCurrentFlag(result.data.flag);
+                // Обновляем localStorage только если гонка реально существует
+                localStorage.setItem('currentRace', JSON.stringify(result.data));
+            } else {
+                // Если нет активной гонки, очищаем localStorage и состояние
+                localStorage.removeItem('currentRace');
+                localStorage.removeItem('currentTimer');
+                setCurrentRace({
+                    id: "Unknown",
+                    sessionName: "No data",
+                    status: "No data"
+                });
+                setCurrentFlag("Safe");
+            }
+        } catch (error) {
+            // При ошибке очищаем localStorage
+            localStorage.removeItem('currentRace');
+            localStorage.removeItem('currentTimer');
+            console.error("Error restoring race state:", error);
+            setCurrentRace({
+                id: "Unknown",
+                sessionName: "Error loading data",
+                status: "Error"
+            });
+            setCurrentFlag("Safe");
+        }
+    };
+
     useEffect(() => {
-        // Listen for race status updates via WebSocket
+        // При первой загрузке пытаемся восстановить состояние
+        restoreRaceState();
+
+        // Слушаем события WebSocket
         raceStatusSocket.on("raceStatusUpdate", (data) => {
             console.log("Received race status update in FlagFetcher:", data);
             setCurrentRace({
@@ -32,59 +84,93 @@ const FlagFetcher = () => {
                 sessionName: data.sessionName || "No data",
                 status: data.status || "No data",
             });
-            setCurrentFlag(data.status || "Safe");
+
+            if (data.flag) {
+                setCurrentFlag(data.flag);
+            }
         });
 
         raceStatusSocket.on("nextRace", (data) => {
             console.log("Next race prepared:", data);
             setNextRace(data);
         });
-        raceStatusSocket.on('flagUpdate', (data) => {
-            // Log the entire object for debugging
-            console.log('Received flagUpdate data:', JSON.stringify(data));
 
-            // Log only the flag property
+        raceStatusSocket.on("flagUpdate", (data) => {
+            console.log("Received flagUpdate data:", JSON.stringify(data));
             if (data.flag) {
-                console.log('Flag is:', data.flag);
-            } else {
-                console.log('Flag property is missing in the data');
+                setCurrentFlag(data.flag);
             }
         });
 
-        // Clean up WebSocket events on component unmount
+        // Очищаем слушатели при размонтировании
         return () => {
             raceStatusSocket.off("raceStatusUpdate");
             raceStatusSocket.off("nextRace");
+            raceStatusSocket.off("flagUpdate");
         };
     }, []);
-
-    const handleFlagChange = (newFlag) => {
+    const handleFlagChange = async (newFlag) => {
         if (currentRace.id === "Unknown") {
             alert("No race selected.");
             return;
         }
 
-        // Send flag update via WebSocket
-        raceStatusSocket.emit("updateFlag", {
-            sessionId: currentRace.id,
-            flag: newFlag,
-        });
+        try {
+            if (newFlag === "Finish") {
+                // Останавливаем таймер
+                const timerResponse = await fetch('http://localhost:3000/timer/stop', {
+                    method: 'POST'
+                });
 
-        setCurrentFlag(newFlag);
-        setUpdateMessage(`Flag successfully updated to: ${newFlag}`);
-        setTimeout(() => setUpdateMessage(""), 5000); // Clear the message after 5 seconds
+                if (!timerResponse.ok) {
+                    throw new Error('Failed to stop timer');
+                }
 
-        if (newFlag === "Finish") {
-            // Notify the server to stop the timer and prepare a new race
-            raceStatusSocket.emit("finishRace", { sessionId: currentRace.id });
-        }
-    };
+                // Обновляем статус гонки на Finished
+                const response = await fetch(
+                    `http://localhost:3000/race-sessions/${currentRace.id}/status`,
+                    {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            status: 'Finished',
+                            flag: 'Finish'
+                        })
+                    }
+                );
 
-    const startNextRace = () => {
-        if (nextRace) {
-            raceStatusSocket.emit("startRace", { sessionId: nextRace.id });
-            console.log("Starting next race:", nextRace);
-            setNextRace(null); // Clear next race after starting
+                if (!response.ok) {
+                    throw new Error('Failed to finish race');
+                }
+
+                // Очищаем локальное хранилище
+                localStorage.removeItem('currentRace');
+                localStorage.removeItem('currentTimer');
+
+                // Отправляем сообщение через сокет о завершении гонки
+                raceStatusSocket.emit("updateRaceStatus", {
+                    sessionId: currentRace.id,
+                    status: "Finished",
+                    flag: "Finish"
+                });
+            }
+
+            // Отправляем обновление флага
+            raceStatusSocket.emit("updateFlag", {
+                sessionId: currentRace.id,
+                flag: newFlag,
+            });
+
+            setCurrentFlag(newFlag);
+            setUpdateMessage(`Flag successfully updated to: ${newFlag}`);
+            setTimeout(() => setUpdateMessage(""), 5000);
+
+        } catch (error) {
+            console.error("Error updating flag:", error);
+            setUpdateMessage("Error updating flag");
+            setTimeout(() => setUpdateMessage(""), 5000);
         }
     };
 

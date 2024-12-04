@@ -5,42 +5,46 @@ import "./StartRaceButton.css";
 const StartRaceButton = () => {
   const [upcomingRace, setUpcomingRace] = useState(null);
   const [raceStarted, setRaceStarted] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
   useEffect(() => {
-    // Fetch upcoming races and determine the next race
+    // Проверяем localStorage при загрузке компонента
+    const savedRace = localStorage.getItem('currentRace');
+    if (savedRace) {
+      const parsedRace = JSON.parse(savedRace);
+      setUpcomingRace(parsedRace);
+      setRaceStarted(true);
+    }
+
+    // Fetch the upcoming race
     const fetchUpcomingRace = async () => {
       try {
         const response = await fetch("http://localhost:3000/race-sessions");
-        if (!response.ok) {
-          throw new Error("Error fetching race sessions");
-        }
+        if (!response.ok) throw new Error("Failed to fetch race sessions");
 
         const raceSessions = await response.json();
         const pendingRaces = raceSessions.filter((race) => race.status === "Pending");
-
-        if (pendingRaces.length > 0) {
-          const sortedRaces = pendingRaces.sort((a, b) => new Date(a.startTime) - new Date(b.startTime));
-          setUpcomingRace(sortedRaces[0]);
-        }
+        setUpcomingRace(pendingRaces.length > 0 ? pendingRaces[0] : null);
       } catch (error) {
         console.error("Error fetching race sessions:", error);
+        setErrorMessage("Could not fetch race sessions. Please try again.");
       }
     };
 
-    fetchUpcomingRace();
+    if (!savedRace) {
+      fetchUpcomingRace();
+    }
 
-    // Listen for race status updates
+    // Listen for race updates via WebSocket
     raceStatusSocket.on("raceStatusUpdate", (data) => {
-      console.log("Received race status update:", data);
-
       if (data.flag === "Finish") {
-        console.log("Race finished. Ready for the next race.");
-        setRaceStarted(false); // Reset button state
-        fetchUpcomingRace(); // Fetch next pending race
+        console.log("Race finished. Preparing the next race.");
+        setRaceStarted(false);
+        localStorage.removeItem('currentRace');
+        fetchUpcomingRace();
       }
     });
 
-    // Cleanup listeners on unmount
     return () => {
       raceStatusSocket.off("raceStatusUpdate");
     };
@@ -49,46 +53,39 @@ const StartRaceButton = () => {
   const handleStartRace = async () => {
     if (upcomingRace) {
       try {
-        // Update race status on the server
-        const statusResponse = await fetch(
-            `http://localhost:3000/race-sessions/${upcomingRace.id}/status`,
-            {
-              method: "PUT",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify({ status: "InProgress" }),
-            }
-        );
-
-        if (!statusResponse.ok) {
-          throw new Error("Error updating race status");
-        }
-
-        // Start the timer on the server
-        const timerResponse = await fetch("http://localhost:3000/timer/start", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
+        // Update race status
+        const statusResponse = await fetch(`http://localhost:3000/race-sessions/${upcomingRace.id}/status`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ status: "InProgress" }),
         });
+        if (!statusResponse.ok) throw new Error("Failed to update race status");
 
-        if (!timerResponse.ok) {
-          throw new Error("Error starting the timer");
-        }
+        // Start the timer
+        const timerResponse = await fetch(`http://localhost:3000/timer/start`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ duration: 10 }),
+        });
+        if (!timerResponse.ok) throw new Error("Failed to start timer");
 
-        // Notify all clients about the race status update
+        // Notify other clients via WebSocket
         raceStatusSocket.emit("updateRaceStatus", {
           sessionId: upcomingRace.id,
           status: "InProgress",
           sessionName: upcomingRace.sessionName,
-          flag: "Safe", // Default flag when race starts
+          flag: "Safe",
         });
 
-        console.log(`Race "${upcomingRace.sessionName}" started and timer initialized.`);
-        setRaceStarted(true); // Disable the button until the next race
+        // Сохраняем информацию о текущей гонке в localStorage
+        localStorage.setItem('currentRace', JSON.stringify(upcomingRace));
+
+        console.log(`Race "${upcomingRace.sessionName}" started with flag "Safe".`);
+        setRaceStarted(true);
+        setErrorMessage("");
       } catch (error) {
         console.error("Error starting the race:", error);
+        setErrorMessage("Could not start the race. Please try again.");
       }
     }
   };
@@ -101,11 +98,15 @@ const StartRaceButton = () => {
                 className={`start-race-button ${raceStarted ? "started" : ""}`}
                 disabled={raceStarted}
             >
-              {raceStarted ? `Race in progress: ${upcomingRace.sessionName}` : `Start Race: ${upcomingRace.sessionName}`}
+              {raceStarted
+                  ? `Race in progress: ${upcomingRace.sessionName}`
+                  : `Start Race: ${upcomingRace.sessionName}`}
             </button>
         ) : (
             <p>No upcoming races available</p>
         )}
+
+        {errorMessage && <p className="error-message">{errorMessage}</p>}
       </div>
   );
 };
