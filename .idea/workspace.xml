@@ -6,6 +6,19 @@
   <component name="ChangeListManager">
     <list default="true" id="5c0cee91-c9d1-46ff-976b-e9f61986d114" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/racetrack-info-screens" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/App.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/App.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/assets/button/StartRaceButton.css" beforeDir="false" afterPath="$PROJECT_DIR$/src/assets/button/StartRaceButton.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/Auth/AuthComponent.css" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/Auth/AuthComponent.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/RaceStatusDisplay.css" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/RaceStatusDisplay.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/RaceStatusDisplay.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/RaceStatusDisplay.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/employee/flag-bearers/FlagBearers.css" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/employee/flag-bearers/FlagBearers.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/employee/flag-bearers/FlagFetcher.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/employee/flag-bearers/FlagFetcher.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/employee/race-control/RaceControl.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/employee/race-control/RaceControl.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/guest/leader-board/LeaderBoard.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/guest/leader-board/LeaderBoard.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/guest/next-race/NextRace.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/guest/next-race/NextRace.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/index.css" beforeDir="false" afterPath="$PROJECT_DIR$/src/index.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/socket.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/socket.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -110,7 +123,8 @@
       <workItem from="1732113881386" duration="30575000" />
       <workItem from="1732694980539" duration="8638000" />
       <workItem from="1733305880861" duration="339000" />
-      <workItem from="1733306247294" duration="1060000" />
+      <workItem from="1733306247294" duration="1497000" />
+      <workItem from="1733308155991" duration="4967000" />
     </task>
     <servers />
   </component>

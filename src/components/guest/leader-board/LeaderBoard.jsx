@@ -2,9 +2,9 @@ import React, { useEffect, useState } from "react";
 
 import { useNavigate } from "react-router-dom";
 import { backButton, carPersona } from "../../../assets/button/buttons";
+import { fastSocket, raceStatusSocket, timerSocket } from "../../../socket";
 import Timer from "../../timer/Timer";
 import "./LeaderBoard.css";
-import { raceStatusSocket, timerSocket, fastSocket } from "../../../socket";
 
 const flagOptions = [
   { name: "Safe", color: "#2ecc71" },
