@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
 import axios from "axios";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./AuthComponent.css"; // Импортируем файл стилей
 
@@ -14,6 +14,8 @@ const AuthComponent = ({ apiUrl, role, onAuthenticated }) => {
     const [accessKey, setAccessKey] = useState("");
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [errorMessage, setErrorMessage] = useState("");
+    const [isLoading, setIsLoading] = useState(false);
+    const [isButtonDisabled, setIsButtonDisabled] = useState(false);
 
     const navigate = useNavigate();
 
@@ -33,23 +35,30 @@ const AuthComponent = ({ apiUrl, role, onAuthenticated }) => {
     }, [onAuthenticated, role]);
 
     const authenticate = async () => {
+        if (isLoading || isButtonDisabled) return;
+        
+        setIsLoading(true);
+        setErrorMessage("");
+        setIsButtonDisabled(true);
+
         try {
             await axios.post(`${apiUrl}/auth/login`, {
                 token: accessKey,
-                type: roleTypeMapping[role], // Используем маппинг
+                type: roleTypeMapping[role],
             });
+            
             setIsAuthenticated(true);
-            setErrorMessage("");
-
-            // Сохраняем токен и тип пользователя в localStorage
             localStorage.setItem("userToken", accessKey);
-            localStorage.setItem("userType", roleTypeMapping[role]); // Используем маппинг
-
+            localStorage.setItem("userType", roleTypeMapping[role]);
             onAuthenticated && onAuthenticated(true);
         } catch (error) {
             setErrorMessage(
                 error.response?.data?.message || "Authentication Error"
             );
+            await new Promise(resolve => setTimeout(resolve, 500));
+        } finally {
+            setIsLoading(false);
+            setIsButtonDisabled(false);
         }
     };
 
@@ -85,13 +94,16 @@ const AuthComponent = ({ apiUrl, role, onAuthenticated }) => {
                             value={accessKey}
                             onChange={(e) => setAccessKey(e.target.value)}
                             className="password-input"
+                            disabled={isLoading || isButtonDisabled}
                         />
                         <button
                             onClick={authenticate}
-                            className={`submit-button ${!accessKey ? "disabled" : ""}`}
-                            disabled={!accessKey}
+                            className={`submit-button ${
+                                !accessKey || isLoading || isButtonDisabled ? "disabled" : ""
+                            }`}
+                            disabled={!accessKey || isLoading || isButtonDisabled}
                         >
-                            Login
+                            {isLoading ? "Loading..." : "Login"}
                         </button>
                     </div>
                     {errorMessage && (

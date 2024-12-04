@@ -33,17 +33,17 @@
 .submit-button {
   padding: 10px 20px;
   border-radius: 8px;
-  background: #4caf50; /* Green background */
+  background: #4caf50;
   border: 1px solid #3e8e41;
   color: #fff;
   font-weight: 500;
   cursor: pointer;
-  transition: background-color 0.3s ease, border-color 0.3s ease;
+  transition: all 0.3s ease;
   font-family: "Roboto", sans-serif;
 }
 
-.submit-button:hover {
-  background: #45a049; /* Darker green on hover */
+.submit-button:hover:not(:disabled) {
+  background: #45a049;
   border-color: #3e8e41;
 }
 
@@ -53,6 +53,8 @@
   cursor: not-allowed;
   color: #a9a9a9;
   border-color: #ccc;
+  opacity: 0.7;
+  pointer-events: none;
 }
 
 /* Error Message Styling */
@@ -71,4 +73,30 @@
   margin-bottom: 0.5em;
   color: #ffd700;
   text-align: center;
+}
+
+/* Добавим новые стили для состояния загрузки */
+.submit-button.disabled {
+    background: #cccccc;
+    cursor: not-allowed;
+    color: #a9a9a9;
+    border-color: #ccc;
+    opacity: 0.7;
+}
+
+.password-input:disabled {
+    background-color: #f5f5f5;
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
+/* Добавим анимацию загрузки для кнопки */
+@keyframes pulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.7; }
+    100% { opacity: 1; }
+}
+
+.submit-button:disabled {
+    animation: pulse 1.5s infinite;
 }
