@@ -21,7 +21,7 @@ const LapLineTracker = () => {
   const [raceStatus, setRaceStatus] = useState({
     id: "no id",
     status: "no status",
-    name: "no name",
+    name: "",
   });
   const [fastestLapsData, setFastestLapsData] = useState([]);
   const [passingLapData, setPassingLapData] = useState([]);
@@ -53,7 +53,6 @@ const LapLineTracker = () => {
       raceStatusSocket.off("flagUpdate");
     };
   }, []);
-
 
   useEffect(() => {
     const matchingRace = races.find(
