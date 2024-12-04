@@ -43,7 +43,6 @@ const FrontDesk = () => {
       }
     } catch (error) {
       console.error("Error:", error);
-      alert("Failed to fetch races");
     }
   };
   raceStatusSocket.on(

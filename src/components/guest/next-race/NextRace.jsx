@@ -38,7 +38,6 @@ const NextRace = () => {
         }
       } catch (error) {
         console.error("Error:", error);
-        alert("Failed to fetch races");
       }
     };
 

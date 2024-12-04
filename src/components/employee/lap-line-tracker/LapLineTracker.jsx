@@ -6,7 +6,7 @@ import Timer from "../../timer/Timer";
 import "./LapLineTracker.css";
 import PassData from "./passing-data-socket/PassData";
 
-import { raceStatusSocket } from "../../../socket";
+import { raceStatusSocket, fastSocket } from "../../../socket";
 
 const LapLineTracker = () => {
   const navigate = useNavigate();
@@ -96,7 +96,10 @@ const LapLineTracker = () => {
     if (currentRace) {
       const carNumbers = currentRace.drivers.map((driver) => driver.carNumber);
       const fastestLaps = currentRace.drivers.reduce((laps, driver) => {
-        laps[driver.carNumber] = driver.fastestLap || Infinity;
+        laps[driver.carNumber] =
+          driver.fastestLap && driver.fastestLap !== Infinity
+            ? driver.fastestLap
+            : "No fastest lap set yet";
         return laps;
       }, {});
       setCars(carNumbers);
@@ -258,6 +261,38 @@ const LapLineTracker = () => {
       }
     }
   };
+  useEffect(() => {
+    const savedFastestLapsData = localStorage.getItem("fastestLapsData");
+    const savedPassingLapData = localStorage.getItem("passingLapData");
+
+    if (savedFastestLapsData && savedPassingLapData) {
+      setFastestLapsData(JSON.parse(savedFastestLapsData));
+      setPassingLapData(JSON.parse(savedPassingLapData));
+    }
+  }, []);
+  useEffect(() => {
+    fastSocket.on("lapDataResponse", (response) => {
+      console.log("RESPONSE FROM PassData: ", response);
+
+      // Update localStorage with the new lap data
+      localStorage.setItem(
+        "fastestLapsData",
+        JSON.stringify(response.fastestLapsData)
+      );
+      localStorage.setItem(
+        "passingLapData",
+        JSON.stringify(response.passingLapData)
+      );
+
+      // Update state with the new lap data
+      setFastestLapsData(response.fastestLapsData);
+      setPassingLapData(response.passingLapData);
+    });
+
+    return () => {
+      fastSocket.off("lapDataResponse");
+    };
+  }, []);
 
   return (
     <div className="race-control-container">
@@ -274,79 +309,73 @@ const LapLineTracker = () => {
             </label>
           </div>
 
-          {!currentRace ? (
-            <div className="no-race">
-              Waiting confirmation from Safety Official
+          <>
+            <Timer onTimerFinish={() => setRaceEnded(true)} />
+            <PassData
+              fastestLapsData={fastestLapsData}
+              passingLapData={passingLapData}
+            />
+            <div className="lap-buttons-container">
+              {cars.length > 0 ? (
+                cars.map((carNumber) => (
+                  <button
+                    key={carNumber}
+                    className="lap-button"
+                    onClick={() => handleLapCrossing(carNumber)}
+                    disabled={raceEnded}
+                  >
+                    {getButtonLabel(carNumber)}
+                  </button>
+                ))
+              ) : (
+                <p>No cars available for this race.</p>
+              )}
             </div>
-          ) : (
-            <>
-              <Timer onTimerFinish={() => setRaceEnded(true)} />
-              <PassData
-                fastestLapsData={fastestLapsData}
-                passingLapData={passingLapData}
-              />
-              <div className="lap-buttons-container">
-                {cars.length > 0 ? (
-                  cars.map((carNumber) => (
-                    <button
-                      key={carNumber}
-                      className="lap-button"
-                      onClick={() => handleLapCrossing(carNumber)}
-                      disabled={raceEnded}
-                    >
-                      {getButtonLabel(carNumber)}
-                    </button>
-                  ))
+
+            {raceEnded && (
+              <p className="session-ended-message">Race session has ended.</p>
+            )}
+
+            <div className="passing-laps">
+              <h3>Passing Lap Data</h3>
+              <div className="passing-laps-grid">
+                {passingLapData.length > 0 ? (
+                  passingLapData.map(
+                    ({ carNumber, driverName, lapNumber, lapTime }) => (
+                      <div
+                        key={`${carNumber}-${lapNumber}`}
+                        className="passing-lap-card"
+                      >
+                        <h4>
+                          {driverName} - Car {carNumber}
+                        </h4>
+                        <ul>
+                          <li>{`Lap Number: ${lapNumber}`}</li>
+                          <li>{`Lap Time: ${lapTime}`}</li>
+                        </ul>
+                      </div>
+                    )
+                  )
                 ) : (
-                  <p>No cars available for this race.</p>
+                  <p>No passing lap data available.</p>
                 )}
               </div>
+            </div>
 
-              {raceEnded && (
-                <p className="session-ended-message">Race session has ended.</p>
-              )}
-
-              <div className="lap-times">
-                <h3>Lap Times</h3>
-                <div className="lap-times-grid">
-                  {Object.entries(lapTimes).map(([carNumber, laps]) => (
-                    <div key={carNumber} className="lap-time-card">
-                      <h4>
-                        {carPersona} № {carNumber}
-                      </h4>
-                      <ul>
-                        {laps.map(({ lapNumber, time }, index) => (
-                          <li key={index}>{`Lap ${lapNumber}: ${time}`}</li>
-                        ))}
-                      </ul>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div className="fastest-laps">
-                <h3>Fastest Laps</h3>
-                <ul>
-                  {Object.entries(fastestLaps).map(([carNumber, time]) => (
-                    <li key={carNumber}>
-                      {carPersona} № {carNumber}:{" "}
-                      {Number.isFinite(time) && time > 0
-                        ? `${String(Math.floor(time / 60)).padStart(
-                            2,
-                            "0"
-                          )}:${String(Math.floor(time % 60)).padStart(
-                            2,
-                            "0"
-                          )} (${((time % 1) * 1000)
-                            .toFixed(0)
-                            .padStart(3, "0")} ms)`
-                        : "No fastest lap set yet"}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </>
-          )}
+            <div className="fastest-laps">
+              <h3>Fastest Laps</h3>
+              <ul>
+                {fastestLapsData.map(({ carNumber, driverName, lapTime }) => (
+                  <li key={carNumber}>
+                    {driverName} - Car {carNumber}:{" "}
+                    {lapTime !== "No fastest lap set yet"
+                      ? lapTime
+                      : "No fastest lap set yet"}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </>
         </>
       ) : (
         <>
