@@ -28,7 +28,24 @@ const FrontDesk = () => {
   });
   const [raceHasStarted, setRaceHasStarted] = useState(false);
   const [startedRaceId, setStartedRaceId] = useState(null);
+  const fetchRaces = async () => {
+    try {
+      const response = await fetch(
+        `${process.env.REACT_APP_SERVER_URL}/front-desk/sessions`
+      );
+      const result = await response.json();
 
+      if (response.ok) {
+        setRaces(result);
+        console.log(result);
+      } else {
+        alert("Error fetching races: " + result.message);
+      }
+    } catch (error) {
+      console.error("Error:", error);
+      alert("Failed to fetch races");
+    }
+  };
   raceStatusSocket.on(
     "raceStatusUpdate",
     (data) => {
@@ -50,6 +67,7 @@ const FrontDesk = () => {
             setStartedRaceId(data.sessionId);
             // Race sessions disappear from the Front Desk interface once it is safe to start.
             handleDelete(data.sessionId);
+            fetchRaces();
           }
         } else {
           console.log("Flag property is missing in the data");
@@ -89,25 +107,6 @@ const FrontDesk = () => {
   }, []);
   //Fetch All races front-desk/sessions
   useEffect(() => {
-    const fetchRaces = async () => {
-      try {
-        const response = await fetch(
-          `${process.env.REACT_APP_SERVER_URL}/front-desk/sessions`
-        );
-        const result = await response.json();
-
-        if (response.ok) {
-          setRaces(result);
-          console.log(result);
-        } else {
-          alert("Error fetching races: " + result.message);
-        }
-      } catch (error) {
-        console.error("Error:", error);
-        alert("Failed to fetch races");
-      }
-    };
-
     fetchRaces();
   }, []);
   // Add race
