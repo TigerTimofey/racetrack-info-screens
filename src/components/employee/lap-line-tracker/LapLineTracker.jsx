@@ -185,7 +185,7 @@ const LapLineTracker = () => {
           const newPassingEntry = {
             carNumber,
             driverName:
-              currentRace.drivers.find(
+              currentRace?.drivers.find(
                 (driver) => driver.carNumber === carNumber
               )?.name || `Driver ${carNumber}`,
             lapNumber: lapCount,
