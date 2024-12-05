@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import Lottie from "react-lottie";
 import loadingAnimation from "../../../assets/lottie-animations/flag.json";
 import { raceStatusSocket } from "../../../socket";
@@ -9,9 +9,13 @@ const FlagFetcher = () => {
         id: "Unknown",
         sessionName: "No data",
         status: "No data",
+        flag: "Safe"
     });
 
-    const [currentFlag, setCurrentFlag] = useState("Safe");
+    const [currentFlag, setCurrentFlag] = useState(() => {
+        const savedRace = localStorage.getItem('currentRace');
+        return savedRace ? JSON.parse(savedRace).flag || "Safe" : "Safe";
+    });
     const [updateMessage, setUpdateMessage] = useState("");
     const [nextRace, setNextRace] = useState(null);
 
@@ -26,7 +30,7 @@ const FlagFetcher = () => {
     // Функция для восстановления состояния гонки
     const restoreRaceState = async () => {
         try {
-            const response = await fetch("http://localhost:3000/race-sessions/current-race");
+            const response = await fetch("http://localhost:3000/race-control/current-race");
 
             if (!response.ok) {
                 // Если нет активной гонки, очищаем localStorage
@@ -39,14 +43,16 @@ const FlagFetcher = () => {
 
             if (result.success && result.data.sessionId !== "Unknown") {
                 // Если есть активная гонка, обновляем состояние
-                setCurrentRace({
+                const raceData = {
                     id: result.data.sessionId,
                     sessionName: result.data.sessionName,
                     status: result.data.status,
-                });
-                setCurrentFlag(result.data.flag);
+                    flag: result.data.flag
+                };
+                setCurrentRace(raceData);
+                setCurrentFlag(raceData.flag);
                 // Обновляем localStorage только если гонка реально существует
-                localStorage.setItem('currentRace', JSON.stringify(result.data));
+                localStorage.setItem('currentRace', JSON.stringify(raceData));
             } else {
                 // Если нет активной гонки, очищаем localStorage и состояние
                 localStorage.removeItem('currentRace');
@@ -54,7 +60,8 @@ const FlagFetcher = () => {
                 setCurrentRace({
                     id: "Unknown",
                     sessionName: "No data",
-                    status: "No data"
+                    status: "No data",
+                    flag: "Safe"
                 });
                 setCurrentFlag("Safe");
             }
@@ -66,7 +73,8 @@ const FlagFetcher = () => {
             setCurrentRace({
                 id: "Unknown",
                 sessionName: "Error loading data",
-                status: "Error"
+                status: "Error",
+                flag: "Safe"
             });
             setCurrentFlag("Safe");
         }
@@ -79,11 +87,14 @@ const FlagFetcher = () => {
         // Слушаем события WebSocket
         raceStatusSocket.on("raceStatusUpdate", (data) => {
             console.log("Received race status update in FlagFetcher:", data);
-            setCurrentRace({
+            const updatedRace = {
                 id: data.sessionId || "Unknown",
                 sessionName: data.sessionName || "No data",
                 status: data.status || "No data",
-            });
+                flag: data.flag || currentFlag
+            };
+            setCurrentRace(updatedRace);
+            localStorage.setItem('currentRace', JSON.stringify(updatedRace));
 
             if (data.flag) {
                 setCurrentFlag(data.flag);
@@ -99,6 +110,13 @@ const FlagFetcher = () => {
             console.log("Received flagUpdate data:", JSON.stringify(data));
             if (data.flag) {
                 setCurrentFlag(data.flag);
+                // Обновляем флаг в localStorage
+                const savedRace = localStorage.getItem('currentRace');
+                if (savedRace) {
+                    const raceData = JSON.parse(savedRace);
+                    raceData.flag = data.flag;
+                    localStorage.setItem('currentRace', JSON.stringify(raceData));
+                }
             }
         });
 

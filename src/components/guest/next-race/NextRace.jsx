@@ -1,7 +1,7 @@
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { backButton, carPersona } from "../../../assets/button/buttons";
 import { raceStatusSocket, timerSocket } from "../../../socket";
-import { useState, useEffect } from "react";
 
 import "./NextRace.css";
 

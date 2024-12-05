@@ -1,100 +1,206 @@
-.race-control-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  background: linear-gradient(135deg, #283e51, #283e51);
-  color: #fff;
-  text-align: center;
-  overflow: hidden;
-  padding: 30px;
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
+
+.flag-bearers-container {
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(10px);
+    border-radius: 20px;
+    padding: 32px;
+    margin: 20px 0;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    animation: fadeIn 0.5s ease-out;
+    border: 1px solid rgba(255, 255, 255, 0.1);
 }
-@media screen and (max-width: 900px) {
-  .race-control-container {
-    height: auto;
-  }
+
+.flag-bearers-header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.flag-bearers-title {
+    font-family: 'Poppins', sans-serif;
+    font-size: 2rem;
+    color: #ffd700;
+    margin-bottom: 10px;
+    animation: slideDown 0.5s ease-out;
+}
+
+.race-info {
+    background: rgba(255, 255, 255, 0.08);
+    padding: 15px;
+    border-radius: 12px;
+    margin: 20px 0;
+    animation: slideUp 0.5s ease-out;
+}
+
+.race-info strong {
+    color: #4CAF50;
+    font-weight: 600;
 }
 
 .flag-circles-container {
-  display: flex;
-  justify-content: center;
-  margin-top: 30px;
-  flex-wrap: wrap;
-  gap: 20px;
-  width: 100%;
-  overflow-x: auto;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 20px;
+    margin-top: 30px;
+    animation: fadeIn 0.5s ease-out 0.3s both;
 }
 
 .flag-circle {
-  width: 120px;
-  height: 120px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-  margin: 10px;
-  color: white;
-  font-weight: bold;
-  font-size: 1.2rem;
-  position: relative;
-  text-align: center;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.flag-circle:before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+        120deg,
+        transparent,
+        rgba(255, 255, 255, 0.2),
+        transparent
+    );
+    transition: 0.5s;
+}
+
+.flag-circle:hover:before {
+    left: 100%;
+}
+
+.flag-circle:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
 }
 
 .flag-circle.active-flag {
-  border: 5px solid #ffffff;
-  transform: scale(1.15);
+    border: 3px solid #ffd700;
+    animation: pulse 2s infinite;
 }
 
-.current-flag-display p {
-  margin-top: 40px;
-  font-size: 2rem;
-  font-weight: bold;
-  color: #ffd814;
-}
-
-.select-dropdown {
-  margin-top: 20px;
-}
-select {
-  padding: 12px;
-  font-size: 1.1rem;
-  border-radius: 8px;
-  border: 2px solid #ddd;
-  background-color: #f5f5f5;
-  color: #333;
-  transition: border 0.3s ease;
-  margin-top: 15px;
-  width: 200px;
-}
-
-select:focus {
-  outline: none;
-  border: 2px solid #ffd814;
-}
-
-div label {
-  margin-right: 10px;
-  font-size: 1.2rem;
-  font-weight: bold;
-  color: #ffd814;
-  margin-bottom: 5px;
+.flag-name {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: white;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    z-index: 1;
 }
 
 .chequered-pattern {
-  width: 100%;
-  height: 100%;
-  border-radius: 100px; /* Ensures the pattern fits within a circular shape */
-  background-image: linear-gradient(45deg, #000 25%, transparent 25%),
-    linear-gradient(45deg, transparent 75%, #000 75%),
-    linear-gradient(45deg, transparent 75%, #000 75%),
-    linear-gradient(45deg, #000 25%, #fff 25%);
-  background-size: 40px 40px; /* Increased size for larger squares */
-  background-position: 0 0, 0 0, -20px -20px, 20px 20px; /* Adjusted position for alignment */
+    width: 100%;
+    height: 100%;
+    background-image: linear-gradient(45deg, #000 25%, transparent 25%),
+        linear-gradient(45deg, transparent 75%, #000 75%),
+        linear-gradient(45deg, transparent 75%, #000 75%),
+        linear-gradient(45deg, #000 25%, #fff 25%);
+    background-size: 20px 20px;
+    background-position: 0 0, 0 0, -10px -10px, 10px 10px;
+    animation: patternMove 20s linear infinite;
 }
-@media screen and (max-width: 850px) {
-  .loading-animation {
-    display: none;
-  }
+
+.update-message {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 15px 25px;
+    background: rgba(76, 175, 80, 0.9);
+    color: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    animation: slideInRight 0.3s ease-out;
+    backdrop-filter: blur(10px);
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes pulse {
+    0% {
+        box-shadow: 0 0 0 0 rgba(255, 215, 0, 0.4);
+    }
+    70% {
+        box-shadow: 0 0 0 10px rgba(255, 215, 0, 0);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(255, 215, 0, 0);
+    }
+}
+
+@keyframes patternMove {
+    from { background-position: 0 0; }
+    to { background-position: 40px 40px; }
+}
+
+@keyframes slideInRight {
+    from {
+        opacity: 0;
+        transform: translateX(100px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* Loading Animation */
+.loading-animation {
+    display: flex;
+    justify-content: center;
+    margin: 40px 0;
+    animation: fadeIn 0.5s ease-out;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .flag-bearers-container {
+        padding: 20px;
+    }
+
+    .flag-circles-container {
+        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+        gap: 15px;
+    }
+
+    .flag-bearers-title {
+        font-size: 1.5rem;
+    }
+
+    .flag-name {
+        font-size: 0.9rem;
+    }
 }
