@@ -27,6 +27,7 @@ const LeaderBoard = () => {
     id: "no id",
     status: "no data",
     sessionName: "",
+    flag: "Finish",
     //ADD FLAG
   });
   useEffect(() => {
@@ -35,7 +36,8 @@ const LeaderBoard = () => {
       setRaceStatus({
         id: data.sessionId || "no id",
         status: data.status || "no status",
-        sessionName: data.sessionName || "no name",
+        sessionName: data.sessionName || "",
+        flag: data.flag,
       });
     });
 
@@ -83,10 +85,9 @@ const LeaderBoard = () => {
 
     return () => {
       fastSocket.off("lapDataResponse");
+      timerSocket.off("message"); // Remove the message listener
     };
-  }, []);
-  if (setRaceEnded) {
-  }
+  }, [currentFlag, responseData]);
 
   return (
     <div className="race-control-container">

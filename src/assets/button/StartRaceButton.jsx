@@ -9,7 +9,7 @@ const StartRaceButton = () => {
 
   useEffect(() => {
     // Проверяем localStorage при загрузке компонента
-    const savedRace = localStorage.getItem('currentRace');
+    const savedRace = localStorage.getItem("currentRace");
     if (savedRace) {
       const parsedRace = JSON.parse(savedRace);
       setUpcomingRace(parsedRace);
@@ -23,7 +23,9 @@ const StartRaceButton = () => {
         if (!response.ok) throw new Error("Failed to fetch race sessions");
 
         const raceSessions = await response.json();
-        const pendingRaces = raceSessions.filter((race) => race.status === "Pending");
+        const pendingRaces = raceSessions.filter(
+          (race) => race.status === "Pending"
+        );
         setUpcomingRace(pendingRaces.length > 0 ? pendingRaces[0] : null);
       } catch (error) {
         console.error("Error fetching race sessions:", error);
@@ -40,7 +42,7 @@ const StartRaceButton = () => {
       if (data.flag === "Finish") {
         console.log("Race finished. Preparing the next race.");
         setRaceStarted(false);
-        localStorage.removeItem('currentRace');
+        localStorage.removeItem("currentRace");
         fetchUpcomingRace();
       }
     });
@@ -49,16 +51,18 @@ const StartRaceButton = () => {
       raceStatusSocket.off("raceStatusUpdate");
     };
   }, []);
-
   const handleStartRace = async () => {
     if (upcomingRace) {
       try {
         // Update race status
-        const statusResponse = await fetch(`http://localhost:3000/race-sessions/${upcomingRace.id}/status`, {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ status: "InProgress" }),
-        });
+        const statusResponse = await fetch(
+          `http://localhost:3000/race-sessions/${upcomingRace.id}/status`,
+          {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ status: "InProgress" }),
+          }
+        );
         if (!statusResponse.ok) throw new Error("Failed to update race status");
 
         // Start the timer
@@ -69,7 +73,7 @@ const StartRaceButton = () => {
         });
         if (!timerResponse.ok) throw new Error("Failed to start timer");
 
-        // Notify other clients via WebSocket
+        // Notify other clients via WebSocket (raceStatusUpdate)
         raceStatusSocket.emit("updateRaceStatus", {
           sessionId: upcomingRace.id,
           status: "InProgress",
@@ -77,10 +81,18 @@ const StartRaceButton = () => {
           flag: "Safe",
         });
 
-        // Сохраняем информацию о текущей гонке в localStorage
-        localStorage.setItem('currentRace', JSON.stringify(upcomingRace));
+        // Notify other clients via WebSocket (updateFlag) for flag update
+        raceStatusSocket.emit("updateFlag", {
+          sessionId: upcomingRace.id,
+          flag: "Safe", // This flag can be dynamically set based on the race state
+        });
 
-        console.log(`Race "${upcomingRace.sessionName}" started with flag "Safe".`);
+        // Save information about the current race in localStorage
+        localStorage.setItem("currentRace", JSON.stringify(upcomingRace));
+
+        console.log(
+          `Race "${upcomingRace.sessionName}" started with flag "Safe".`
+        );
         setRaceStarted(true);
         setErrorMessage("");
       } catch (error) {
@@ -91,23 +103,23 @@ const StartRaceButton = () => {
   };
 
   return (
-      <div>
-        {upcomingRace ? (
-            <button
-                onClick={handleStartRace}
-                className={`start-race-button ${raceStarted ? "started" : ""}`}
-                disabled={raceStarted}
-            >
-              {raceStarted
-                  ? `Race in progress: ${upcomingRace.sessionName}`
-                  : `Start Race: ${upcomingRace.sessionName}`}
-            </button>
-        ) : (
-            <p>No upcoming races available</p>
-        )}
+    <div>
+      {upcomingRace ? (
+        <button
+          onClick={handleStartRace}
+          className={`start-race-button ${raceStarted ? "started" : ""}`}
+          disabled={raceStarted}
+        >
+          {raceStarted
+            ? `Race in progress: ${upcomingRace.sessionName}`
+            : `Start Race: ${upcomingRace.sessionName}`}
+        </button>
+      ) : (
+        <p>No upcoming races available</p>
+      )}
 
-        {errorMessage && <p className="error-message">{errorMessage}</p>}
-      </div>
+      {errorMessage && <p className="error-message">{errorMessage}</p>}
+    </div>
   );
 };
 

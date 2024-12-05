@@ -206,3 +206,60 @@
     font-size: 1.8rem;
   }
 }
+/* Passing Lap Data Section */
+.passing-laps {
+  margin-top: 30px;
+  padding: 20px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.15);
+}
+
+.passing-laps h3 {
+  font-size: 1.5rem;
+  text-transform: uppercase;
+  color: #ffd700;
+  margin-bottom: 15px;
+}
+
+.passing-laps ul {
+  list-style: none;
+  padding: 0;
+}
+
+.passing-laps li {
+  font-size: 1.2rem;
+  margin-bottom: 5px;
+  background: rgba(0, 0, 0, 0.2);
+  padding: 10px;
+  border-radius: 5px;
+}
+
+/* Fastest Lap Data Section */
+.fastest-laps {
+  margin-top: 30px;
+  padding: 20px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.15);
+}
+
+.fastest-laps h3 {
+  font-size: 1.5rem;
+  text-transform: uppercase;
+  color: #ffd700;
+  margin-bottom: 15px;
+}
+
+.fastest-laps ul {
+  list-style: none;
+  padding: 0;
+}
+
+.fastest-laps li {
+  font-size: 1.2rem;
+  margin-bottom: 5px;
+  background: rgba(0, 0, 0, 0.2);
+  padding: 10px;
+  border-radius: 5px;
+}

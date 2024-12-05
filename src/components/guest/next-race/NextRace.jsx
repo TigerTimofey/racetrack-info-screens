@@ -38,7 +38,6 @@ const NextRace = () => {
         }
       } catch (error) {
         console.error("Error:", error);
-        alert("Failed to fetch races");
       }
     };
 
@@ -50,7 +49,7 @@ const NextRace = () => {
       setRaceStatus({
         id: data.sessionId || "no id",
         status: data.status || "no status",
-        sessionName: data.sessionName || "no name",
+        sessionName: data.sessionName || "",
       });
 
       // Progress to the next race only if it's safe
