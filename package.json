@@ -26,9 +26,9 @@
     "web-vitals": "^2.1.4"
   },
   "scripts": {
-    "start": "cross-env PORT=4000 react-scripts start",
+    "start": "cross-env NODE_OPTIONS=--max_old_space_size=2048 PORT=4000 react-scripts start",
     "dev": "cross-env REACT_APP_TIMER_DURATION=60000 react-scripts start",
-    "build": "CI=false react-scripts build",
+    "build": "cross-env NODE_OPTIONS=--max_old_space_size=2048 CI=false react-scripts build",
     "docker:build": "docker build -t racetrack-frontend .",
     "docker:run": "docker run -p 80:80 racetrack-frontend",
     "test": "react-scripts test",
@@ -53,6 +53,7 @@
     ]
   },
   "devDependencies": {
+    "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
     "cross-env": "^7.0.3"
   }
 }
