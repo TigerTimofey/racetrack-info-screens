@@ -198,9 +198,7 @@ const LapLineTracker = () => {
               entry.lapNumber === newPassingEntry.lapNumber
           );
 
-          if (exists) {
-            return prevPassingLapData;
-          }
+          if (exists) return prevPassingLapData;
 
           return [...prevPassingLapData, newPassingEntry];
         });
@@ -339,26 +337,23 @@ const LapLineTracker = () => {
             <div className="passing-laps">
               <h3>Passing Lap Data</h3>
               <div className="passing-laps-grid">
-                {passingLapData.length > 0 ? (
-                  passingLapData.map(
-                    ({ carNumber, driverName, lapNumber, lapTime }) => (
-                      <div
-                        key={`${carNumber}-${lapNumber}`}
-                        className="passing-lap-card"
-                      >
-                        <h4>
-                          {driverName} - Car {carNumber}
-                        </h4>
-                        <ul>
-                          <li>{`Lap Number: ${lapNumber}`}</li>
-                          <li>{`Lap Time: ${lapTime}`}</li>
-                        </ul>
-                      </div>
-                    )
-                  )
-                ) : (
-                  <p>No passing lap data available.</p>
-                )}
+                {cars.map((carNumber) => {
+                  const carLapData = passingLapData.filter(
+                    (entry) => entry.carNumber === carNumber
+                  );
+                  return (
+                    <div key={carNumber} className="passing-lap-card">
+                      <h4>{`Car ${carNumber}`}</h4>
+                      <ul>
+                        {carLapData.map(({ lapNumber, lapTime }) => (
+                          <li
+                            key={lapNumber}
+                          >{`Lap ${lapNumber}: ${lapTime}`}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  );
+                })}
               </div>
             </div>
 
@@ -367,10 +362,7 @@ const LapLineTracker = () => {
               <ul>
                 {fastestLapsData.map(({ carNumber, driverName, lapTime }) => (
                   <li key={carNumber}>
-                    {driverName} - Car {carNumber}:{" "}
-                    {lapTime !== "No fastest lap set yet"
-                      ? lapTime
-                      : "No fastest lap set yet"}
+                    {driverName} - Car {carNumber}: {lapTime}
                   </li>
                 ))}
               </ul>
