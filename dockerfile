@@ -2,10 +2,15 @@
 FROM node:18-alpine as build
 
 WORKDIR /app
-COPY package*.json ./
-RUN npm ci --silent
 
-# Копирование и сборка
+# Увеличиваем память для Node
+ENV NODE_OPTIONS="--max-old-space-size=4096"
+
+# Копируем только package.json сначала
+COPY package*.json ./
+RUN npm ci --silent --no-optional
+
+# Копируем остальные файлы и собираем
 COPY . .
 ENV REACT_APP_SERVER_URL=https://racetrack-backend-production.up.railway.app
 ENV CI=false
