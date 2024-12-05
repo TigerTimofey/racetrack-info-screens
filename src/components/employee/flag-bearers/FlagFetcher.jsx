@@ -30,37 +30,33 @@ const FlagFetcher = () => {
     // Функция для восстановления состояния гонки
     const restoreRaceState = async () => {
         try {
-            const response = await fetch("http://localhost:3000/race-sessions/current");
+            const response = await fetch("http://localhost:3000/race-control/current-race");
 
             if (!response.ok) {
+                // Если нет активной гонки, очищаем localStorage
+                localStorage.removeItem('currentRace');
+                localStorage.removeItem('currentTimer');
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
 
             const result = await response.json();
-            console.log("Received race state:", result);
 
-            if (result && result.id) {
+            if (result.success && result.data.sessionId !== "Unknown") {
                 // Если есть активная гонка, обновляем состояние
                 const raceData = {
-                    id: result.id,
-                    sessionName: result.sessionName,
-                    status: result.status,
-                    flag: result.currentFlag || "Safe"
+                    id: result.data.sessionId,
+                    sessionName: result.data.sessionName,
+                    status: result.data.status,
+                    flag: result.data.flag
                 };
                 setCurrentRace(raceData);
-                setCurrentFlag(raceData.flag || "Safe");
+                setCurrentFlag(raceData.flag);
                 // Обновляем localStorage только если гонка реально существует
                 localStorage.setItem('currentRace', JSON.stringify(raceData));
             } else {
                 // Если нет активной гонки, очищаем localStorage и состояние
-                const savedRace = localStorage.getItem('currentRace');
-                if (savedRace) {
-                    const raceData = JSON.parse(savedRace);
-                    setCurrentRace(raceData);
-                    setCurrentFlag(raceData.flag || "Safe");
-                    return;
-                }
-
+                localStorage.removeItem('currentRace');
+                localStorage.removeItem('currentTimer');
                 setCurrentRace({
                     id: "Unknown",
                     sessionName: "No data",
@@ -70,22 +66,17 @@ const FlagFetcher = () => {
                 setCurrentFlag("Safe");
             }
         } catch (error) {
+            // При ошибке очищаем localStorage
+            localStorage.removeItem('currentRace');
+            localStorage.removeItem('currentTimer');
             console.error("Error restoring race state:", error);
-            // При ошибке пытаемся использовать данные из localStorage
-            const savedRace = localStorage.getItem('currentRace');
-            if (savedRace) {
-                const raceData = JSON.parse(savedRace);
-                setCurrentRace(raceData);
-                setCurrentFlag(raceData.flag || "Safe");
-            } else {
-                setCurrentRace({
-                    id: "Unknown",
-                    sessionName: "No active race",
-                    status: "No data",
-                    flag: "Safe"
-                });
-                setCurrentFlag("Safe");
-            }
+            setCurrentRace({
+                id: "Unknown",
+                sessionName: "Error loading data",
+                status: "Error",
+                flag: "Safe"
+            });
+            setCurrentFlag("Safe");
         }
     };
 

@@ -1,5 +1,6 @@
 import React from "react";
 import { Route, BrowserRouter as Router, Routes } from "react-router-dom";
+import MouseTracker from "./components/effects/MouseTracker";
 import FrontDesk from "./components/employee/front-desk/FrontDesk";
 import LapLineTracker from "./components/employee/lap-line-tracker/LapLineTracker";
 import RaceControl from "./components/employee/race-control/RaceControl";
@@ -11,6 +12,7 @@ import WelcomePage from "./components/welcome-page/WelcomePage";
 
 const App = () => (
   <Router>
+    <MouseTracker />
     <Routes>
       <Route path="/" element={<WelcomePage />} />
       <Route path="/front-desk" element={<FrontDesk />} />
