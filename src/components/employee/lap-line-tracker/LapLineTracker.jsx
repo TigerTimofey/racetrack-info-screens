@@ -272,19 +272,29 @@ const LapLineTracker = () => {
     fastSocket.on("lapDataResponse", (response) => {
       console.log("RESPONSE FROM PassData: ", response);
 
-      // Update localStorage with the new lap data
-      localStorage.setItem(
-        "fastestLapsData",
-        JSON.stringify(response.fastestLapsData)
-      );
+      const updatedPassingLapData = response.passingLapData.map((entry) => ({
+        ...entry,
+        raceId: response.raceId, // Добавляем raceId
+      }));
+
+      const updatedFastestLapsData = response.fastestLapsData.map((entry) => ({
+        ...entry,
+        raceId: response.raceId, // Добавляем raceId
+      }));
+
+      // Обновляем стейт
+      setPassingLapData(updatedPassingLapData);
+      setFastestLaps(updatedFastestLapsData);
+
+      // Сохраняем данные в localStorage
       localStorage.setItem(
         "passingLapData",
-        JSON.stringify(response.passingLapData)
+        JSON.stringify(updatedPassingLapData)
       );
-
-      // Update state with the new lap data
-      setFastestLapsData(response.fastestLapsData);
-      setPassingLapData(response.passingLapData);
+      localStorage.setItem(
+        "fastestLapsData",
+        JSON.stringify(updatedFastestLapsData)
+      );
     });
 
     return () => {
@@ -299,6 +309,7 @@ const LapLineTracker = () => {
       </div>
       <h2 className="front-title">Lap Line Tracker Interface</h2>
 
+      {/* //HERE */}
       {races.length > 0 ? (
         <>
           <div className="race-selection">

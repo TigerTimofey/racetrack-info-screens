@@ -64,8 +64,12 @@ const FrontDesk = () => {
           if (data.flag === "Safe") {
             setRaceHasStarted(true);
             setStartedRaceId(data.sessionId);
+
             // Race sessions disappear from the Front Desk interface once it is safe to start.
-            handleDelete(data.sessionId);
+            setTimeout(() => {
+              handleDelete(data.sessionId);
+            }, 6000);
+
             fetchRaces();
           }
         } else {

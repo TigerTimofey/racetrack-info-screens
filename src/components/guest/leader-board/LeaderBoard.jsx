@@ -200,7 +200,7 @@ const LeaderBoard = () => {
             {!raceEnded && <Timer onTimerFinish={() => setRaceEnded(true)} />}
 
             {raceEnded && responseData.passingLapData && (
-              <div className="passing-lap-card">
+              <div className="passing-lap-card-leader">
                 <h4>Passing Laps</h4>
                 {Object.entries(
                   responseData.passingLapData.reduce((grouped, lap) => {

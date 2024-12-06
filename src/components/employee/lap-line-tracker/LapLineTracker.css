@@ -95,8 +95,8 @@
   color: white;
   text-align: left;
   width: 100%;
-  max-width: 220px; /* Ограничиваем максимальную ширину */
-  margin: 0 auto; /* Центрирование */
+  max-width: 220px;
+  margin: 0 auto;
 }
 
 .passing-lap-card h4 {
