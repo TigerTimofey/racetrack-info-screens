@@ -246,7 +246,7 @@ const FrontDesk = () => {
 
         if (response.ok) {
           setRacerName("");
-          setRacerCarId(null); // Reset the car number input field after submission
+          setRacerCarId(""); // Reset the car number input field after submission
           setSelectedRace("");
         } else {
           console.error("Error adding driver:", result);
@@ -398,15 +398,6 @@ const FrontDesk = () => {
               disabled={races.length <= 0}
             />
           </div>
-          <label>Racer Car ID:</label>
-          <input
-            type="text"
-            value={racerCarId}
-            onChange={(e) => setRacerCarId(e.target.value)}
-            // required
-            maxLength={3}
-            disabled={races.length <= 0}
-          />
 
           <div>
             <label>Choose Race:</label>
@@ -423,6 +414,17 @@ const FrontDesk = () => {
                 </option>
               ))}
             </select>
+          </div>
+          <label>Specific car number</label>
+          <div>
+            <input
+              type="text"
+              value={racerCarId}
+              onChange={(e) => setRacerCarId(e.target.value)}
+              // required
+              maxLength={3}
+              disabled={races.length <= 0}
+            />
           </div>
           <button type="submit" disabled={races.length <= 0}>
             Add Racer
