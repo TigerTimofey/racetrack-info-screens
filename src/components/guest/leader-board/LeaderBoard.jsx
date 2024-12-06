@@ -89,6 +89,42 @@ const LeaderBoard = () => {
     };
   }, [currentFlag, responseData]);
 
+  // new
+  const resetRaceState = () => {
+    setResponseMessage("");
+    setResponseData(null);
+    setRaceStatus({
+      id: "no id",
+      status: "no data",
+      sessionName: "",
+      flag: "Safe",
+    });
+    setCurrentFlag("Safe");
+    setShowLaps(false);
+    setRaceEnded(false);
+  };
+  useEffect(() => {
+    raceStatusSocket.on("newRaceStarted", (data) => {
+      console.log("New race started:", data);
+      resetRaceState(); // Reset state for the new race
+      setRaceStatus({
+        id: data.sessionId,
+        status: data.status,
+        sessionName: data.sessionName,
+        flag: data.flag || "Safe",
+      });
+    });
+
+    return () => {
+      raceStatusSocket.off("newRaceStarted"); // Clean up listener
+    };
+  }, []);
+  useEffect(() => {
+    if (raceStatus.id !== "no id") {
+      fastSocket.emit("findAllFastestLap", { raceId: raceStatus.id });
+    }
+  }, [raceStatus.id]);
+
   return (
     <div className="race-control-container">
       <div className="back-to-main" onClick={() => navigate("/")}>
@@ -98,6 +134,8 @@ const LeaderBoard = () => {
 
       {responseMessage === "OK" && responseData && (
         <>
+          {" "}
+          <Timer onTimerFinish={() => setRaceEnded(true)} />
           <div className="race-name-leader">
             <h2 className="race-name-title-leader">
               {`${raceStatus.sessionName}`}{" "}
@@ -119,7 +157,6 @@ const LeaderBoard = () => {
               )}
             </div>
           </div>
-
           <div className="response-data">
             <div className="fastest-lap-card">
               <h4>Fastest Laps</h4>
@@ -198,26 +235,27 @@ const LeaderBoard = () => {
             </div>
 
             {/* Passing Laps Card */}
-            {!raceEnded && <Timer onTimerFinish={() => setRaceEnded(true)} />}
+            {/* {!raceEnded && <Timer onTimerFinish={() => setRaceEnded(true)} />} */}
+            {/* <Timer onTimerFinish={() => setRaceEnded(true)} /> */}
 
-            {raceEnded && responseData.passingLapData && (
-              <div className="passing-lap-card-leader">
-                <h4>Passing Laps</h4>
-                {Object.entries(
-                  responseData.passingLapData.reduce((grouped, lap) => {
-                    const key = `Car ${lap.carNumber} - Driver: ${lap.driverName}`;
-                    if (!grouped[key]) grouped[key] = [];
-                    grouped[key].push(`Lap ${lap.lapNumber}: ${lap.lapTime}`);
-                    return grouped;
-                  }, {})
-                ).map(([key, laps], index) => (
-                  <div key={index} className="lap-details">
-                    <h5>{key}</h5>
-                    <p>{laps.join(" | ")}</p>
-                  </div>
-                ))}
-              </div>
-            )}
+            {/* {raceEnded && responseData.passingLapData && ( */}
+            <div className="passing-lap-card-leader">
+              <h4>Passing Laps</h4>
+              {Object.entries(
+                responseData.passingLapData.reduce((grouped, lap) => {
+                  const key = `Car ${lap.carNumber} - Driver: ${lap.driverName}`;
+                  if (!grouped[key]) grouped[key] = [];
+                  grouped[key].push(`Lap ${lap.lapNumber}: ${lap.lapTime}`);
+                  return grouped;
+                }, {})
+              ).map(([key, laps], index) => (
+                <div key={index} className="lap-details">
+                  <h5>{key}</h5>
+                  <p>{laps.join(" | ")}</p>
+                </div>
+              ))}
+            </div>
+            {/* )} */}
           </div>
         </>
       )}
