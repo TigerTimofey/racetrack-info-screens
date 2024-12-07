@@ -91,7 +91,8 @@ const NextRace = () => {
     };
   }, []);
 
-  const currentRace = races[nextRaceIndex];
+  const currentRace =
+    nextRaceIndex === 1 ? races[nextRaceIndex] : races[nextRaceIndex - 1];
 
   return (
     <div className="race-control-container">
@@ -100,7 +101,10 @@ const NextRace = () => {
       </div>
       <h2 className="front-title">Next Race Interface</h2>
 
-      {races.length > 0 && raceHasStarted ? (
+      {races.length === 0 ? (
+        <div className="no-upcoming-races no-race">No upcoming races</div>
+      ) : // ) : races.length > 0 && raceHasStarted ? (
+      races.length > 0 ? (
         currentRace && (
           <>
             <h3 className="next-race-title">Next Race</h3>
@@ -132,7 +136,7 @@ const NextRace = () => {
         </div>
       )}
 
-      {proceedToPaddrock && races.length > 0 && (
+      {proceedToPaddrock && races.length > 1 && (
         <div className="proceed-to-paddrock">
           <p>Proceed to paddock for your race</p>
         </div>
