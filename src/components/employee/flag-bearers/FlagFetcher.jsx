@@ -129,6 +129,7 @@ const FlagFetcher = () => {
       raceStatusSocket.off("flagUpdate");
     };
   }, []);
+
   const handleFlagChange = async (newFlag) => {
     if (currentRace.id === "Unknown") {
       alert("No race selected.");

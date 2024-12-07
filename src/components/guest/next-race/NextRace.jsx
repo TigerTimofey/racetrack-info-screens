@@ -17,30 +17,29 @@ const NextRace = () => {
   });
   const [nextRaceIndex, setNextRaceIndex] = useState(-1);
   const [raceHasStarted, setRaceHasStarted] = useState(false);
-  useEffect(() => {
-    const fetchRaces = async () => {
-      try {
-        const response = await fetch(
-          `${process.env.REACT_APP_SERVER_URL}/front-desk/sessions`
-        );
-        const result = await response.json();
+  const fetchRaces = async () => {
+    try {
+      const response = await fetch(
+        `${process.env.REACT_APP_SERVER_URL}/front-desk/sessions`
+      );
+      const result = await response.json();
 
-        if (response.ok) {
-          const sortedRaces = result.sort((a, b) => {
-            const dateA = new Date(a.startTime);
-            const dateB = new Date(b.startTime);
-            return dateA - dateB;
-          });
-          setRaces(sortedRaces);
-          setNextRaceIndex(1);
-        } else {
-          alert("Error fetching races: " + result.message);
-        }
-      } catch (error) {
-        console.error("Error:", error);
+      if (response.ok) {
+        const sortedRaces = result.sort((a, b) => {
+          const dateA = new Date(a.startTime);
+          const dateB = new Date(b.startTime);
+          return dateA - dateB;
+        });
+        setRaces(sortedRaces);
+        setNextRaceIndex(1);
+      } else {
+        alert("Error fetching races: " + result.message);
       }
-    };
-
+    } catch (error) {
+      console.error("Error:", error);
+    }
+  };
+  useEffect(() => {
     fetchRaces();
   }, []);
 
@@ -53,9 +52,9 @@ const NextRace = () => {
       });
 
       // Progress to the next race only if it's safe
-      if (raceHasStarted && nextRaceIndex + 1 < races.length) {
-        setNextRaceIndex(nextRaceIndex + 1);
-      }
+      // if (raceHasStarted && nextRaceIndex + 1 < races.length) {
+      //   setNextRaceIndex(nextRaceIndex + 1);
+      // }
     };
 
     raceStatusSocket.on("raceStatusUpdate", handleRaceStatusUpdate);
@@ -65,6 +64,10 @@ const NextRace = () => {
 
       if (data.flag === "Safe") {
         setRaceHasStarted(true);
+        setProceedToPaddrock(false);
+        if (raceHasStarted && nextRaceIndex + 1 < races.length) {
+          setNextRaceIndex(nextRaceIndex + 1);
+        }
       }
     });
 
@@ -77,6 +80,7 @@ const NextRace = () => {
     const handleTimerMessage = (msg) => {
       if (msg === "Timer finished") {
         setProceedToPaddrock(true);
+        fetchRaces();
       }
     };
 
@@ -87,7 +91,8 @@ const NextRace = () => {
     };
   }, []);
 
-  const currentRace = races[nextRaceIndex];
+  const currentRace =
+    nextRaceIndex === 1 ? races[nextRaceIndex] : races[nextRaceIndex - 1];
 
   return (
     <div className="race-control-container">
@@ -96,7 +101,10 @@ const NextRace = () => {
       </div>
       <h2 className="front-title">Next Race Interface</h2>
 
-      {races.length > 0 && raceHasStarted ? (
+      {races.length === 0 ? (
+        <div className="no-upcoming-races no-race">No upcoming races</div>
+      ) : // ) : races.length > 0 && raceHasStarted ? (
+      races.length > 0 ? (
         currentRace && (
           <>
             <h3 className="next-race-title">Next Race</h3>
@@ -128,7 +136,7 @@ const NextRace = () => {
         </div>
       )}
 
-      {proceedToPaddrock && races.length > 0 && (
+      {proceedToPaddrock && races.length > 1 && (
         <div className="proceed-to-paddrock">
           <p>Proceed to paddock for your race</p>
         </div>
