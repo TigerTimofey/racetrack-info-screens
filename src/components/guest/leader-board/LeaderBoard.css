@@ -52,7 +52,7 @@
 }
 
 /* Passing Lap Card */
-.passing-lap-card {
+.passing-lap-card-leader {
   background: rgba(0, 0, 0, 0.1);
   border-radius: 10px;
   padding: 20px;
@@ -77,13 +77,13 @@
   color: #fff;
 }
 
-.passing-lap-card:hover {
+.passing-lap-card-leader:hover {
   transform: translateY(-5px);
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
 }
 
 /* Passing Lap Card */
-.passing-lap-card {
+.passing-lap-card-leader {
   padding: 20px;
   background: rgba(255, 255, 255, 0.1);
   border: 2px solid #4caf50;
@@ -93,7 +93,7 @@
   text-align: left;
 }
 
-.passing-lap-card h4 {
+.passing-lap-card-leader h4 {
   font-size: 1.8rem;
   margin-bottom: 15px;
   text-transform: uppercase;
@@ -137,14 +137,17 @@
 }
 
 /* Hover effect for passing lap card */
-.passing-lap-card:hover {
+.passing-lap-card-leader:hover {
   transform: translateY(-5px);
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
   border-color: #ffd700;
 }
 
 /* name */
-
+.race-name-title-leader {
+  color: #ffd700;
+  font-weight: bold;
+}
 /* Flag */
 .flag-box {
   display: flex;
@@ -159,6 +162,8 @@
   text-transform: uppercase;
   color: white;
   font-weight: bold;
+  margin-left: auto; /* Add this to center it */
+  margin-right: auto; /* Add this to center it */
 }
 
 .flag-box:hover {
@@ -202,7 +207,7 @@
 
 /* Responsive Design for small screens */
 @media (max-width: 768px) {
-  .passing-lap-card {
+  .passing-lap-card-leader {
     padding: 15px;
   }
 

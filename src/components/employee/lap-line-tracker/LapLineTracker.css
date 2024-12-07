@@ -9,6 +9,7 @@
   justify-content: center;
   margin: 20px 0;
 }
+
 .lap-button {
   font-size: 1.5rem;
   font-weight: 700;
@@ -21,10 +22,12 @@
   cursor: pointer;
   transition: transform 0.2s, background-color 0.3s;
 }
+
 .lap-button:disabled {
   background: #999;
   cursor: not-allowed;
 }
+
 .lap-button:hover:not(:disabled) {
   background: #45a049;
   transform: translateY(-5px);
@@ -39,6 +42,7 @@
   border-radius: 10px;
   box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.15);
 }
+
 .lap-times h3,
 .fastest-laps h3 {
   font-size: 1.5rem;
@@ -46,11 +50,13 @@
   color: #ffd700;
   margin-bottom: 15px;
 }
+
 .lap-times ul,
 .fastest-laps ul {
   list-style: none;
   padding: 0;
 }
+
 .lap-times li,
 .fastest-laps li {
   font-size: 1.2rem;
@@ -70,16 +76,118 @@
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
 }
 
-/* Cards */
-.lap-times-grid {
+/* Стиль для контейнера passing-laps */
+.passing-laps-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(4, 1fr); /* 4 карточки в строке */
   gap: 20px;
   margin-top: 20px;
 }
 
-/* Card Styling */
-.lap-time-card {
+/* Стиль для каждой карточки */
+.passing-lap-card {
+  background: rgba(255, 255, 255, 0.1);
+  border: 2px solid #4caf50;
+  border-radius: 15px;
+  padding: 15px;
+  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  color: white;
+  text-align: left;
+  width: 100%;
+  max-width: 220px;
+  margin: 0 auto;
+}
+
+.passing-lap-card h4 {
+  font-size: 1.2rem;
+  margin-bottom: 12px;
+  text-transform: uppercase;
+  color: #ffd700;
+}
+
+.passing-lap-card ul {
+  list-style: none;
+  padding: 0;
+}
+
+.passing-lap-card li {
+  font-size: 1rem;
+  margin-bottom: 5px;
+  background: rgba(0, 0, 0, 0.2);
+  padding: 8px;
+  border-radius: 5px;
+}
+
+.passing-lap-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+  border-color: #ffd700;
+}
+
+/* Адаптивность для разных экранов */
+@media (max-width: 1024px) {
+  .passing-laps-grid {
+    grid-template-columns: repeat(3, 1fr); /* 3 карточки на экранах до 1024px */
+  }
+}
+
+@media (max-width: 768px) {
+  .passing-laps-grid {
+    grid-template-columns: repeat(2, 1fr); /* 2 карточки на мобильных экранах */
+  }
+
+  .passing-lap-card {
+    padding: 10px;
+  }
+
+  .passing-lap-card h4 {
+    font-size: 1rem;
+  }
+
+  .passing-lap-card li {
+    font-size: 0.9rem;
+  }
+}
+
+/* Passing Lap Data Section */
+.passing-laps {
+  margin-top: 30px;
+  padding: 20px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.15);
+}
+
+.passing-laps h3 {
+  font-size: 1.5rem;
+  text-transform: uppercase;
+  color: #ffd700;
+  margin-bottom: 15px;
+}
+
+.passing-laps ul {
+  list-style: none;
+  padding: 0;
+}
+
+.passing-laps li {
+  font-size: 1.2rem;
+  margin-bottom: 5px;
+  background: rgba(0, 0, 0, 0.2);
+  padding: 10px;
+  border-radius: 5px;
+}
+
+/* Each racer's lap card */
+.passing-laps-container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  margin-top: 30px;
+}
+
+.passing-lap-card {
   background: rgba(255, 255, 255, 0.1);
   border: 2px solid #4caf50;
   border-radius: 15px;
@@ -88,21 +196,22 @@
   transition: transform 0.3s ease, box-shadow 0.3s ease;
   color: white;
   text-align: left;
+  margin-bottom: 20px;
 }
 
-.lap-time-card h4 {
+.passing-lap-card h4 {
   font-size: 1.5rem;
   margin-bottom: 15px;
   text-transform: uppercase;
   color: #ffd700;
 }
 
-.lap-time-card ul {
+.passing-lap-card ul {
   list-style: none;
   padding: 0;
 }
 
-.lap-time-card li {
+.passing-lap-card li {
   font-size: 1.2rem;
   margin-bottom: 5px;
   background: rgba(0, 0, 0, 0.2);
@@ -110,29 +219,24 @@
   border-radius: 5px;
 }
 
-.lap-time-card:hover {
+.passing-lap-card:hover {
   transform: translateY(-5px);
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
   border-color: #ffd700;
 }
 
+/* Mobile Responsiveness */
 @media (max-width: 768px) {
-  .lap-times-grid {
-    grid-template-columns: 1fr;
+  .passing-laps-container {
+    gap: 15px;
   }
-  .lap-times {
-    padding: 15px;
-  }
-  .lap-time-card h4 {
+
+  .passing-lap-card h4 {
     font-size: 1.3rem;
   }
 }
 
 .no-race {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
   font-size: 3rem;
   font-weight: bold;
   color: yellow;
@@ -140,11 +244,13 @@
   padding: 20px;
   background-color: rgba(0, 0, 0, 0.5);
   border-radius: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
 }
 
 /* Start race Button */
-
-/* Start Race Button */
 .start-race-button {
   margin-top: 40px;
   margin-bottom: 40px;
@@ -194,72 +300,4 @@
 
 .start-race-button:hover::before {
   width: 100%;
-}
-
-/* Responsive Design */
-@media (max-width: 768px) {
-  .lap-button {
-    padding: 10px 20px;
-    font-size: 1.2rem;
-  }
-  .front-title {
-    font-size: 1.8rem;
-  }
-}
-/* Passing Lap Data Section */
-.passing-laps {
-  margin-top: 30px;
-  padding: 20px;
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 10px;
-  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.15);
-}
-
-.passing-laps h3 {
-  font-size: 1.5rem;
-  text-transform: uppercase;
-  color: #ffd700;
-  margin-bottom: 15px;
-}
-
-.passing-laps ul {
-  list-style: none;
-  padding: 0;
-}
-
-.passing-laps li {
-  font-size: 1.2rem;
-  margin-bottom: 5px;
-  background: rgba(0, 0, 0, 0.2);
-  padding: 10px;
-  border-radius: 5px;
-}
-
-/* Fastest Lap Data Section */
-.fastest-laps {
-  margin-top: 30px;
-  padding: 20px;
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 10px;
-  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.15);
-}
-
-.fastest-laps h3 {
-  font-size: 1.5rem;
-  text-transform: uppercase;
-  color: #ffd700;
-  margin-bottom: 15px;
-}
-
-.fastest-laps ul {
-  list-style: none;
-  padding: 0;
-}
-
-.fastest-laps li {
-  font-size: 1.2rem;
-  margin-bottom: 5px;
-  background: rgba(0, 0, 0, 0.2);
-  padding: 10px;
-  border-radius: 5px;
 }

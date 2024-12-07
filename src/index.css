@@ -35,3 +35,14 @@ code {
   font-size: 3.5rem;
   font-family: "Anton", sans-serif;
 }
+.race-control-container {
+  min-height: 100vh;
+  padding: 32px;
+  background: linear-gradient(135deg, #283e51, #1a2a38);
+  color: #ffffff;
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+}

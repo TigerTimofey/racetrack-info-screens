@@ -198,9 +198,7 @@ const LapLineTracker = () => {
               entry.lapNumber === newPassingEntry.lapNumber
           );
 
-          if (exists) {
-            return prevPassingLapData;
-          }
+          if (exists) return prevPassingLapData;
 
           return [...prevPassingLapData, newPassingEntry];
         });
@@ -274,19 +272,29 @@ const LapLineTracker = () => {
     fastSocket.on("lapDataResponse", (response) => {
       console.log("RESPONSE FROM PassData: ", response);
 
-      // Update localStorage with the new lap data
-      localStorage.setItem(
-        "fastestLapsData",
-        JSON.stringify(response.fastestLapsData)
-      );
+      const updatedPassingLapData = response.passingLapData.map((entry) => ({
+        ...entry,
+        raceId: response.raceId, // Добавляем raceId
+      }));
+
+      const updatedFastestLapsData = response.fastestLapsData.map((entry) => ({
+        ...entry,
+        raceId: response.raceId, // Добавляем raceId
+      }));
+
+      // Обновляем стейт
+      setPassingLapData(updatedPassingLapData);
+      setFastestLaps(updatedFastestLapsData);
+
+      // Сохраняем данные в localStorage
       localStorage.setItem(
         "passingLapData",
-        JSON.stringify(response.passingLapData)
+        JSON.stringify(updatedPassingLapData)
       );
-
-      // Update state with the new lap data
-      setFastestLapsData(response.fastestLapsData);
-      setPassingLapData(response.passingLapData);
+      localStorage.setItem(
+        "fastestLapsData",
+        JSON.stringify(updatedFastestLapsData)
+      );
     });
 
     return () => {
@@ -301,6 +309,7 @@ const LapLineTracker = () => {
       </div>
       <h2 className="front-title">Lap Line Tracker Interface</h2>
 
+      {/* //HERE */}
       {races.length > 0 ? (
         <>
           <div className="race-selection">
@@ -339,26 +348,23 @@ const LapLineTracker = () => {
             <div className="passing-laps">
               <h3>Passing Lap Data</h3>
               <div className="passing-laps-grid">
-                {passingLapData.length > 0 ? (
-                  passingLapData.map(
-                    ({ carNumber, driverName, lapNumber, lapTime }) => (
-                      <div
-                        key={`${carNumber}-${lapNumber}`}
-                        className="passing-lap-card"
-                      >
-                        <h4>
-                          {driverName} - Car {carNumber}
-                        </h4>
-                        <ul>
-                          <li>{`Lap Number: ${lapNumber}`}</li>
-                          <li>{`Lap Time: ${lapTime}`}</li>
-                        </ul>
-                      </div>
-                    )
-                  )
-                ) : (
-                  <p>No passing lap data available.</p>
-                )}
+                {cars.map((carNumber) => {
+                  const carLapData = passingLapData.filter(
+                    (entry) => entry.carNumber === carNumber
+                  );
+                  return (
+                    <div key={carNumber} className="passing-lap-card">
+                      <h4>{`Car ${carNumber}`}</h4>
+                      <ul>
+                        {carLapData.map(({ lapNumber, lapTime }) => (
+                          <li
+                            key={lapNumber}
+                          >{`Lap ${lapNumber}: ${lapTime}`}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  );
+                })}
               </div>
             </div>
 
@@ -367,10 +373,7 @@ const LapLineTracker = () => {
               <ul>
                 {fastestLapsData.map(({ carNumber, driverName, lapTime }) => (
                   <li key={carNumber}>
-                    {driverName} - Car {carNumber}:{" "}
-                    {lapTime !== "No fastest lap set yet"
-                      ? lapTime
-                      : "No fastest lap set yet"}
+                    {driverName} - Car {carNumber}: {lapTime}
                   </li>
                 ))}
               </ul>

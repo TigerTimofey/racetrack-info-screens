@@ -14,6 +14,7 @@ const FrontDesk = () => {
 
   const [sessionName, setSessionName] = useState("");
   const [racerName, setRacerName] = useState("");
+  const [racerCarId, setRacerCarId] = useState(null);
   const [startTime, setStartTime] = useState("");
   const [races, setRaces] = useState([]);
   const [selectedRace, setSelectedRace] = useState("");
@@ -64,8 +65,12 @@ const FrontDesk = () => {
           if (data.flag === "Safe") {
             setRaceHasStarted(true);
             setStartedRaceId(data.sessionId);
+
             // Race sessions disappear from the Front Desk interface once it is safe to start.
-            handleDelete(data.sessionId);
+            setTimeout(() => {
+              handleDelete(data.sessionId);
+            }, 6000);
+
             fetchRaces();
           }
         } else {
@@ -199,14 +204,20 @@ const FrontDesk = () => {
         race.drivers.map((driver) => driver.carNumber)
       );
 
-      let nextCarNumber = 1;
-      while (allCarNumbers.includes(nextCarNumber)) {
-        nextCarNumber++;
+      let carNumberToSend = racerCarId; // Default to the car number entered by the user
+
+      if (!carNumberToSend) {
+        // If the car number is null, use the logic to generate a new car number
+        let nextCarNumber = 1;
+        while (allCarNumbers.includes(nextCarNumber)) {
+          nextCarNumber++;
+        }
+        carNumberToSend = nextCarNumber; // Use the generated car number if input is null
       }
 
       const newDriver = {
         name: racerName,
-        carNumber: nextCarNumber,
+        carNumber: carNumberToSend,
       };
 
       setRaces((prevRaces) =>
@@ -235,6 +246,7 @@ const FrontDesk = () => {
 
         if (response.ok) {
           setRacerName("");
+          setRacerCarId(""); // Reset the car number input field after submission
           setSelectedRace("");
         } else {
           console.error("Error adding driver:", result);
@@ -246,6 +258,7 @@ const FrontDesk = () => {
       console.error("Selected race not found.");
     }
   };
+
   //edit racer
   const handleEditRacer = async (raceId, racer) => {
     const newName = prompt("Enter new name for the racer:", racer.name);
@@ -401,6 +414,17 @@ const FrontDesk = () => {
                 </option>
               ))}
             </select>
+          </div>
+          <label>Specific car number</label>
+          <div>
+            <input
+              type="text"
+              value={racerCarId}
+              onChange={(e) => setRacerCarId(e.target.value)}
+              // required
+              maxLength={3}
+              disabled={races.length <= 0}
+            />
           </div>
           <button type="submit" disabled={races.length <= 0}>
             Add Racer

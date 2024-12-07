@@ -98,8 +98,11 @@ const LeaderBoard = () => {
 
       {responseMessage === "OK" && responseData && (
         <>
-          <div className="race-name">
-            <h2 className="race-name-title">{`${raceStatus.sessionName}`} </h2>
+          <div className="race-name-leader">
+            <h2 className="race-name-title-leader">
+              {`${raceStatus.sessionName}`}{" "}
+            </h2>
+
             <div
               className={`flag-box ${
                 currentFlag.isChequered ? "flag-box--chequered" : ""
@@ -108,8 +111,6 @@ const LeaderBoard = () => {
                 backgroundColor: currentFlag.isChequered
                   ? "transparent"
                   : currentFlag.color,
-                display: "inline-block",
-                marginRight: "10px",
               }}
               title={currentFlag.name}
             >
@@ -200,7 +201,7 @@ const LeaderBoard = () => {
             {!raceEnded && <Timer onTimerFinish={() => setRaceEnded(true)} />}
 
             {raceEnded && responseData.passingLapData && (
-              <div className="passing-lap-card">
+              <div className="passing-lap-card-leader">
                 <h4>Passing Laps</h4>
                 {Object.entries(
                   responseData.passingLapData.reduce((grouped, lap) => {
