@@ -5,7 +5,7 @@
 ## Table of Contents
 
 🚀 [About project](#about-project)<br/>
-🚀 [Core functionality](#core-functionality)<br/>
+⚙️ [Core functionality](#core-functionality)<br/>
 💡 [How to start using the app](#how-to-start-using-the-app)<br/>
 ⚙️ [App functionality](#app-functionality)<br/>
 🔒 [Security features](#security-features)<br/>
