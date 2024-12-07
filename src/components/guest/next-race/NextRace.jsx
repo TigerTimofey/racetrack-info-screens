@@ -17,30 +17,29 @@ const NextRace = () => {
   });
   const [nextRaceIndex, setNextRaceIndex] = useState(-1);
   const [raceHasStarted, setRaceHasStarted] = useState(false);
-  useEffect(() => {
-    const fetchRaces = async () => {
-      try {
-        const response = await fetch(
-          `${process.env.REACT_APP_SERVER_URL}/front-desk/sessions`
-        );
-        const result = await response.json();
+  const fetchRaces = async () => {
+    try {
+      const response = await fetch(
+        `${process.env.REACT_APP_SERVER_URL}/front-desk/sessions`
+      );
+      const result = await response.json();
 
-        if (response.ok) {
-          const sortedRaces = result.sort((a, b) => {
-            const dateA = new Date(a.startTime);
-            const dateB = new Date(b.startTime);
-            return dateA - dateB;
-          });
-          setRaces(sortedRaces);
-          setNextRaceIndex(1);
-        } else {
-          alert("Error fetching races: " + result.message);
-        }
-      } catch (error) {
-        console.error("Error:", error);
+      if (response.ok) {
+        const sortedRaces = result.sort((a, b) => {
+          const dateA = new Date(a.startTime);
+          const dateB = new Date(b.startTime);
+          return dateA - dateB;
+        });
+        setRaces(sortedRaces);
+        setNextRaceIndex(1);
+      } else {
+        alert("Error fetching races: " + result.message);
       }
-    };
-
+    } catch (error) {
+      console.error("Error:", error);
+    }
+  };
+  useEffect(() => {
     fetchRaces();
   }, []);
 
@@ -53,9 +52,9 @@ const NextRace = () => {
       });
 
       // Progress to the next race only if it's safe
-      if (raceHasStarted && nextRaceIndex + 1 < races.length) {
-        setNextRaceIndex(nextRaceIndex + 1);
-      }
+      // if (raceHasStarted && nextRaceIndex + 1 < races.length) {
+      //   setNextRaceIndex(nextRaceIndex + 1);
+      // }
     };
 
     raceStatusSocket.on("raceStatusUpdate", handleRaceStatusUpdate);
@@ -65,6 +64,10 @@ const NextRace = () => {
 
       if (data.flag === "Safe") {
         setRaceHasStarted(true);
+        setProceedToPaddrock(false);
+        if (raceHasStarted && nextRaceIndex + 1 < races.length) {
+          setNextRaceIndex(nextRaceIndex + 1);
+        }
       }
     });
 
@@ -77,6 +80,7 @@ const NextRace = () => {
     const handleTimerMessage = (msg) => {
       if (msg === "Timer finished") {
         setProceedToPaddrock(true);
+        fetchRaces();
       }
     };
 
