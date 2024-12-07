@@ -147,23 +147,23 @@ const FlagFetcher = () => {
         }
 
         // Обновляем статус гонки на Finished
-        const response = await fetch(
-          `http://localhost:3000/race-sessions/${currentRace.id}/status`,
-          {
-            method: "PUT",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              status: "Finished",
-              flag: "Finish",
-            }),
-          }
-        );
+        // const response = await fetch(
+        //   `http://localhost:3000/race-sessions/${currentRace.id}/status`,
+        //   {
+        //     method: "PUT",
+        //     headers: {
+        //       "Content-Type": "application/json",
+        //     },
+        //     body: JSON.stringify({
+        //       status: "Finished",
+        //       flag: "Finish",
+        //     }),
+        //   }
+        // );
 
-        if (!response.ok) {
-          throw new Error("Failed to finish race");
-        }
+        // if (!response.ok) {
+        //   throw new Error("Failed to finish race");
+        // }
 
         // Очищаем локальное хранилище
         localStorage.removeItem("currentRace");

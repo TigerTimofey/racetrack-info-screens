@@ -1,22 +1,20 @@
 import React, { useEffect, useState } from "react";
 import { timerSocket } from "../../socket";
-import { raceStatusSocket } from "../../socket";
 import "./Timer.css";
 
 const Timer = ({ onTimerFinish }) => {
-    const [timer, setTimer] = useState("00:00");
+    const [timer, setTimer] = useState(() => {
+        // Пытаемся восстановить время из localStorage
+        const savedTimer = localStorage.getItem('currentTimer');
+        return savedTimer || "00:00";
+    });
 
     useEffect(() => {
-        // Проверяем сохраненное время при загрузке
-        const savedTimer = localStorage.getItem('currentTimer');
-        if (savedTimer) {
-            setTimer(savedTimer);
-        }
+        // При монтировании компонента запрашиваем текущее время у сервера
+        timerSocket.emit("getCurrentTime");
 
-        // Подписываемся на события таймера
         timerSocket.on("timeUpdate", (time) => {
             setTimer(time);
-            // Сохраняем текущее время в localStorage
             localStorage.setItem('currentTimer', time);
         });
 
@@ -25,22 +23,24 @@ const Timer = ({ onTimerFinish }) => {
                 setTimer("00:00");
                 localStorage.removeItem('currentTimer');
 
-                // Send race finished status to backend
-                raceStatusSocket.emit("updateRaceStatus", {
-                    status: "Finished",
-                    flag: "Finish"
-                });
-
                 if (onTimerFinish) {
                     onTimerFinish();
                 }
             }
         });
 
-        // Отписываемся от событий при размонтировании компонента
+        // Обработчик для получения текущего времени при подключении
+        timerSocket.on("currentTime", (time) => {
+            if (time !== "00:00") {
+                setTimer(time);
+                localStorage.setItem('currentTimer', time);
+            }
+        });
+
         return () => {
             timerSocket.off("timeUpdate");
             timerSocket.off("message");
+            timerSocket.off("currentTime");
         };
     }, [onTimerFinish]);
 
