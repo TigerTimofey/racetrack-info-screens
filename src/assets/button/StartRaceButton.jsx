@@ -19,7 +19,9 @@ const StartRaceButton = () => {
     // Fetch the upcoming race
     const fetchUpcomingRace = async () => {
       try {
-        const response = await fetch("http://localhost:3000/race-sessions");
+        const response = await fetch(
+          `${process.env.REACT_APP_SERVER_URL}/race-sessions`
+        );
         if (!response.ok) throw new Error("Failed to fetch race sessions");
 
         const raceSessions = await response.json();
@@ -56,7 +58,7 @@ const StartRaceButton = () => {
       try {
         // Update race status
         const statusResponse = await fetch(
-          `http://localhost:3000/race-sessions/${upcomingRace.id}/status`,
+          `${process.env.REACT_APP_SERVER_URL}/race-sessions/${upcomingRace.id}/status`,
           {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
@@ -66,11 +68,14 @@ const StartRaceButton = () => {
         if (!statusResponse.ok) throw new Error("Failed to update race status");
 
         // Start the timer
-        const timerResponse = await fetch(`http://localhost:3000/timer/start`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ duration: 10 }),
-        });
+        const timerResponse = await fetch(
+          `${process.env.REACT_APP_SERVER_URL}/timer/start`,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ duration: 10 }),
+          }
+        );
         if (!timerResponse.ok) throw new Error("Failed to start timer");
 
         // Notify other clients via WebSocket (raceStatusUpdate)
