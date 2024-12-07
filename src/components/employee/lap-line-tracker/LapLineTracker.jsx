@@ -25,6 +25,7 @@ const LapLineTracker = () => {
   });
   const [fastestLapsData, setFastestLapsData] = useState([]);
   const [passingLapData, setPassingLapData] = useState([]);
+  const [currentFlag, setCurrentFlag] = useState(false);
 
   useEffect(() => {
     // Listen for race status updates
@@ -41,6 +42,7 @@ const LapLineTracker = () => {
       console.log("Received flagUpdate data:", JSON.stringify(data));
       if (data.flag) {
         console.log("Flag is:", data.flag);
+        setCurrentFlag(true);
         // You can set or update state here if needed for flags
       } else {
         console.log("Flag property is missing in the data");
@@ -309,8 +311,8 @@ const LapLineTracker = () => {
       </div>
       <h2 className="front-title">Lap Line Tracker Interface</h2>
 
-      {/* //HERE */}
-      {races.length > 0 ? (
+      {/* //HERE NOT FINISH*/}
+      {races.length > 0 && currentFlag && raceStatus.status != "Finish" ? (
         <>
           <div className="race-selection">
             <label htmlFor="race-select">
@@ -382,7 +384,9 @@ const LapLineTracker = () => {
         </>
       ) : (
         <>
-          <div className="no-race">No races planned</div>
+          <div className="no-race">
+            Waiting confirmation from Safety Official
+          </div>
         </>
       )}
     </div>
