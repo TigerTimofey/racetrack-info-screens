@@ -31,7 +31,7 @@ const FlagFetcher = () => {
   const restoreRaceState = async () => {
     try {
       const response = await fetch(
-        "http://localhost:3000/race-control/current-race"
+        `${process.env.REACT_APP_SERVER_URL}/race-control/current-race`
       );
 
       if (!response.ok) {
@@ -139,32 +139,35 @@ const FlagFetcher = () => {
     try {
       if (newFlag === "Finish") {
         // Останавливаем таймер
-        const timerResponse = await fetch("http://localhost:3000/timer/stop", {
-          method: "POST",
-        });
+        const timerResponse = await fetch(
+          `${process.env.REACT_APP_SERVER_URL}/timer/stop`,
+          {
+            method: "POST",
+          }
+        );
 
         if (!timerResponse.ok) {
           throw new Error("Failed to stop timer");
         }
 
         // Обновляем статус гонки на Finished
-        // const response = await fetch(
-        //   `http://localhost:3000/race-sessions/${currentRace.id}/status`,
-        //   {
-        //     method: "PUT",
-        //     headers: {
-        //       "Content-Type": "application/json",
-        //     },
-        //     body: JSON.stringify({
-        //       status: "Finished",
-        //       flag: "Finish",
-        //     }),
-        //   }
-        // );
+        const response = await fetch(
+          `${process.env.REACT_APP_SERVER_URL}/race-sessions/${currentRace.id}/status`,
+          {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              status: "Finished",
+              flag: "Finish",
+            }),
+          }
+        );
 
-        // if (!response.ok) {
-        //   throw new Error("Failed to finish race");
-        // }
+        if (!response.ok) {
+          throw new Error("Failed to finish race");
+        }
 
         // Очищаем локальное хранилище
         localStorage.removeItem("currentRace");
