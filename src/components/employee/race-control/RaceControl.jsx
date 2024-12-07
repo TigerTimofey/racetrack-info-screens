@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { backButton } from "../../../assets/button/buttons";
 import StartRaceButton from "../../../assets/button/StartRaceButton";
+import { raceStatusSocket } from "../../../socket";
 import RaceStatusDisplay from "../../RaceStatusDisplay";
 import Timer from "../../timer/Timer";
 import FlagFetcher from "../flag-bearers/FlagFetcher";
@@ -18,10 +19,8 @@ const RaceControl = () => {
                 const result = await response.json();
 
                 if (result.success && result.data.sessionId !== "Unknown") {
-                    // Сохраняем информацию о текущей гонке
                     localStorage.setItem('currentRace', JSON.stringify(result.data));
                 } else {
-                    // Если активной гонки нет, очищаем localStorage
                     localStorage.removeItem('currentRace');
                 }
             } catch (error) {
@@ -35,7 +34,15 @@ const RaceControl = () => {
     }, []);
 
     const handleTimerFinish = () => {
-        console.log("Timer has finished in Race Control!");
+        fetch("http://localhost:3000/race-sessions")
+            .then(response => response.json())
+            .then(races => {
+                const pendingRaces = races.filter(race => race.status === "Pending");
+                if (pendingRaces.length > 0) {
+                    raceStatusSocket.emit("nextRace", pendingRaces[0]);
+                }
+            })
+            .catch(error => console.error("Error fetching next race:", error));
     };
 
     const handleStartRace = () => {

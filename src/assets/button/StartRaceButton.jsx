@@ -7,6 +7,22 @@ const StartRaceButton = () => {
   const [raceStarted, setRaceStarted] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
 
+  const fetchUpcomingRace = async () => {
+    try {
+      const response = await fetch("http://localhost:3000/race-sessions");
+      if (!response.ok) throw new Error("Failed to fetch race sessions");
+
+      const raceSessions = await response.json();
+      const pendingRaces = raceSessions.filter(
+        (race) => race.status === "Pending"
+      );
+      setUpcomingRace(pendingRaces.length > 0 ? pendingRaces[0] : null);
+    } catch (error) {
+      console.error("Error fetching race sessions:", error);
+      setErrorMessage("Could not fetch race sessions. Please try again.");
+    }
+  };
+
   useEffect(() => {
     // Проверяем localStorage при загрузке компонента
     const savedRace = localStorage.getItem("currentRace");
@@ -14,47 +30,46 @@ const StartRaceButton = () => {
       const parsedRace = JSON.parse(savedRace);
       setUpcomingRace(parsedRace);
       setRaceStarted(true);
-    }
-
-    // Fetch the upcoming race
-    const fetchUpcomingRace = async () => {
-      try {
-        const response = await fetch("http://localhost:3000/race-sessions");
-        if (!response.ok) throw new Error("Failed to fetch race sessions");
-
-        const raceSessions = await response.json();
-        const pendingRaces = raceSessions.filter(
-          (race) => race.status === "Pending"
-        );
-        setUpcomingRace(pendingRaces.length > 0 ? pendingRaces[0] : null);
-      } catch (error) {
-        console.error("Error fetching race sessions:", error);
-        setErrorMessage("Could not fetch race sessions. Please try again.");
-      }
-    };
-
-    if (!savedRace) {
+    } else {
       fetchUpcomingRace();
     }
 
-    // Listen for race updates via WebSocket
-    raceStatusSocket.on("raceStatusUpdate", (data) => {
+    // Слушаем обновления флага
+    raceStatusSocket.on("flagUpdate", (data) => {
       if (data.flag === "Finish") {
-        console.log("Race finished. Preparing the next race.");
         setRaceStarted(false);
         localStorage.removeItem("currentRace");
         fetchUpcomingRace();
       }
     });
 
+    // Слушаем информацию о следующей гонке
+    raceStatusSocket.on("nextRace", (nextRaceData) => {
+      setUpcomingRace(nextRaceData);
+      setRaceStarted(false);
+    });
+
+    // Слушаем завершение таймера
+    raceStatusSocket.on("timerFinished", () => {
+      setRaceStarted(false);
+      fetchUpcomingRace();
+    });
+
     return () => {
-      raceStatusSocket.off("raceStatusUpdate");
+      raceStatusSocket.off("flagUpdate");
+      raceStatusSocket.off("nextRace");
+      raceStatusSocket.off("timerFinished");
     };
   }, []);
+
   const handleStartRace = async () => {
     if (upcomingRace) {
       try {
-        // Update race status
+        // Убедимся, что предыдущий таймер остановлен
+        await fetch(`http://localhost:3000/timer/stop`, {
+          method: "POST",
+        });
+
         const statusResponse = await fetch(
           `http://localhost:3000/race-sessions/${upcomingRace.id}/status`,
           {
@@ -65,15 +80,12 @@ const StartRaceButton = () => {
         );
         if (!statusResponse.ok) throw new Error("Failed to update race status");
 
-        // Start the timer
+        // Запускаем таймер заново
         const timerResponse = await fetch(`http://localhost:3000/timer/start`, {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ duration: 10 }),
         });
         if (!timerResponse.ok) throw new Error("Failed to start timer");
 
-        // Notify other clients via WebSocket (raceStatusUpdate)
         raceStatusSocket.emit("updateRaceStatus", {
           sessionId: upcomingRace.id,
           status: "InProgress",
@@ -81,18 +93,12 @@ const StartRaceButton = () => {
           flag: "Safe",
         });
 
-        // Notify other clients via WebSocket (updateFlag) for flag update
         raceStatusSocket.emit("updateFlag", {
           sessionId: upcomingRace.id,
-          flag: "Safe", // This flag can be dynamically set based on the race state
+          flag: "Safe",
         });
 
-        // Save information about the current race in localStorage
         localStorage.setItem("currentRace", JSON.stringify(upcomingRace));
-
-        console.log(
-          `Race "${upcomingRace.sessionName}" started with flag "Safe".`
-        );
         setRaceStarted(true);
         setErrorMessage("");
       } catch (error) {

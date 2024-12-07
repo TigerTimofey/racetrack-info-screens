@@ -4,13 +4,11 @@ import "./Timer.css";
 
 const Timer = ({ onTimerFinish }) => {
     const [timer, setTimer] = useState(() => {
-        // Пытаемся восстановить время из localStorage
         const savedTimer = localStorage.getItem('currentTimer');
         return savedTimer || "00:00";
     });
 
     useEffect(() => {
-        // При монтировании компонента запрашиваем текущее время у сервера
         timerSocket.emit("getCurrentTime");
 
         timerSocket.on("timeUpdate", (time) => {
@@ -22,14 +20,14 @@ const Timer = ({ onTimerFinish }) => {
             if (msg === "Timer finished") {
                 setTimer("00:00");
                 localStorage.removeItem('currentTimer');
-
+                localStorage.removeItem('currentRace');
+                
                 if (onTimerFinish) {
                     onTimerFinish();
                 }
             }
         });
 
-        // Обработчик для получения текущего времени при подключении
         timerSocket.on("currentTime", (time) => {
             if (time !== "00:00") {
                 setTimer(time);
