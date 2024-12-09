@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { timerSocket } from "../../socket";
+import { raceStatusSocket, timerSocket } from "../../socket";
 import "./Timer.css";
 
 const Timer = ({ onTimerFinish }) => {
@@ -8,23 +8,78 @@ const Timer = ({ onTimerFinish }) => {
         return savedTimer || "00:00";
     });
 
+    const handleTimerFinish = async () => {
+        try {
+            const timerResponse = await fetch("http://localhost:3000/timer/stop", {
+                method: "POST",
+            });
+
+            if (!timerResponse.ok) {
+                throw new Error("Failed to stop timer");
+            }
+
+            localStorage.removeItem("currentTimer");
+            
+            const savedRace = localStorage.getItem("currentRace");
+            if (savedRace) {
+                const raceData = JSON.parse(savedRace);
+                
+                // Сначала отправляем обновление статуса
+                raceStatusSocket.emit('raceStatusUpdate', {
+                    sessionId: raceData.id,
+                    status: "Finished",
+                    sessionName: raceData.sessionName,
+                    flag: "Finish"
+                });
+
+                // Затем отправляем обновление флага
+                raceStatusSocket.emit("updateFlag", {
+                    sessionId: raceData.id,
+                    flag: "Finish",
+                });
+
+                localStorage.removeItem("currentRace");
+
+                // Запрашиваем следующую гонку
+                try {
+                    const response = await fetch("http://localhost:3000/race-sessions");
+                    if (response.ok) {
+                        const raceSessions = await response.json();
+                        const pendingRaces = raceSessions.filter(race => race.status === "Pending");
+                        if (pendingRaces.length > 0) {
+                            raceStatusSocket.emit("nextRace", pendingRaces[0]);
+                        }
+                    }
+                } catch (error) {
+                    console.error("Error fetching next race:", error);
+                }
+            }
+
+            setTimer("00:00");
+
+            if (onTimerFinish) {
+                onTimerFinish();
+            }
+        } catch (error) {
+            console.error("Error finishing timer:", error);
+        }
+    };
+
     useEffect(() => {
         timerSocket.emit("getCurrentTime");
 
         timerSocket.on("timeUpdate", (time) => {
             setTimer(time);
             localStorage.setItem('currentTimer', time);
+            
+            if (time === "00:00") {
+                handleTimerFinish();
+            }
         });
 
-        timerSocket.on("message", (msg) => {
+        timerSocket.on("message", async (msg) => {
             if (msg === "Timer finished") {
-                setTimer("00:00");
-                localStorage.removeItem('currentTimer');
-                localStorage.removeItem('currentRace');
-                
-                if (onTimerFinish) {
-                    onTimerFinish();
-                }
+                await handleTimerFinish();
             }
         });
 

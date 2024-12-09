@@ -16,23 +16,50 @@ const StartRaceButton = () => {
       const pendingRaces = raceSessions.filter(
         (race) => race.status === "Pending"
       );
-      setUpcomingRace(pendingRaces.length > 0 ? pendingRaces[0] : null);
+      
+      if (pendingRaces.length > 0) {
+        setUpcomingRace(pendingRaces[0]);
+        setRaceStarted(false);
+      } else {
+        setUpcomingRace(null);
+      }
     } catch (error) {
       console.error("Error fetching race sessions:", error);
       setErrorMessage("Could not fetch race sessions. Please try again.");
     }
   };
 
-  useEffect(() => {
-    // Проверяем localStorage при загрузке компонента
+  // Функция для проверки и обновления текущей гонки
+  const checkAndUpdateRace = async () => {
     const savedRace = localStorage.getItem("currentRace");
     if (savedRace) {
-      const parsedRace = JSON.parse(savedRace);
-      setUpcomingRace(parsedRace);
-      setRaceStarted(true);
+      const raceData = JSON.parse(savedRace);
+      // Проверяем статус сохраненной гонки
+      try {
+        const response = await fetch(`http://localhost:3000/race-sessions/${raceData.id}`);
+        if (response.ok) {
+          const currentRace = await response.json();
+          if (currentRace.status === "Finished" || currentRace.status === "Pending") {
+            localStorage.removeItem("currentRace");
+            setRaceStarted(false);
+            fetchUpcomingRace();
+          } else if (currentRace.status === "InProgress") {
+            setUpcomingRace(currentRace);
+            setRaceStarted(true);
+          }
+        }
+      } catch (error) {
+        console.error("Error checking race status:", error);
+        localStorage.removeItem("currentRace");
+        fetchUpcomingRace();
+      }
     } else {
       fetchUpcomingRace();
     }
+  };
+
+  useEffect(() => {
+    checkAndUpdateRace();
 
     // Слушаем обновления флага
     raceStatusSocket.on("flagUpdate", (data) => {
@@ -43,20 +70,42 @@ const StartRaceButton = () => {
       }
     });
 
+    // Слушаем обновления статуса гонки
+    raceStatusSocket.on("raceStatusUpdate", (data) => {
+      console.log("Race status update received:", data);
+      if (data.status === "Finished") {
+        setRaceStarted(false);
+        localStorage.removeItem("currentRace");
+        fetchUpcomingRace();
+      }
+    });
+
     // Слушаем информацию о следующей гонке
     raceStatusSocket.on("nextRace", (nextRaceData) => {
-      setUpcomingRace(nextRaceData);
-      setRaceStarted(false);
+      console.log("Next race data received:", nextRaceData);
+      if (nextRaceData) {
+        setUpcomingRace(nextRaceData);
+        setRaceStarted(false);
+      } else {
+        fetchUpcomingRace();
+      }
     });
 
     // Слушаем завершение таймера
     raceStatusSocket.on("timerFinished", () => {
+      console.log("Timer finished event received");
       setRaceStarted(false);
+      localStorage.removeItem("currentRace");
       fetchUpcomingRace();
     });
 
+    // Периодически проверяем статус гонки каждые 2 секунды
+    const interval = setInterval(checkAndUpdateRace, 2000);
+
     return () => {
+      clearInterval(interval);
       raceStatusSocket.off("flagUpdate");
+      raceStatusSocket.off("raceStatusUpdate");
       raceStatusSocket.off("nextRace");
       raceStatusSocket.off("timerFinished");
     };
@@ -65,7 +114,6 @@ const StartRaceButton = () => {
   const handleStartRace = async () => {
     if (upcomingRace) {
       try {
-        // Убедимся, что предыдущий таймер остановлен
         await fetch(`http://localhost:3000/timer/stop`, {
           method: "POST",
         });
@@ -80,7 +128,6 @@ const StartRaceButton = () => {
         );
         if (!statusResponse.ok) throw new Error("Failed to update race status");
 
-        // Запускаем таймер заново
         const timerResponse = await fetch(`http://localhost:3000/timer/start`, {
           method: "POST",
         });

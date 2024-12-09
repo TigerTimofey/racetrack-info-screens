@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { raceStatusSocket } from '../socket';
+import { raceStatusSocket, timerSocket } from '../socket';
 import './RaceStatusDisplay.css';
 
 const RaceStatusDisplay = () => {
@@ -22,14 +22,30 @@ const RaceStatusDisplay = () => {
                 if (result.success && result.data.sessionId !== "Unknown") {
                     setRaceStatus(result.data);
                     localStorage.setItem('currentRace', JSON.stringify(result.data));
+                } else {
+                    // Если нет активной гонки, очищаем состояние
+                    clearRaceStatus();
                 }
             } catch (error) {
                 console.error("Failed to fetch current race:", error);
+                clearRaceStatus();
             }
+        };
+
+        const clearRaceStatus = () => {
+            const defaultStatus = {
+                id: "Unknown",
+                status: "No data",
+                sessionName: "No active race",
+                flag: "None"
+            };
+            setRaceStatus(defaultStatus);
+            localStorage.removeItem('currentRace');
         };
 
         fetchCurrentRace();
 
+        // Слушаем обновления статуса гонки
         raceStatusSocket.on("raceStatusUpdate", (data) => {
             const updatedStatus = {
                 id: data.sessionId || "Unknown",
@@ -41,8 +57,22 @@ const RaceStatusDisplay = () => {
             localStorage.setItem('currentRace', JSON.stringify(updatedStatus));
         });
 
+        // Слушаем завершение таймера
+        timerSocket.on("message", (msg) => {
+            if (msg === "Timer finished") {
+                clearRaceStatus();
+            }
+        });
+
+        // Слушаем событие timerFinished
+        raceStatusSocket.on("timerFinished", () => {
+            clearRaceStatus();
+        });
+
         return () => {
             raceStatusSocket.off("raceStatusUpdate");
+            raceStatusSocket.off("timerFinished");
+            timerSocket.off("message");
         };
     }, []);
 
