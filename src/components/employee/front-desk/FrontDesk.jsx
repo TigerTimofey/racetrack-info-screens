@@ -65,13 +65,20 @@ const FrontDesk = () => {
           if (data.flag === "Safe") {
             setRaceHasStarted(true);
             setStartedRaceId(data.sessionId);
-
-            // Race sessions disappear from the Front Desk interface once it is safe to start.
             setTimeout(() => {
-              handleDelete(data.sessionId);
-            }, 6000);
+              setRaces((prevRaces) =>
+                prevRaces.filter((race) => race.id !== data.sessionId)
+              );
+            }, 5000);
+            // Race sessions disappear from the Front Desk interface once it is safe to start.
+            // setTimeout(() => {
+            //   handleDelete(data.sessionId);
+            // }, 6000);
 
             fetchRaces();
+          }
+          if (data.flag === "Finish") {
+            handleDelete(data.sessionId);
           }
         } else {
           console.log("Flag property is missing in the data");

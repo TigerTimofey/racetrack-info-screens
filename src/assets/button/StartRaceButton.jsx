@@ -16,7 +16,7 @@ const StartRaceButton = () => {
       const pendingRaces = raceSessions.filter(
         (race) => race.status === "Pending"
       );
-      
+
       if (pendingRaces.length > 0) {
         setUpcomingRace(pendingRaces[0]);
         setRaceStarted(false);
@@ -36,10 +36,15 @@ const StartRaceButton = () => {
       const raceData = JSON.parse(savedRace);
       // Проверяем статус сохраненной гонки
       try {
-        const response = await fetch(`http://localhost:3000/race-sessions/${raceData.id}`);
+        const response = await fetch(
+          `http://localhost:3000/race-sessions/${raceData.id}`
+        );
         if (response.ok) {
           const currentRace = await response.json();
-          if (currentRace.status === "Finished" || currentRace.status === "Pending") {
+          if (
+            currentRace.status === "Finished" ||
+            currentRace.status === "Pending"
+          ) {
             localStorage.removeItem("currentRace");
             setRaceStarted(false);
             fetchUpcomingRace();
