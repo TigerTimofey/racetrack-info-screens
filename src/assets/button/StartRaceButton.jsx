@@ -119,7 +119,7 @@ const StartRaceButton = () => {
         });
 
         const statusResponse = await fetch(
-          `http://localhost:3000/race-sessions/${upcomingRace.id}/status`,
+          `${process.env.REACT_APP_SERVER_URL}/race-sessions/${upcomingRace.id}/status`,
           {
             method: "PUT",
             headers: { "Content-Type": "application/json" },

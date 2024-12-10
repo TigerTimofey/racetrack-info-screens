@@ -31,7 +31,7 @@ const FlagFetcher = () => {
   const restoreRaceState = async () => {
     try {
       const response = await fetch(
-        "http://localhost:3000/race-control/current-race"
+        `${process.env.REACT_APP_SERVER_URL}/race-control/current-race`
       );
 
       if (!response.ok) {
@@ -139,9 +139,12 @@ const FlagFetcher = () => {
     try {
       if (newFlag === "Finish") {
         // Останавливаем таймер
-        const timerResponse = await fetch("http://localhost:3000/timer/stop", {
-          method: "POST",
-        });
+        const timerResponse = await fetch(
+          `${process.env.REACT_APP_SERVER_URL}/timer/stop`,
+          {
+            method: "POST",
+          }
+        );
 
         if (!timerResponse.ok) {
           throw new Error("Failed to stop timer");
