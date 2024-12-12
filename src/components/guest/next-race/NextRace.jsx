@@ -16,6 +16,7 @@ const NextRace = () => {
     sessionName: "",
   });
   const [nextRaceIndex, setNextRaceIndex] = useState(-1);
+
   const [raceHasStarted, setRaceHasStarted] = useState(false);
   const fetchRaces = async () => {
     try {
@@ -52,9 +53,9 @@ const NextRace = () => {
       });
 
       // Progress to the next race only if it's safe
-      // if (raceHasStarted && nextRaceIndex + 1 < races.length) {
-      //   setNextRaceIndex(nextRaceIndex + 1);
-      // }
+      if (raceHasStarted && nextRaceIndex + 1 < races.length) {
+        setNextRaceIndex(nextRaceIndex + 1);
+      }
     };
 
     raceStatusSocket.on("raceStatusUpdate", handleRaceStatusUpdate);
@@ -62,10 +63,10 @@ const NextRace = () => {
     raceStatusSocket.on("flagUpdate", (data) => {
       console.log("Received flagUpdate data:", JSON.stringify(data));
 
-      if (data.flag === "Safe") {
+      if (data.flag === "Finish") {
         setRaceHasStarted(true);
         setProceedToPaddrock(false);
-        if (raceHasStarted && nextRaceIndex + 1 < races.length) {
+        if (raceHasStarted && nextRaceIndex + 1 < races.length + 1) {
           setNextRaceIndex(nextRaceIndex + 1);
         }
       }
