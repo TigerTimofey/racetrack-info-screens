@@ -40,6 +40,9 @@ const LapLineTracker = () => {
     // Listen for flag updates
     raceStatusSocket.on("flagUpdate", (data) => {
       console.log("Received flagUpdate data:", JSON.stringify(data));
+      if (data.flag === "Finish") {
+        setRaceEnded(true);
+      }
       if (data.flag) {
         console.log("Flag is:", data.flag);
         setCurrentFlag(true);

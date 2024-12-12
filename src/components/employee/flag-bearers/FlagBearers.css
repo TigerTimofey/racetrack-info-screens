@@ -212,3 +212,26 @@
     font-size: 0.9rem;
   }
 }
+
+.finish-race-button {
+  padding: 12px 24px;
+  background: linear-gradient(135deg, #e27f38, #987256);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-size: 1rem;
+  font-weight: 600;
+  font-family: "Poppins", sans-serif;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 4px 15px rgba(175, 129, 76, 0.3);
+}
+
+.finish-race-button:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 20px rgba(76, 175, 80, 0.4);
+}

@@ -6,6 +6,7 @@ const StartRaceButton = () => {
   const [upcomingRace, setUpcomingRace] = useState(null);
   const [raceStarted, setRaceStarted] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+  const [showFinish, setShowFinish] = useState(false);
 
   const fetchUpcomingRace = async () => {
     try {
@@ -19,6 +20,7 @@ const StartRaceButton = () => {
 
       if (pendingRaces.length > 0) {
         setUpcomingRace(pendingRaces[0]);
+
         setRaceStarted(false);
       } else {
         setUpcomingRace(null);
@@ -28,6 +30,7 @@ const StartRaceButton = () => {
       setErrorMessage("Could not fetch race sessions. Please try again.");
     }
   };
+  // useEffect(()=>{ setShowFinish(true);},[])
 
   // Функция для проверки и обновления текущей гонки
   const checkAndUpdateRace = async () => {
@@ -47,6 +50,7 @@ const StartRaceButton = () => {
           ) {
             localStorage.removeItem("currentRace");
             setRaceStarted(false);
+
             fetchUpcomingRace();
           } else if (currentRace.status === "InProgress") {
             setUpcomingRace(currentRace);
@@ -70,6 +74,7 @@ const StartRaceButton = () => {
     raceStatusSocket.on("flagUpdate", (data) => {
       if (data.flag === "Finish") {
         setRaceStarted(false);
+        setShowFinish(true);
         localStorage.removeItem("currentRace");
         fetchUpcomingRace();
       }
@@ -90,6 +95,7 @@ const StartRaceButton = () => {
       console.log("Next race data received:", nextRaceData);
       if (nextRaceData) {
         setUpcomingRace(nextRaceData);
+
         setRaceStarted(false);
       } else {
         fetchUpcomingRace();
@@ -98,7 +104,14 @@ const StartRaceButton = () => {
 
     // Слушаем завершение таймера
     raceStatusSocket.on("timerFinished", () => {
-      console.log("Timer finished event received");
+      if (upcomingRace && upcomingRace.status === "InProgress") {
+        setShowFinish(true);
+        console.log(
+          "Timer finished and race is in progress. Showing Finish button."
+        );
+      } else {
+        console.log("Timer finished but no race in progress.");
+      }
       setRaceStarted(false);
       localStorage.removeItem("currentRace");
       fetchUpcomingRace();
@@ -162,18 +175,34 @@ const StartRaceButton = () => {
 
   return (
     <div>
-      {upcomingRace ? (
+      {showFinish ? (
         <button
-          onClick={handleStartRace}
-          className={`start-race-button ${raceStarted ? "started" : ""}`}
-          disabled={raceStarted}
+          onClick={() => {
+            setShowFinish(false);
+            setRaceStarted(false);
+            localStorage.removeItem("currentRace");
+            fetchUpcomingRace();
+          }}
+          className="finish-race-button"
         >
-          {raceStarted
-            ? `Race in progress: ${upcomingRace.sessionName}`
-            : `Start Race: ${upcomingRace.sessionName}`}
+          Finish
         </button>
       ) : (
-        <p>No upcoming races available</p>
+        <>
+          {upcomingRace && (
+            <button
+              onClick={handleStartRace}
+              className={`start-race-button ${raceStarted ? "started" : ""}`}
+              disabled={raceStarted}
+            >
+              {raceStarted
+                ? `Race in progress: ${upcomingRace.sessionName}`
+                : `Start Race: ${upcomingRace.sessionName}`}
+            </button>
+          )}
+
+          {!upcomingRace && <p>No upcoming races available</p>}
+        </>
       )}
 
       {errorMessage && <p className="error-message">{errorMessage}</p>}

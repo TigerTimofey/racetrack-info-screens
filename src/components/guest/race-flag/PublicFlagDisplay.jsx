@@ -95,7 +95,7 @@ const PublicFlagDisplay = () => {
           Safe: "#2ecc71",
           Hazard: "#f1c40f",
           Danger: "#e74c3c",
-          Finish: null,
+          Finish: { isChequered: true },
         };
 
         const updatedFlag = {
@@ -133,6 +133,9 @@ const PublicFlagDisplay = () => {
         <div className="race-info-display">
           <h3>{raceStatus.sessionName}</h3>
           <p className="race-status">Status: {raceStatus.status}</p>
+          {raceStatus.status === "Finished" && (
+            <p>Race mode changes to "Danger"</p>
+          )}
         </div>
 
         <div className="current-flag-display">

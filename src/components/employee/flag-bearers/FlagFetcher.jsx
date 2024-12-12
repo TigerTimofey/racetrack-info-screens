@@ -170,6 +170,7 @@ const FlagFetcher = () => {
 
       setCurrentFlag(newFlag);
       setUpdateMessage(`Flag successfully updated to: ${newFlag}`);
+
       setTimeout(() => setUpdateMessage(""), 5000);
     } catch (error) {
       console.error("Error updating flag:", error);
@@ -211,25 +212,31 @@ const FlagFetcher = () => {
       {/* Flag options */}
       {currentRace.id !== "Unknown" && (
         <div className="flag-circles-container">
-          {flagOptions.map((flag) => (
-            <div
-              key={flag.name}
-              className={`flag-circle ${
-                currentFlag === flag.name ? "active-flag" : ""
-              } ${flag.isChequered ? "chequered-flag" : ""}`}
-              style={{
-                backgroundColor: flag.isChequered ? "transparent" : flag.color,
-              }}
-              onClick={() => handleFlagChange(flag.name)}
-              title={flag.name}
-            >
-              {flag.isChequered ? (
-                <div className="chequered-pattern"></div>
-              ) : (
-                <span className="flag-name">{flag.name}</span>
-              )}
-            </div>
-          ))}
+          {currentFlag !== "Finish" &&
+            flagOptions.map((flag) => (
+              <div
+                key={flag.name}
+                className={`flag-circle ${
+                  currentFlag === flag.name ? "active-flag" : ""
+                } ${flag.isChequered ? "chequered-flag" : ""}`}
+                style={{
+                  backgroundColor: flag.isChequered
+                    ? "transparent"
+                    : flag.color,
+                }}
+                onClick={() => handleFlagChange(flag.name)}
+                title={flag.name}
+              >
+                {flag.isChequered ? (
+                  <div className="chequered-pattern"></div>
+                ) : (
+                  <span className="flag-name">{flag.name}</span>
+                )}
+              </div>
+            ))}
+          {/* {currentFlag === "Finish" && (
+            <button className="finish-race-button">Finish race</button>
+          )} */}
         </div>
       )}
     </div>
