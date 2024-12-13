@@ -1,6 +1,6 @@
 # Racetrack Info-Screens
 
-[![Live Demo](https://img.shields.io/badge/Live%20Demo-Available-blue)](https://vimeo.com/1035353693/6b7174d499?share=copy)
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-Available-blue)](https://www.youtube.com/watch?v=LbCnJom4Uds)
 
 ## Table of Contents
 
