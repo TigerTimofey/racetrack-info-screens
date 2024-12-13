@@ -63,7 +63,7 @@ const NextRace = () => {
     raceStatusSocket.on("flagUpdate", (data) => {
       console.log("Received flagUpdate data:", JSON.stringify(data));
 
-      if (data.flag === "Finish") {
+      if (data.flag === "Finish" || data.flag === "Safe") {
         setRaceHasStarted(true);
         setProceedToPaddrock(false);
         fetchRaces();
