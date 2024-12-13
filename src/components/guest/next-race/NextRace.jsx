@@ -66,6 +66,7 @@ const NextRace = () => {
       if (data.flag === "Finish") {
         setRaceHasStarted(true);
         setProceedToPaddrock(false);
+        fetchRaces();
         if (raceHasStarted && nextRaceIndex + 1 < races.length + 1) {
           setNextRaceIndex(nextRaceIndex + 1);
         }

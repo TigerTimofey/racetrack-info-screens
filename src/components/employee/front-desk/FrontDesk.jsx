@@ -176,7 +176,9 @@ const FrontDesk = () => {
           method: "DELETE",
         }
       );
-
+      if (response.ok) {
+        fetchRaces();
+      }
       if (!response.ok) {
         alert("Failed to delete race session.");
       }
